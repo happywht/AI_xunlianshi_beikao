@@ -688,6 +688,124 @@
             color: var(--wrong);
         }
 
+        /* Question List Modal */
+        .question-list-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 16px;
+        }
+
+        .question-list-title {
+            font-family: var(--font-serif);
+            font-size: 1.15rem;
+            font-weight: 700;
+            color: var(--primary);
+            letter-spacing: 0.3px;
+        }
+
+        .question-list-count {
+            font-family: var(--font-family);
+            font-size: 0.82rem;
+            color: var(--text-hint);
+            background: var(--bg);
+            padding: 4px 10px;
+            border-radius: 12px;
+        }
+
+        .question-list-tabs {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 16px;
+            flex-wrap: wrap;
+        }
+
+        .question-list-tab {
+            padding: 6px 14px;
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            background: var(--card-bg);
+            font-family: var(--font-family);
+            font-size: 0.78rem;
+            font-weight: 500;
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: var(--transition-fast);
+        }
+
+        .question-list-tab:hover {
+            border-color: var(--accent);
+            color: var(--accent);
+        }
+
+        .question-list-tab.active {
+            background: var(--primary);
+            color: var(--accent-light);
+            border-color: var(--primary);
+        }
+
+        .question-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(42px, 1fr));
+            gap: 8px;
+            max-height: 60vh;
+            overflow-y: auto;
+            padding: 4px;
+        }
+
+        .question-grid-item {
+            aspect-ratio: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 2px solid var(--border);
+            border-radius: var(--radius-sm);
+            background: var(--card-bg);
+            font-family: var(--font-family);
+            font-size: 0.82rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            cursor: pointer;
+            transition: var(--transition-fast);
+            position: relative;
+        }
+
+        .question-grid-item:hover {
+            border-color: var(--accent);
+            transform: scale(1.05);
+            box-shadow: var(--shadow-hover);
+        }
+
+        .question-grid-item:active {
+            transform: scale(0.95);
+        }
+
+        .question-grid-item.current {
+            border-color: var(--accent);
+            border-width: 3px;
+            box-shadow: 0 0 0 3px var(--accent-glow);
+        }
+
+        .question-grid-item.correct {
+            background: var(--correct-light);
+            border-color: var(--correct-border);
+            color: var(--correct);
+        }
+
+        .question-grid-item.wrong {
+            background: var(--wrong-light);
+            border-color: var(--wrong-border);
+            color: var(--wrong);
+        }
+
+        .question-grid-item .item-status {
+            position: absolute;
+            top: 2px;
+            right: 2px;
+            font-size: 0.6rem;
+            line-height: 1;
+        }
+
         /* Completion Summary */
         .completion-summary {
             text-align: center;
@@ -1764,6 +1882,10 @@
             <span class="btn-icon">📕</span>
             <span>错题本</span>
             <span id="wrongBookCount"></span>
+        </button>
+        <button class="bottom-btn" id="btnQuestionList">
+            <span class="btn-icon">📋</span>
+            <span>目录</span>
         </button>
         <button class="bottom-btn" id="btnModeSwitch">
             <span class="btn-icon">🔄</span>
@@ -2863,6 +2985,113 @@
                         toast.parentNode.removeChild(toast);
                     }
                 }, 3000);
+            },
+
+            showQuestionList() {
+                var overlay = document.getElementById('modalOverlay');
+                var content = document.getElementById('modalContent');
+                var state = State.getCurrent();
+                var currentCategory = State.getCategory();
+                var currentQIndex = State.getCurrentQuestionIndex();
+
+                // Category labels
+                var categoryLabels = {
+                    all: '全部',
+                    judge: '判断题',
+                    single: '单选题',
+                    multi: '多选题'
+                };
+
+                // Build modal HTML
+                var html = '<div class="modal-header">' +
+                    '<h2 class="modal-title">题目目录</h2>' +
+                    '<button class="modal-close-btn" id="questionListCloseBtn">&times;</button>' +
+                    '</div><div class="modal-body">';
+
+                // Category tabs
+                html += '<div class="question-list-tabs">';
+                var categories = ['all', 'judge', 'single', 'multi'];
+                for (var i = 0; i < categories.length; i++) {
+                    var cat = categories[i];
+                    var activeClass = cat === currentCategory ? ' active' : '';
+                    html += '<button class="question-list-tab' + activeClass + '" data-category="' + cat + '">' +
+                        categoryLabels[cat] + '</button>';
+                }
+                html += '</div>';
+
+                // Question count
+                html += '<div class="question-list-header">' +
+                    '<span class="question-list-count">共 ' + state.order.length + ' 题</span>' +
+                    '</div>';
+
+                // Question grid
+                html += '<div class="question-grid" id="questionGrid">';
+
+                for (var i = 0; i < state.order.length; i++) {
+                    var qIndex = state.order[i];
+                    var question = QUESTIONS[qIndex];
+                    if (!question) continue;
+
+                    var itemClass = 'question-grid-item';
+                    var statusIcon = '';
+
+                    // Check if current question
+                    if (qIndex === currentQIndex) {
+                        itemClass += ' current';
+                    }
+
+                    // Check if answered
+                    if (state.answered[qIndex] !== undefined) {
+                        var isCorrect = state.answered[qIndex] === question.answer;
+                        if (isCorrect) {
+                            itemClass += ' correct';
+                            statusIcon = '<span class="item-status">✓</span>';
+                        } else {
+                            itemClass += ' wrong';
+                            statusIcon = '<span class="item-status">✗</span>';
+                        }
+                    }
+
+                    html += '<div class="' + itemClass + '" data-question-index="' + qIndex + '">' +
+                        (i + 1) + statusIcon + '</div>';
+                }
+
+                html += '</div></div>';
+
+                content.innerHTML = html;
+                overlay.classList.add('visible');
+
+                // Bind close button
+                document.getElementById('questionListCloseBtn').addEventListener('click', function() {
+                    overlay.classList.remove('visible');
+                });
+
+                // Bind category tabs
+                var tabs = content.querySelectorAll('.question-list-tab');
+                for (var i = 0; i < tabs.length; i++) {
+                    tabs[i].addEventListener('click', function() {
+                        var newCategory = this.getAttribute('data-category');
+                        State.setCategory(newCategory);
+                        UI.render();
+                        UI.showQuestionList();
+                    });
+                }
+
+                // Bind question grid items
+                var gridItems = content.querySelectorAll('.question-grid-item');
+                for (var i = 0; i < gridItems.length; i++) {
+                    gridItems[i].addEventListener('click', function() {
+                        var targetIndex = parseInt(this.getAttribute('data-question-index'));
+                        var position = state.order.indexOf(targetIndex);
+                        if (position !== -1) {
+                            state.currentIndex = position;
+                            Storage.saveProgress(state);
+                            if (typeof Sync !== 'undefined' && Sync.saveToCloud) Sync.saveToCloud();
+                            overlay.classList.remove('visible');
+                            UI.render();
+                        }
+                    });
+                }
             }
         };
     })();
@@ -3124,6 +3353,13 @@
             });
         }
 
+        // --- Question List Button ---
+        function bindQuestionListButton() {
+            document.getElementById('btnQuestionList').addEventListener('click', function() {
+                UI.showQuestionList();
+            });
+        }
+
         // --- Init ---
         async function init() {
             await loadQuestions();
@@ -3135,6 +3371,7 @@
             Events.init();
             bindResetButton();
             bindModeSwitchConfirmation();
+            bindQuestionListButton();
 
             // Pull latest from Firebase when tab becomes visible
             document.addEventListener('visibilitychange', function() {
