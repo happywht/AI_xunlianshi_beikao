@@ -3,6 +3,8 @@
 一个用于备考「人工智能训练师三级」职业资格认证的在线刷题系统，支持顺序练习、随机刷题、错题本等功能，并可通过 Firebase 实现多设备数据同步。
 官方题库来源：[上海交通大学资源下载页](https://gjzs.sjtu.edu.cn/skill)
 
+> 实操题请参考: [Morriaty-The-Murderer/2025-AI-Trainer-practices](https://github.com/Morriaty-The-Murderer/2025-AI-Trainer-practices)
+
 ## 功能特性
 
 ### 刷题模式
