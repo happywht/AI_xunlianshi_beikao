@@ -3261,11 +3261,20 @@
                         var orderIndex = state.order.indexOf(qIndex);
                         if (orderIndex !== -1) {
                             state.currentIndex = orderIndex;
+                            // 清除该题的答题记录，允许重新作答
+                            if (state.answered[qIndex] !== undefined) {
+                                if (state.answered[qIndex] === QUESTIONS[qIndex].answer) {
+                                    state.score--;
+                                }
+                                state.totalAnswered--;
+                                delete state.answered[qIndex];
+                            }
                             Storage.saveProgress(state);
                             if (typeof Sync !== 'undefined' && Sync.saveToCloud) Sync.saveToCloud();
                         }
                         UI.hideWrongBook();
                         UI.render();
+                        UI.showToast('已清除答题记录，请重新作答', 'info');
                     }
                 });
 
