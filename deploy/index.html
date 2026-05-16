@@ -1829,6 +1829,7 @@
         <button class="cat-tab" data-category="judge">判断题</button>
         <button class="cat-tab" data-category="single">单选题</button>
         <button class="cat-tab" data-category="multi">多选题</button>
+        <button class="cat-tab" data-category="wrong">错题重做</button>
     </div>
 
     <!-- ==================== Question Container ==================== -->
@@ -2472,6 +2473,9 @@
         }
 
         function getFilteredIndices(cat) {
+            if (cat === 'wrong') {
+                return Storage.getWrongList().slice();
+            }
             var indices = [];
             for (var i = 0; i < QUESTIONS.length; i++) {
                 if (cat === 'all' || QUESTIONS[i].type === cat) {
@@ -2644,7 +2648,14 @@
                 this.renderCategoryTabs();
                 var question = State.getCurrentQuestion();
                 if (!question) {
-                    document.getElementById('questionText').textContent = '题目加载失败，请刷新页面重试。';
+                    if (State.getCategory() === 'wrong') {
+                        document.getElementById('questionText').textContent = '暂无错题，继续保持！';
+                        document.getElementById('judgeButtons').style.display = 'none';
+                        document.getElementById('choiceOptions').style.display = 'none';
+                        document.getElementById('btnSubmit').style.display = 'none';
+                    } else {
+                        document.getElementById('questionText').textContent = '题目加载失败，请刷新页面重试。';
+                    }
                     document.getElementById('feedbackContainer').classList.remove('visible');
                     this.renderNavigation();
                     return;
@@ -2845,11 +2856,30 @@
                 if (isCorrect) {
                     feedbackBox.classList.add('feedback-correct');
                     feedbackTitle.textContent = '✓ 回答正确';
+                    feedbackExplanation.textContent = question.explanation;
                 } else {
                     feedbackBox.classList.add('feedback-wrong');
                     feedbackTitle.textContent = '✗ 回答错误';
+                    feedbackExplanation.innerHTML = question.explanation +
+                        '<br><button class="redo-btn" style="margin-top:10px;background:var(--primary);color:#fff;' +
+                        'border:none;border-radius:var(--radius-sm);padding:8px 18px;font-size:0.88rem;' +
+                        'font-weight:600;cursor:pointer;font-family:var(--font-family);">重做本题</button>';
+                    feedbackExplanation.querySelector('.redo-btn').addEventListener('click', function() {
+                        var qIndex = State.getCurrentQuestionIndex();
+                        var state = State.getCurrent();
+                        if (state.answered[qIndex] !== undefined) {
+                            if (state.answered[qIndex] === question.answer) {
+                                state.score--;
+                            }
+                            state.totalAnswered--;
+                            delete state.answered[qIndex];
+                        }
+                        Storage.saveProgress(state);
+                        if (typeof Sync !== 'undefined' && Sync.saveToCloud) Sync.saveToCloud();
+                        UI.render();
+                        UI.showToast('已清除答题记录，请重新作答', 'info');
+                    });
                 }
-                feedbackExplanation.textContent = question.explanation;
             },
 
             renderNavigation() {
