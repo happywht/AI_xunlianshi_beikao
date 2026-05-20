@@ -6,6 +6,7 @@
     <meta name="description" content="人工智能训练师三级理论知识刷题系统">
     <title>人工智能训练师三级 - 刷题系统</title>
     <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css">
     <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-database-compat.js"></script>
@@ -68,6 +69,7 @@
         <button class="cat-tab" data-category="single">单选题</button>
         <button class="cat-tab" data-category="multi">多选题</button>
         <button class="cat-tab" data-category="wrong">错题重做</button>
+        <button class="cat-tab practice-tab" data-category="practice" id="tabPractice">🛠️ 操作技能</button>
     </div>
 
     <!-- ==================== Question Container ==================== -->
@@ -93,6 +95,11 @@
                 <button class="submit-btn" id="btnSubmit" style="display:none">提交答案</button>
             </div>
         </div>
+    </main>
+
+    <!-- ==================== Practice Container ==================== -->
+    <main class="practice-container" id="practiceContainer" style="display: none;">
+        <!-- Content will be dynamically injected by JS -->
     </main>
 
     <!-- ==================== Feedback Container ==================== -->
@@ -146,6 +153,8 @@
     <!-- ==================== Toast Container ==================== -->
     <div class="toast-container" id="toastContainer"></div>
 
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-python.min.js"></script>
     <script src="app.js"></script>
 </body>
 </html>

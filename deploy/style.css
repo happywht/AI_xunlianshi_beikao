@@ -73,8 +73,7 @@
             display: flex;
             align-items: center;
             justify-content: space-between;
-            position: sticky;
-            top: 0;
+            position: relative; /* 随页面自然滚动，100% 释放沉浸式做题视野 */
             z-index: 100;
             box-shadow: 0 2px 12px rgba(26, 26, 46, 0.25);
             border-bottom: 2px solid var(--accent);
@@ -2084,3 +2083,1228 @@
             box-shadow: 0 0 0 3px rgba(26, 26, 46, 0.15), var(--shadow-hover);
         }
 
+        /* ==================================================================
+           PRACTICAL EXAMS FEATURE STYLES (INTEGRATED)
+           ================================================================== */
+
+        /* 操作技能标签页特殊样式 */
+        .cat-tab.practice-tab {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%) !important;
+            color: var(--accent-light) !important;
+            border: 1px solid rgba(240, 165, 0, 0.3) !important;
+            font-weight: 700 !important;
+            box-shadow: 0 2px 8px rgba(26, 26, 46, 0.15);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .cat-tab.practice-tab::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(45deg, transparent, rgba(240, 165, 0, 0.25), transparent);
+            transform: rotate(45deg);
+            transition: 0.5s;
+            opacity: 0;
+        }
+
+        .cat-tab.practice-tab:hover::before {
+            left: 120%;
+            opacity: 1;
+            transition: all 0.6s ease;
+        }
+
+        .cat-tab.practice-tab.active {
+            box-shadow: 0 4px 14px var(--accent-glow) !important;
+            transform: scale(1.03);
+            border-color: var(--accent) !important;
+        }
+
+        /* 实操题网格列表 */
+        .practice-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 24px;
+            padding: 10px 20px 30px;
+            animation: staggerFadeIn 0.6s cubic-bezier(0.4, 0, 0.2, 1) both;
+        }
+
+        /* 宣纸淡雅磨砂质感卡片 */
+        .practice-card {
+            background: linear-gradient(135deg, #fffefa 0%, #FAF8F5 100%);
+            border: 1px solid var(--border-light);
+            border-radius: 16px;
+            padding: 24px;
+            box-shadow: 0 4px 16px rgba(26, 26, 46, 0.04);
+            transition: var(--transition-elastic);
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* 琥珀金精致顶饰线 */
+        .practice-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 3px;
+            background: linear-gradient(90deg, var(--accent) 0%, var(--accent-light) 100%);
+        }
+
+        .practice-card:hover {
+            transform: translateY(-6px) scale(1.015);
+            box-shadow: 0 12px 32px rgba(240, 165, 0, 0.08), 0 4px 12px rgba(26, 26, 46, 0.03);
+            border-color: rgba(240, 165, 0, 0.35);
+        }
+
+        .practice-card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 16px;
+        }
+
+        /* 琥珀金小徽章 */
+        .practice-code-badge {
+            background: rgba(240, 165, 0, 0.08);
+            color: var(--accent);
+            padding: 4px 10px;
+            border-radius: 8px;
+            font-size: 0.8rem;
+            font-weight: 700;
+            font-family: var(--font-family);
+            border: 1px solid rgba(240, 165, 0, 0.25);
+        }
+
+        .practice-status-badge {
+            font-size: 0.75rem;
+            font-family: var(--font-family);
+            padding: 3px 8px;
+            border-radius: 6px;
+            font-weight: 600;
+        }
+
+        .practice-status-badge.passed {
+            background: rgba(46, 204, 113, 0.1);
+            color: var(--correct);
+            border: 1px solid rgba(46, 204, 113, 0.25);
+        }
+
+        .practice-status-badge.pending {
+            background: var(--bg-warm);
+            color: var(--text-hint);
+            border: 1px solid var(--border);
+        }
+
+        .practice-card-title {
+            font-family: var(--font-serif);
+            font-size: 1.15rem;
+            font-weight: 700;
+            color: var(--primary);
+            line-height: 1.5;
+            margin-bottom: 12px;
+        }
+
+        .practice-card-meta {
+            display: flex;
+            gap: 12px;
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+            margin-bottom: 20px;
+            font-family: var(--font-family);
+        }
+
+        .practice-meta-item {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .practice-tags {
+            display: flex;
+            gap: 6px;
+            flex-wrap: wrap;
+            margin-bottom: 20px;
+        }
+
+        .practice-tag {
+            background: rgba(26, 26, 46, 0.03);
+            color: var(--text-secondary);
+            padding: 3px 8px;
+            border-radius: 6px;
+            font-size: 0.7rem;
+            font-weight: 600;
+            border: 1px solid var(--border-light);
+        }
+
+        /* 主页卡片自评进度包裹区 */
+        .practice-score-progress {
+            margin-bottom: 20px;
+            background: rgba(26, 26, 46, 0.02);
+            padding: 10px 12px;
+            border-radius: 8px;
+            border: 1px solid rgba(26, 26, 46, 0.03);
+        }
+
+        .practice-score-label {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.72rem;
+            color: var(--text-secondary);
+            margin-bottom: 6px;
+            font-family: var(--font-family);
+            font-weight: 600;
+        }
+
+        .practice-progress-bg {
+            width: 100%;
+            height: 6px;
+            background: var(--border);
+            border-radius: 3px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .practice-progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--accent) 0%, var(--accent-light) 100%);
+            border-radius: 3px;
+            transition: width 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+            width: 0%;
+        }
+
+        /* 典雅深墨金主按钮 */
+        .practice-start-btn {
+            width: 100%;
+            min-height: 44px;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
+            color: var(--accent-light);
+            border: 1px solid rgba(240, 165, 0, 0.2);
+            border-radius: var(--radius-sm);
+            font-family: var(--font-family);
+            font-size: 0.88rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            box-shadow: 0 4px 10px rgba(26, 26, 46, 0.12);
+        }
+
+        .practice-start-btn:hover {
+            background: linear-gradient(135deg, var(--accent) 0%, var(--accent-light) 100%);
+            color: var(--primary-dark);
+            box-shadow: 0 6px 16px var(--accent-glow);
+            transform: translateY(-1px);
+            border-color: var(--accent);
+        }
+
+        /* 双栏实操工作台 */
+        .practice-workspace {
+            display: flex;
+            gap: 24px;
+            padding: 0 20px 30px;
+            min-height: 80vh;
+            animation: fadeIn 0.4s ease;
+            background: var(--bg);
+        }
+
+        .workspace-left, .workspace-right {
+            flex: 5;
+            background: var(--card-bg);
+            border: 1px solid var(--border-light);
+            border-radius: 16px;
+            padding: 32px; /* 32px 黄金排版呼吸区 */
+            box-shadow: 0 4px 20px rgba(26, 26, 46, 0.04);
+            display: flex;
+            flex-direction: column;
+            max-height: 85vh;
+            overflow-y: auto;
+        }
+
+        @media (max-width: 900px) {
+            .practice-workspace {
+                flex-direction: column;
+                min-height: auto;
+            }
+            .workspace-left, .workspace-right {
+                max-height: none;
+                padding: 24px;
+            }
+            .workspace-right {
+                padding-top: 0 !important;
+            }
+            .workspace-tabs {
+                margin: 0 -24px 20px -24px !important;
+                padding: 24px 24px 0 24px !important;
+            }
+        }
+
+        /* 任务书内容排版 */
+        .task-title {
+            font-family: var(--font-serif);
+            font-size: 1.45rem;
+            font-weight: 800;
+            color: var(--primary);
+            margin-bottom: 12px;
+            border-bottom: 2px solid var(--border-light);
+            padding-bottom: 12px;
+        }
+
+        /* 推荐时间与配分副标题 */
+        .practice-workspace-subtitle {
+            font-family: var(--font-family);
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+            margin-bottom: 24px;
+            display: flex;
+            gap: 16px;
+            align-items: center;
+            font-weight: 600;
+        }
+
+        .task-section-title {
+            font-family: var(--font-serif);
+            font-size: 1.05rem;
+            font-weight: 700;
+            color: var(--primary);
+            margin: 24px 0 12px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .task-text {
+            font-size: 0.92rem;
+            line-height: 1.8;
+            color: var(--text-secondary);
+            margin-bottom: 14px;
+        }
+
+        /* 极简精致下载面板 */
+        .download-panel {
+            background: rgba(26, 26, 46, 0.02);
+            border-radius: 12px;
+            padding: 20px;
+            margin: 24px 0;
+            border: 1px dashed var(--border);
+        }
+
+        .download-panel-title {
+            font-size: 0.85rem;
+            font-weight: 700;
+            color: var(--primary);
+            margin-bottom: 14px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .download-buttons {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .download-link-btn {
+            flex: 1;
+            min-width: 140px;
+            min-height: 40px;
+            background: #ffffff;
+            border: 1.5px solid var(--border);
+            border-radius: 8px;
+            color: var(--text-primary);
+            font-size: 0.8rem;
+            font-family: var(--font-family);
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition-fast);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            text-decoration: none;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.02);
+        }
+
+        .download-link-btn:hover {
+            border-color: var(--accent);
+            color: var(--accent);
+            box-shadow: 0 4px 12px rgba(240, 165, 0, 0.12);
+            transform: translateY(-1px);
+        }
+
+        .workspace-right {
+            padding-top: 0 !important;
+        }
+
+        /* 右栏控制面板 Tabs */
+        .workspace-tabs {
+            display: flex;
+            border-bottom: 2px solid var(--border-light);
+            margin: 0 -32px 24px -32px;
+            padding: 32px 32px 0 32px;
+            position: sticky;
+            top: 0;
+            background: var(--card-bg);
+            z-index: 15;
+        }
+
+        .workspace-tab-btn {
+            flex: 1;
+            background: none;
+            border: none;
+            padding: 12px 4px;
+            font-family: var(--font-family);
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--text-hint);
+            cursor: pointer;
+            position: relative;
+            transition: var(--transition-fast);
+            text-align: center;
+        }
+
+        .workspace-tab-btn:hover {
+            color: var(--primary);
+        }
+
+        .workspace-tab-btn.active {
+            color: var(--primary);
+            font-weight: 700;
+        }
+
+        .workspace-tab-btn.active::after {
+            content: '';
+            position: absolute;
+            bottom: -2px;
+            left: 20%;
+            right: 20%;
+            height: 3px;
+            background: var(--accent);
+            border-radius: 2px;
+        }
+
+        .workspace-content-pane {
+            display: none;
+        }
+
+        .workspace-content-pane.active {
+            display: block;
+            animation: fadeIn 0.3s ease;
+        }
+
+        /* 暗黑参考代码 */
+        .code-wrapper {
+            position: relative;
+            background: #1e1e24;
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 20px;
+            box-shadow: inset 0 2px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        .code-block {
+            font-family: Consolas, Monaco, 'Andale Mono', 'Ubuntu Mono', monospace;
+            font-size: 0.82rem;
+            color: #abb2bf;
+            white-space: pre-wrap;
+            word-break: break-all;
+            line-height: 1.6;
+            overflow-x: auto;
+        }
+
+        .code-copy-btn {
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            background: rgba(255, 255, 255, 0.1);
+            color: #ffffff;
+            border: 1px solid rgba(255,255,255,0.15);
+            border-radius: 6px;
+            padding: 6px 12px;
+            font-size: 0.72rem;
+            font-family: var(--font-family);
+            cursor: pointer;
+            transition: var(--transition-fast);
+        }
+
+        .code-copy-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+            color: var(--accent-light);
+            border-color: var(--accent);
+        }
+
+        .code-copy-btn.copied {
+            background: var(--correct);
+            color: #ffffff;
+            border-color: var(--correct);
+        }
+
+        .code-explanation {
+            margin-top: 14px;
+            background: var(--bg-warm);
+            border-left: 3px solid var(--accent);
+            padding: 10px 14px;
+            border-radius: 0 8px 8px 0;
+            font-size: 0.82rem;
+            line-height: 1.6;
+            color: var(--text-secondary);
+        }
+
+        /* 规范范文极其典雅的墨卷化重塑 */
+        .doc-viewer {
+            background: #FAF8F5; /* 温润象牙白宣纸底色 */
+            border: 1px solid #e2ded8;
+            border-radius: 12px;
+            padding: 24px;
+            font-size: 0.9rem;
+            line-height: 1.85;
+            box-shadow: inset 0 2px 8px rgba(0,0,0,0.02);
+            margin-bottom: 20px; /* 增加底部外边距，与参考代码的 code-wrapper 间距保持完美一致 */
+        }
+
+        .doc-h1 {
+            font-family: var(--font-serif);
+            font-size: 1.2rem;
+            font-weight: 800;
+            color: var(--primary);
+            margin-bottom: 14px;
+            border-bottom: 1.5px solid var(--border);
+            padding-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .doc-h1::before {
+            content: '';
+            display: inline-block;
+            width: 4px;
+            height: 16px;
+            background: var(--accent);
+            border-radius: 2px;
+        }
+
+        .doc-h2 {
+            font-family: var(--font-serif);
+            font-size: 1.05rem;
+            font-weight: 700;
+            color: var(--primary);
+            margin: 20px 0 10px;
+            border-left: 3px solid var(--accent);
+            padding-left: 8px;
+        }
+
+        .doc-p {
+            margin-bottom: 12px;
+            color: var(--text-secondary);
+            text-align: justify;
+        }
+
+        .doc-list {
+            margin-left: 20px;
+            margin-bottom: 14px;
+            color: var(--text-secondary);
+        }
+
+        /* Checklist 高雅中式深墨色半透明玻璃质感卡片 */
+        .score-control-panel {
+            background: linear-gradient(135deg, #1e1e2d 0%, #161622 100%);
+            border-radius: 14px;
+            padding: 20px 24px;
+            color: #ffffff;
+            margin-bottom: 24px;
+            box-shadow: 0 8px 24px rgba(26, 26, 46, 0.15);
+            border: 1px solid rgba(240, 165, 0, 0.25);
+            position: relative;
+        }
+
+        .score-display-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: baseline; /* 基线对齐 */
+            margin-bottom: 12px;
+        }
+
+        .score-display-num {
+            font-family: var(--font-serif);
+            font-size: 2.4rem;
+            font-weight: 800;
+            color: var(--accent); /* Classical Amber Gold */
+            text-shadow: 0 0 10px rgba(240, 165, 0, 0.25);
+        }
+
+        .score-display-label {
+            font-size: 0.8rem;
+            color: #b8b8c8;
+            font-weight: 600;
+        }
+
+        .checklist-progress-bg {
+            width: 100%;
+            height: 8px;
+            background: rgba(255, 255, 255, 0.08);
+            border-radius: 4px;
+            overflow: hidden;
+            margin-bottom: 4px;
+        }
+
+        .checklist-progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--accent) 0%, var(--accent-light) 100%);
+            border-radius: 4px;
+            transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+            width: 0%;
+            box-shadow: 0 0 8px var(--accent-glow);
+        }
+
+        .checklist-container {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin-bottom: 24px;
+        }
+
+        /* 自测选项精致卡片与微交互位移 */
+        .checklist-item {
+            background: rgba(26, 26, 46, 0.02);
+            border-radius: 10px;
+            padding: 16px 18px;
+            display: flex;
+            align-items: flex-start;
+            gap: 14px;
+            cursor: pointer;
+            transition: var(--transition);
+            border: 1px solid var(--border-light);
+        }
+
+        .checklist-item:hover {
+            background: rgba(26, 26, 46, 0.04);
+            border-color: rgba(240, 165, 0, 0.3);
+            transform: translateX(4px); /* 悬停向右顺滑微移 4px */
+        }
+
+        .checklist-checkbox-wrapper {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-top: 3px;
+        }
+
+        .checklist-checkbox {
+            width: 20px;
+            height: 20px;
+            border-radius: 6px;
+            border: 2px solid var(--border);
+            background: #ffffff;
+            cursor: pointer;
+            transition: var(--transition-elastic);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* 勾选状态温润金黄与弹性缩放 */
+        .checklist-item.checked {
+            background: rgba(240, 165, 0, 0.04); /* 温润金黄底色 */
+            border-color: rgba(240, 165, 0, 0.35);
+        }
+
+        .checklist-item.checked .checklist-checkbox {
+            background: var(--accent);
+            border-color: var(--accent);
+            transform: scale(1.1); /* 弹性放大 1.1 倍 */
+        }
+
+        .checklist-item.checked .checklist-checkbox::after {
+            content: '✓';
+            color: var(--primary-dark); /* 经典高对比对勾 */
+            font-size: 0.8rem;
+            font-weight: 900;
+        }
+
+        .checklist-item-text {
+            flex: 1;
+            font-size: 0.88rem;
+            line-height: 1.6;
+            color: var(--text-primary);
+            transition: var(--transition-fast);
+        }
+
+        .checklist-item.checked .checklist-item-text {
+            color: var(--primary);
+            font-weight: 600;
+        }
+
+        .checklist-item-score {
+            font-family: var(--font-family);
+            font-size: 0.72rem;
+            font-weight: 700;
+            color: var(--accent);
+            background: rgba(240, 165, 0, 0.08);
+            padding: 2px 6px;
+            border-radius: 4px;
+            border: 1px solid rgba(240, 165, 0, 0.15);
+            transition: var(--transition-fast);
+        }
+
+        .checklist-item.checked .checklist-item-score {
+            color: var(--primary);
+            background: var(--accent-light);
+            border-color: var(--accent);
+        }
+
+        /* 底部控制按钮 */
+        .workspace-actions {
+            display: flex;
+            gap: 12px;
+        }
+
+        .workspace-action-btn {
+            flex: 1;
+            min-height: 46px;
+            border: none;
+            border-radius: var(--radius-sm);
+            font-family: var(--font-family);
+            font-size: 0.9rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+        }
+
+        .workspace-action-btn.btn-back {
+            background: var(--bg-warm);
+            color: var(--text-primary);
+            border: 1px solid var(--border);
+        }
+
+        .workspace-action-btn.btn-back:hover {
+            background: var(--border);
+        }
+
+        .workspace-action-btn.btn-submit-score {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
+            color: var(--accent-light);
+            box-shadow: 0 4px 12px rgba(26, 26, 46, 0.15);
+            border: 1px solid rgba(240, 165, 0, 0.25);
+        }
+
+        .workspace-action-btn.btn-submit-score:hover {
+            background: linear-gradient(135deg, var(--accent) 0%, var(--accent-light) 100%);
+            color: var(--primary-dark);
+            box-shadow: 0 6px 16px var(--accent-glow);
+            transform: translateY(-1px);
+            border-color: var(--accent);
+        }
+
+        /* 重点修复：高阶 `.back-btn` 返回按钮样式 */
+        .back-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: var(--card-bg);
+            color: var(--primary);
+            border: 1.5px solid var(--border);
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-family: var(--font-family);
+            font-size: 0.82rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: var(--transition-fast);
+            margin-bottom: 20px;
+            align-self: flex-start;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.03);
+        }
+
+        .back-btn:hover {
+            border-color: var(--accent);
+            color: var(--accent);
+            transform: translateX(-4px); /* 悬停微平移 */
+            box-shadow: 0 4px 12px rgba(240, 165, 0, 0.12);
+        }
+
+        /* 重点重写：Modal 全局高斯模糊与磨砂玻璃大升级 */
+        .modal-overlay {
+            background: rgba(26, 26, 46, 0.65) !important;
+            backdrop-filter: blur(12px) saturate(180%) !important;
+        }
+
+        .modal-content {
+            background: rgba(255, 255, 254, 0.96) !important;
+            backdrop-filter: blur(20px) !important;
+            border: 1.5px solid rgba(240, 165, 0, 0.35) !important;
+            box-shadow: 0 20px 50px rgba(26, 26, 46, 0.22) !important;
+            border-top: 5px solid var(--accent) !important; /* 琥珀金高显色顶边 */
+        }
+
+        /* 提交成功弹窗美化 */
+        .practice-submit-success-modal {
+            text-align: center;
+            padding: 30px 24px;
+        }
+
+        .practice-submit-success-modal .success-icon {
+            font-size: 3.5rem;
+            margin-bottom: 16px;
+            animation: bounce 1s ease infinite;
+        }
+
+        .practice-submit-success-modal .success-modal-title {
+            font-family: var(--font-serif);
+            font-size: 1.35rem;
+            font-weight: 800;
+            color: var(--primary);
+            margin-bottom: 10px;
+        }
+
+        .practice-submit-success-modal .success-modal-desc {
+            font-size: 0.88rem;
+            color: var(--text-secondary);
+            margin-bottom: 24px;
+        }
+
+        .practice-submit-success-modal .success-score-box {
+            background: rgba(26, 26, 46, 0.03);
+            border: 1px solid var(--border-light);
+            border-radius: 12px;
+            padding: 16px 20px;
+            margin-bottom: 24px;
+            display: inline-flex;
+            flex-direction: column;
+            gap: 6px;
+            min-width: 200px;
+        }
+
+        .practice-submit-success-modal .success-score-box .label {
+            font-size: 0.75rem;
+            color: var(--text-hint);
+            font-weight: 600;
+        }
+
+        .practice-submit-success-modal .success-score-box .score {
+            font-family: var(--font-serif);
+            font-size: 1.8rem;
+            font-weight: 800;
+            color: var(--accent);
+        }
+
+        .practice-submit-success-modal .success-score-box .score .total {
+            font-size: 0.95rem;
+            color: var(--text-secondary);
+            font-weight: 500;
+        }
+
+        .practice-submit-success-modal .success-modal-close-btn {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
+            color: var(--accent-light);
+            border: 1px solid rgba(240, 165, 0, 0.2);
+            border-radius: 8px;
+            padding: 12px 36px;
+            font-family: var(--font-family);
+            font-size: 0.9rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: var(--transition-fast);
+            box-shadow: 0 4px 10px rgba(26, 26, 46, 0.15);
+        }
+
+        .practice-submit-success-modal .success-modal-close-btn:hover {
+            background: linear-gradient(135deg, var(--accent) 0%, var(--accent-light) 100%);
+            color: var(--primary-dark);
+            border-color: var(--accent);
+            box-shadow: 0 6px 16px var(--accent-glow);
+        }
+
+        /* 重置/确认弹窗美化 */
+        .confirm-body {
+            text-align: center;
+            padding: 30px 24px 20px;
+        }
+
+        .confirm-body .confirm-icon {
+            font-size: 3rem;
+            margin-bottom: 16px;
+        }
+
+        .confirm-body .confirm-message {
+            font-family: var(--font-body);
+            font-size: 1rem;
+            color: var(--text-primary);
+            line-height: 1.6;
+            margin-bottom: 24px;
+            font-weight: 500;
+        }
+
+        .confirm-body .confirm-btn-group {
+            display: flex;
+            gap: 16px;
+            justify-content: center;
+        }
+
+        .confirm-body .confirm-btn {
+            min-height: 42px;
+            padding: 0 24px;
+            border-radius: 8px;
+            font-family: var(--font-family);
+            font-size: 0.85rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: var(--transition-fast);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .confirm-body .confirm-btn-cancel {
+            background: #ffffff;
+            color: var(--text-primary);
+            border: 1.5px solid var(--border);
+        }
+
+        .confirm-body .confirm-btn-cancel:hover {
+            border-color: var(--text-primary);
+            background: var(--bg-warm);
+        }
+
+        .confirm-body .confirm-btn-confirm {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
+            color: var(--accent-light);
+            border: 1px solid rgba(240, 165, 0, 0.2);
+            box-shadow: 0 4px 10px rgba(26, 26, 46, 0.12);
+        }
+
+        .confirm-body .confirm-btn-confirm:hover {
+            background: linear-gradient(135deg, var(--accent) 0%, var(--accent-light) 100%);
+            color: var(--primary-dark);
+            border-color: var(--accent);
+            box-shadow: 0 6px 16px var(--accent-glow);
+        }
+
+        /* ==================== Premium 实操大屏及二级工作台专属优化样式 ==================== */
+        
+        /* 1. 当处于实操大厅或二级工作台时，顶栏的响应式布局可以自动拓宽，展现宏大格局，避免物理挤压 */
+        body.practice-mode .app-header {
+            max-width: 1200px;
+            transition: max-width 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        body.workspace-active .app-header {
+            max-width: 1400px;
+            transition: max-width 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        /* 2. 物理双重锁死：进入二级工作台后，彻底以最高优先级抹除大厅页签栏，清退无用高度 */
+        body.workspace-active #categoryTabs {
+            display: none !important;
+        }
+
+        /* 3. 大屏自适应大视区撑开，给双栏工作台以完美的对称格局与呼吸感 */
+        @media (min-width: 1024px) {
+            .practice-container {
+                width: 100%;
+                max-width: 1400px; /* 与拓宽后的顶栏一致，居中对齐 */
+                margin: 0 auto;
+                padding: 0 20px;
+                box-sizing: border-box;
+            }
+        }
+
+        /* 4. 二级实操工作台头部容器高级样式 - 徽派宣纸温润底色与舒展气口 */
+        .workspace-header {
+            width: 100%;
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 32px 24px 20px;
+            background: var(--bg);
+            border-bottom: 1px solid var(--border-light);
+            margin-bottom: 24px;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            box-sizing: border-box;
+            animation: staggerFadeIn 0.5s cubic-bezier(0.4, 0, 0.2, 1) both;
+        }
+
+        /* 工作台标题区域与呼吸气口设计 */
+        .workspace-title-area {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .workspace-title {
+            font-family: var(--font-serif);
+            font-size: 1.95rem; /* 大字排版，宣纸墨香主视觉 */
+            font-weight: 800;
+            color: var(--primary);
+            margin: 0;
+            line-height: 1.35;
+            letter-spacing: 0.5px;
+            text-shadow: 0 1px 2px rgba(26, 26, 46, 0.02);
+        }
+
+        .practice-workspace-subtitle {
+            font-family: var(--font-family);
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            margin: 0;
+            display: flex;
+            gap: 16px;
+            align-items: center;
+            font-weight: 600;
+        }
+
+        /* ==================================================================
+           Markdown 渲染内容排版规范 - 徽派书香 Premium 质感
+           ================================================================== */
+        .markdown-content {
+            font-family: var(--font-family);
+            font-size: 0.92rem;
+            line-height: 1.85;
+            color: var(--text-secondary);
+        }
+
+        /* 标题层级 */
+        .markdown-content h1, 
+        .markdown-content h2, 
+        .markdown-content h3, 
+        .markdown-content h4 {
+            font-family: var(--font-serif);
+            color: var(--primary);
+            margin-top: 24px;
+            margin-bottom: 12px;
+            font-weight: 800;
+            line-height: 1.4;
+        }
+
+        .markdown-content h1 {
+            font-size: 1.35rem;
+            border-bottom: 2px solid var(--border-light);
+            padding-bottom: 8px;
+        }
+
+        .markdown-content h2 {
+            font-size: 1.15rem;
+            border-left: 4px solid var(--accent);
+            padding-left: 10px;
+            margin-top: 28px;
+        }
+
+        .markdown-content h3 {
+            font-size: 1.05rem;
+            color: var(--primary-light);
+            margin-top: 20px;
+            border-bottom: 1px dashed var(--border-light);
+            padding-bottom: 6px;
+        }
+
+        .markdown-content h4 {
+            font-size: 0.95rem;
+            color: var(--text-primary);
+            font-weight: 700;
+        }
+
+        /* 段落 */
+        .markdown-content p {
+            margin-bottom: 14px;
+            text-align: justify;
+            line-height: 1.85;
+        }
+
+        /* 列表排版与缩进修复 */
+        .markdown-content ul, 
+        .markdown-content ol {
+            margin-left: 0;
+            margin-bottom: 16px;
+            padding-left: 20px;
+            box-sizing: border-box;
+        }
+
+        .markdown-content ul {
+            list-style-type: disc;
+        }
+
+        .markdown-content ol {
+            list-style-type: decimal;
+        }
+
+        .markdown-content li {
+            margin-bottom: 8px;
+            line-height: 1.75;
+            color: var(--text-secondary);
+            padding-left: 4px;
+        }
+
+        .markdown-content li strong {
+            color: var(--primary);
+            font-weight: 700;
+        }
+
+        /* 修复 Markdown 里的换行与空段 */
+        .markdown-content br {
+            display: block;
+            content: "";
+            margin-top: 10px;
+        }
+
+        /* 精致行内代码 */
+        .markdown-content code {
+            font-family: Consolas, Monaco, 'Andale Mono', monospace;
+            background: rgba(26, 26, 46, 0.05);
+            color: #d13b5e;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 0.85rem;
+            border: 1px solid rgba(26, 26, 46, 0.08);
+            word-break: break-word;
+        }
+        
+        /* 规范范文（象牙色宣纸底色）下的行内代码配色适配 */
+        .doc-viewer code {
+            background: rgba(26, 26, 46, 0.04);
+            color: #b71c1c;
+            border-color: rgba(0, 0, 0, 0.06);
+        }
+
+        /* 代码块 Pre */
+        .markdown-content pre.practice-code-block {
+            background: #1e1e24 !important;
+            border-radius: 10px;
+            padding: 14px 18px;
+            margin: 16px 0;
+            overflow-x: auto;
+            border: 1px solid rgba(0, 0, 0, 0.15);
+            box-shadow: inset 0 2px 6px rgba(0,0,0,0.2);
+            position: relative;
+        }
+
+        .markdown-content pre.practice-code-block code {
+            font-family: Consolas, Monaco, 'Andale Mono', 'Ubuntu Mono', monospace;
+            font-size: 0.82rem;
+            color: #abb2bf !important;
+            background: none !important;
+            border: none !important;
+            padding: 0 !important;
+            line-height: 1.6;
+            white-space: pre;
+            word-break: normal;
+            display: block;
+        }
+
+        /* GitHub Alerts 美化（完美适配左栏和右栏） */
+        .github-alert {
+            border-left: 4px solid var(--border);
+            padding: 14px 18px;
+            margin: 20px 0;
+            border-radius: 0 10px 10px 0;
+            font-size: 0.88rem;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.01);
+            box-sizing: border-box;
+        }
+
+        .github-alert p {
+            margin-bottom: 0 !important;
+            line-height: 1.75;
+        }
+
+        .alert-note {
+            background: rgba(41, 128, 185, 0.04);
+            border-left-color: #2980b9;
+        }
+        .alert-note .alert-title {
+            color: #2980b9;
+            font-weight: 800;
+            margin-bottom: 6px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .alert-important {
+            background: rgba(142, 68, 173, 0.04);
+            border-left-color: #8e44ad;
+        }
+        .alert-important .alert-title {
+            color: #8e44ad;
+            font-weight: 800;
+            margin-bottom: 6px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .alert-warning {
+            background: rgba(211, 84, 0, 0.04);
+            border-left-color: #d35400;
+        }
+        .alert-warning .alert-title {
+            color: #d35400;
+            font-weight: 800;
+            margin-bottom: 6px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .alert-caution {
+            background: rgba(192, 57, 43, 0.04);
+            border-left-color: #c0392b;
+        }
+        .alert-caution .alert-title {
+            color: #c0392b;
+            font-weight: 800;
+            margin-bottom: 6px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .alert-tip {
+            background: rgba(39, 174, 96, 0.04);
+            border-left-color: #27ae60;
+        }
+        .alert-tip .alert-title {
+            color: #27ae60;
+            font-weight: 800;
+            margin-bottom: 6px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        /* ==================================================================
+           Prism.js 代码高亮微调 - 完美融合徽派暗黑背景
+           ================================================================== */
+        pre[class*="language-"] {
+            background: #1e1e24 !important; /* 锁死为高雅的墨色背景 */
+            margin: 0 !important;
+            padding: 8px 0 0 0 !important; /* 让出 padding，防止与 code-wrapper 挤压 */
+            border: none !important;
+            box-shadow: none !important;
+        }
+
+        code[class*="language-"] {
+            font-family: Consolas, Monaco, 'Andale Mono', 'Ubuntu Mono', monospace !important;
+            font-size: 0.82rem !important;
+            text-shadow: none !important; /* 去除 Prism 默认的反白文字阴影，使字体极其清锋利 */
+        }
+
+        /* 复制按钮位置微调，使其在 Prism 覆盖下仍然置顶 */
+        .code-wrapper .code-copy-btn {
+            z-index: 20;
+        }
