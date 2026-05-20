@@ -9,6 +9,354 @@
         QUESTIONS = await resp.json();
     }
 
+    /* ==================================================================
+       MOCK EXAM & SHUFFLE UTILITIES
+       ================================================================== */
+    let wrongShuffleCache = {};
+    let examTimerId = null;
+
+    function getWrongShuffledQuestion(question, qIndex) {
+        if (question.type === 'judge') return question;
+        if (wrongShuffleCache[qIndex]) {
+            return wrongShuffleCache[qIndex];
+        }
+
+        var originalOptions = question.options.slice();
+        var shuffledOptions = originalOptions.slice();
+        
+        for (var i = shuffledOptions.length - 1; i > 0; i--) {
+            var j = Math.floor(Math.random() * (i + 1));
+            var temp = shuffledOptions[i];
+            shuffledOptions[i] = shuffledOptions[j];
+            shuffledOptions[j] = temp;
+        }
+
+        var correctTexts = new Set();
+        originalOptions.forEach(function(opt) {
+            if (question.answer.indexOf(opt.label) !== -1) {
+                correctTexts.add(opt.text);
+            }
+        });
+
+        var newOptions = shuffledOptions.map(function(opt, idx) {
+            var newLabel = String.fromCharCode(65 + idx);
+            return {
+                label: newLabel,
+                text: opt.text
+            };
+        });
+
+        var newAnswerChars = [];
+        newOptions.forEach(function(opt) {
+            if (correctTexts.has(opt.text)) {
+                newAnswerChars.push(opt.label);
+            }
+        });
+        var newAnswer = newAnswerChars.sort().join('');
+
+        var shuffledQuestion = Object.assign({}, question, {
+            options: newOptions,
+            answer: newAnswer
+        });
+
+        wrongShuffleCache[qIndex] = shuffledQuestion;
+        return shuffledQuestion;
+    }
+
+    function generateExamPaper() {
+        var judgeIndices = [];
+        var singleIndices = [];
+        var multiIndices = [];
+
+        for (var i = 0; i < QUESTIONS.length; i++) {
+            var q = QUESTIONS[i];
+            if (q.type === 'judge') judgeIndices.push(i);
+            else if (q.type === 'single') singleIndices.push(i);
+            else if (q.type === 'multi') multiIndices.push(i);
+        }
+
+        function getRandomSubarray(arr, size) {
+            var shuffled = arr.slice();
+            for (var i = shuffled.length - 1; i > 0; i--) {
+                var j = Math.floor(Math.random() * (i + 1));
+                var temp = shuffled[i];
+                shuffled[i] = shuffled[j];
+                shuffled[j] = temp;
+            }
+            return shuffled.slice(0, size);
+        }
+
+        var selectedJudges = getRandomSubarray(judgeIndices, 20);
+        var selectedSingles = getRandomSubarray(singleIndices, 40);
+        var selectedMultis = getRandomSubarray(multiIndices, 20);
+
+        return selectedJudges.concat(selectedSingles).concat(selectedMultis);
+    }
+
+    function startExamTimer() {
+        if (examTimerId) clearInterval(examTimerId);
+        
+        examTimerId = setInterval(function() {
+            var state = State.getCurrent();
+            if (!state || !state.exam || !state.exam.inExam || state.exam.isCompleted) {
+                clearInterval(examTimerId);
+                examTimerId = null;
+                return;
+            }
+
+            var elapsed = Math.floor((Date.now() - new Date(state.exam.startTime).getTime()) / 1000);
+            var timeLeft = state.exam.duration - elapsed;
+
+            if (timeLeft <= 0) {
+                timeLeft = 0;
+                state.exam.timeLeft = 0;
+                clearInterval(examTimerId);
+                examTimerId = null;
+                State.persist();
+                submitExam(true);
+            } else {
+                state.exam.timeLeft = timeLeft;
+                if (timeLeft % 5 === 0) {
+                    State.persist();
+                }
+            }
+            UI.renderExamTimer();
+        }, 1000);
+    }
+
+    function stopExamTimer() {
+        if (examTimerId) {
+            clearInterval(examTimerId);
+            examTimerId = null;
+        }
+    }
+
+    function submitExam(isForce) {
+        var state = State.getCurrent();
+        if (!state || !state.exam || !state.exam.inExam || state.exam.isCompleted) return;
+
+        stopExamTimer();
+        state.exam.isCompleted = true;
+        state.exam.submitTime = new Date().toISOString();
+
+        var score = 0;
+        var correctCount = 0;
+        var wrongCount = 0;
+
+        var examQuestions = state.exam.questions;
+        for (var i = 0; i < examQuestions.length; i++) {
+            var qIdx = examQuestions[i];
+            var q = QUESTIONS[qIdx];
+            var userAns = state.exam.userAnswers[qIdx];
+
+            if (userAns !== undefined) {
+                var isCorrect = (userAns === q.answer);
+                if (isCorrect) {
+                    correctCount++;
+                    if (q.type === 'judge') score += 1;
+                    else if (q.type === 'single') score += 1;
+                    else if (q.type === 'multi') score += 2;
+                    Storage.removeWrong(qIdx);
+                } else {
+                    wrongCount++;
+                    Storage.saveWrong(qIdx);
+                    Storage.saveHistory({
+                        questionIndex: qIdx,
+                        userAnswer: userAns,
+                        correctAnswer: q.answer,
+                        isCorrect: false,
+                        timestamp: new Date().toISOString()
+                    });
+                }
+            } else {
+                wrongCount++;
+                Storage.saveWrong(qIdx);
+            }
+        }
+
+        state.exam.score = score;
+        state.exam.isReviewMode = true;
+        State.persist();
+
+        document.body.classList.add('review-mode');
+        UI.render();
+
+        if (isForce) {
+            UI.showToast('答题时间已到，系统已自动交卷！', 'error');
+        } else {
+            UI.showToast('交卷成功！', 'success');
+        }
+
+        showExamReportModal(score, correctCount, wrongCount);
+    }
+
+    function showExamReportModal(score, correctCount, wrongCount) {
+        var state = State.getCurrent();
+        var isPass = score >= 60;
+        var badgeClass = isPass ? 'pass' : 'fail';
+        var badgeText = isPass ? '考试及格' : '不及格';
+        
+        var start = new Date(state.exam.startTime).getTime();
+        var end = state.exam.submitTime ? new Date(state.exam.submitTime).getTime() : Date.now();
+        var durationSec = Math.floor((end - start) / 1000);
+        var durationText = Math.floor(durationSec / 60) + '分' + (durationSec % 60) + '秒';
+
+        var html = '<div class="exam-report">' +
+            '<div class="report-header">' +
+            '<span class="report-badge ' + badgeClass + '">' + badgeText + '</span>' +
+            '<div class="report-score-box">' +
+            '<span class="report-score">' + score + '<span class="score-unit">分</span></span>' +
+            '</div>' +
+            '<div class="report-title">三级人工智能训练师 模拟考试结果</div>' +
+            '</div>' +
+            '<div class="report-stats-grid">' +
+            '<div class="report-stat-item">' +
+            '<div class="stat-num">' + durationText + '</div>' +
+            '<div class="stat-desc">考试用时</div>' +
+            '</div>' +
+            '<div class="report-stat-item">' +
+            '<div class="stat-num">' + correctCount + ' 题</div>' +
+            '<div class="stat-desc">答对题目</div>' +
+            '</div>' +
+            '<div class="report-stat-item">' +
+            '<div class="stat-num">' + (80 - correctCount) + ' 题</div>' +
+            '<div class="stat-desc">答错/未答</div>' +
+            '</div>' +
+            '</div>' +
+            '<div class="report-btn-group">' +
+            '<button class="report-btn btn-review" id="btnExamReview">查看卷子解析</button>' +
+            '<button class="report-btn btn-exit" id="btnExamExit">退出考试模式</button>' +
+            '</div></div>';
+
+        Modal.open('考试成绩单', html);
+
+        document.getElementById('btnExamReview').addEventListener('click', function() {
+            Modal.close();
+            state.currentIndex = 0;
+            State.persist();
+            UI.render();
+        });
+
+        document.getElementById('btnExamExit').addEventListener('click', function() {
+            Modal.close();
+            exitExamMode();
+        });
+    }
+
+    function startExamMode() {
+        if (!QUESTIONS || QUESTIONS.length === 0) return;
+
+        var examQuestions = generateExamPaper();
+        if (examQuestions.length === 0) {
+            UI.showToast('题库加载中，请稍后再试', 'error');
+            return;
+        }
+
+        var state = State.getCurrent();
+        state.exam = {
+            inExam: true,
+            questions: examQuestions,
+            userAnswers: {},
+            startTime: new Date().toISOString(),
+            duration: 3600,
+            timeLeft: 3600,
+            isCompleted: false,
+            score: 0,
+            submitTime: null,
+            isReviewMode: false
+        };
+
+        state.order = examQuestions;
+        state.currentIndex = 0;
+        
+        State.persist();
+
+        document.body.classList.add('exam-mode');
+        document.body.classList.remove('review-mode');
+
+        startExamTimer();
+        UI.render();
+        UI.showToast('考试开始，限时 60 分钟！请认真答题！', 'info');
+    }
+
+    function exitExamMode() {
+        stopExamTimer();
+        var state = State.getCurrent();
+        if (state.exam) {
+            state.exam.inExam = false;
+            state.exam.isReviewMode = false;
+        }
+
+        state.order = Array.from({length: QUESTIONS.length}, function(_, i) { return i; });
+        state.currentIndex = 0;
+        
+        State.setCategory('all'); 
+        State.persist();
+
+        document.body.classList.remove('exam-mode');
+        document.body.classList.remove('review-mode');
+
+        UI.render();
+        UI.showToast('已退出考试模式，恢复顺序练习', 'info');
+    }
+
+    function showModeSwitchModal() {
+        var state = State.getCurrent();
+        var isExamActive = state.exam && state.exam.inExam;
+        
+        var html = '<div class="mode-select-container">' +
+            '<p style="font-size:0.85rem; color:var(--text-secondary); margin-bottom:16px;">请选择练习或考试模式：</p>' +
+            '<div class="wrong-book-item" style="border-left-color: var(--accent);" id="optSequential">' +
+            '<div class="wb-question">🔄 顺序刷题模式</div>' +
+            '<div class="wb-meta" style="font-size:0.75rem;">按官方题库顺序进行系统性巩固练习，适合第一阶段备考。</div>' +
+            '</div>' +
+            '<div class="wrong-book-item" style="border-left-color: var(--accent);" id="optRandom">' +
+            '<div class="wb-question">🔀 随机刷题模式</div>' +
+            '<div class="wb-meta" style="font-size:0.75rem;">打破原题库顺序随机练习，快速检验各知识点的熟练度。</div>' +
+            '</div>' +
+            '<div class="wrong-book-item" style="border-left-color: var(--correct);" id="optExam">' +
+            '<div class="wb-question">📝 模拟考试模式</div>' +
+            '<div class="wb-meta" style="font-size:0.75rem;">精选官方题配比（20判断 + 40单选 + 20多选），60分钟闭卷考。</div>' +
+            '</div>' +
+            '</div>';
+
+        Modal.open('选择刷题模式', html);
+
+        document.getElementById('optSequential').addEventListener('click', function() {
+            Modal.close();
+            if (state.mode === 'sequential' && !isExamActive) return;
+            
+            App.showConfirm('🔄', '切换到顺序模式将重置当前练习或考试进度，是否继续？', function() {
+                if (isExamActive) stopExamTimer();
+                State.reset();
+                State.setMode('sequential');
+                UI.render();
+                UI.showToast('已切换为顺序刷题模式', 'info');
+            });
+        });
+
+        document.getElementById('optRandom').addEventListener('click', function() {
+            Modal.close();
+            if (state.mode === 'random' && !isExamActive) return;
+
+            App.showConfirm('🔄', '切换到随机模式将重置当前练习或考试进度，是否继续？', function() {
+                if (isExamActive) stopExamTimer();
+                State.reset();
+                State.setMode('random');
+                UI.render();
+                UI.showToast('已切换为随机刷题模式', 'info');
+            });
+        });
+
+        document.getElementById('optExam').addEventListener('click', function() {
+            Modal.close();
+            App.showConfirm('📝', '确定开始模拟考试吗？这将重置您当前的答题进度并开始60分钟倒计时。', function() {
+                startExamMode();
+            });
+        });
+    }
+
+
 
 
     /* ==================================================================
@@ -577,7 +925,19 @@
                 totalAnswered: 0,
                 startTime: new Date().toISOString(),
                 completed: false,
-                categoryIndex: {}
+                categoryIndex: {},
+                exam: {
+                    inExam: false,
+                    questions: [],
+                    userAnswers: {},
+                    startTime: null,
+                    duration: 3600,
+                    timeLeft: 3600,
+                    isCompleted: false,
+                    score: 0,
+                    submitTime: null,
+                    isReviewMode: false
+                }
             };
         }
 
@@ -618,8 +978,20 @@
                 const saved = Storage.loadProgress();
                 if (saved && typeof saved.currentIndex === 'number' && Array.isArray(saved.order)) {
                     current = Object.assign(createDefault(), saved);
+                    if (!current.exam) {
+                        current.exam = createDefault().exam;
+                    }
                 } else {
                     current = createDefault();
+                }
+
+                // If in exam and not finished, resume timer
+                if (current.exam && current.exam.inExam && !current.exam.isCompleted) {
+                    document.body.classList.add('exam-mode');
+                    startExamTimer();
+                } else if (current.exam && current.exam.inExam && current.exam.isCompleted) {
+                    document.body.classList.add('exam-mode');
+                    document.body.classList.add('review-mode');
                 }
             },
 
@@ -665,7 +1037,11 @@
 
             getCurrentQuestion() {
                 var idx = current.order[current.currentIndex];
-                return QUESTIONS[idx] || null;
+                var q = QUESTIONS[idx] || null;
+                if (q && category === 'wrong') {
+                    return getWrongShuffledQuestion(q, idx);
+                }
+                return q;
             },
 
             getFilteredQuestions() {
@@ -678,7 +1054,14 @@
 
             answerQuestion(userAnswer) {
                 var qIndex = current.order[current.currentIndex];
-                var question = QUESTIONS[qIndex];
+                var question = this.getCurrentQuestion();
+
+                if (current.exam && current.exam.inExam) {
+                    if (current.exam.isCompleted) return false;
+                    current.exam.userAnswers[qIndex] = userAnswer;
+                    persist();
+                    return true;
+                }
 
                 if (current.answered[qIndex] !== undefined) {
                     return current.answered[qIndex] === question.answer;
@@ -708,12 +1091,25 @@
             },
 
             clearAnswer(qIndex) {
+                if (wrongShuffleCache[qIndex]) {
+                    delete wrongShuffleCache[qIndex];
+                }
+
+                if (current.exam && current.exam.inExam) {
+                    if (current.exam.userAnswers[qIndex] !== undefined) {
+                        delete current.exam.userAnswers[qIndex];
+                        persist();
+                    }
+                    return;
+                }
+
                 if (current.answered[qIndex] !== undefined) {
                     if (current.answered[qIndex] === QUESTIONS[qIndex].answer) {
                         current.score--;
                     }
                     current.totalAnswered--;
                     delete current.answered[qIndex];
+                    persist();
                 }
             },
 
@@ -721,9 +1117,12 @@
                 var answered = 0, correct = 0;
                 for (var i = 0; i < current.order.length; i++) {
                     var qIdx = current.order[i];
-                    if (current.answered[qIdx] !== undefined) {
+                    if (this.isAnswered(qIdx)) {
                         answered++;
-                        if (current.answered[qIdx] === QUESTIONS[qIdx].answer) {
+                        // If exam mode, check exam answers, otherwise check normal answers
+                        var userAns = this.getAnswer(qIdx);
+                        var actualAns = QUESTIONS[qIdx].answer;
+                        if (userAns === actualAns) {
                             correct++;
                         }
                     }
@@ -754,15 +1153,22 @@
             },
 
             isAnswered(qIndex) {
+                if (current.exam && current.exam.inExam) {
+                    return current.exam.userAnswers.hasOwnProperty(qIndex);
+                }
                 return current.answered.hasOwnProperty(qIndex);
             },
 
             getAnswer(qIndex) {
+                if (current.exam && current.exam.inExam) {
+                    return current.exam.userAnswers[qIndex];
+                }
                 return current.answered[qIndex];
             },
 
             reset() {
                 Storage.clearAll();
+                wrongShuffleCache = {};
                 current = createDefault();
                 category = 'all';
                 persist();
@@ -774,8 +1180,14 @@
     const UI = (function() {
         return {
             render() {
+                var state = State.getCurrent();
+                var isExamActive = state.exam && state.exam.inExam;
+                var isExamCompleted = state.exam && state.exam.isCompleted;
+
+                this.updateModeBadge();
                 this.renderStats();
                 this.renderCategoryTabs();
+                
                 var question = State.getCurrentQuestion();
                 if (!question) {
                     if (State.getCategory() === 'wrong') {
@@ -790,14 +1202,22 @@
                     this.renderNavigation();
                     return;
                 }
+
                 var qIndex = State.getCurrentQuestionIndex();
                 this.renderQuestion(question, qIndex);
-                if (State.isAnswered(qIndex)) {
-                    var userAnswer = State.getAnswer(qIndex);
-                    var isCorrect = (userAnswer === question.answer);
-                    this.renderFeedback(question, userAnswer, isCorrect);
-                } else {
+
+                // 考试中未交卷，隐藏反馈区
+                if (isExamActive && !isExamCompleted) {
                     document.getElementById('feedbackContainer').classList.remove('visible');
+                    this.renderExamTimer();
+                } else {
+                    if (State.isAnswered(qIndex)) {
+                        var userAnswer = State.getAnswer(qIndex);
+                        var isCorrect = (userAnswer === question.answer);
+                        this.renderFeedback(question, userAnswer, isCorrect);
+                    } else {
+                        document.getElementById('feedbackContainer').classList.remove('visible');
+                    }
                 }
                 this.renderNavigation();
             },
@@ -815,12 +1235,61 @@
                 }
             },
 
+            updateModeBadge() {
+                var state = State.getCurrent();
+                var badgeEl = document.getElementById('modeBadge');
+                if (badgeEl) {
+                    if (state.exam && state.exam.inExam) {
+                        badgeEl.textContent = '模拟考试';
+                    } else {
+                        badgeEl.textContent = state.mode === 'sequential' ? '顺序刷题' : '随机刷题';
+                    }
+                }
+            },
+
+            renderExamTimer() {
+                var state = State.getCurrent();
+                if (!state || !state.exam || !state.exam.inExam) return;
+
+                var timerEl = document.getElementById('examTimer');
+                var progressTextEl = document.getElementById('examProgressText');
+
+                if (timerEl) {
+                    var timeLeft = state.exam.timeLeft;
+                    var mins = Math.floor(timeLeft / 60);
+                    var secs = timeLeft % 60;
+                    var timeStr = '⏱️ ' + (mins < 10 ? '0' : '') + mins + ':' + (secs < 10 ? '0' : '') + secs;
+                    timerEl.textContent = timeStr;
+
+                    if (timeLeft < 600) { // 小于10分钟变红并闪烁
+                        timerEl.classList.add('urgent');
+                    } else {
+                        timerEl.classList.remove('urgent');
+                    }
+                }
+
+                if (progressTextEl) {
+                    var answeredCount = Object.keys(state.exam.userAnswers).length;
+                    progressTextEl.textContent = '已答 ' + answeredCount + '/' + state.exam.questions.length;
+                }
+            },
+
             renderStats() {
+                var state = State.getCurrent();
+                var isExamActive = state.exam && state.exam.inExam;
+
+                if (isExamActive) {
+                    var answeredCount = Object.keys(state.exam.userAnswers).length;
+                    var totalCount = state.exam.questions.length;
+                    var pct = totalCount > 0 ? (answeredCount / totalCount * 100) : 0;
+                    document.getElementById('progressBarFill').style.width = pct + '%';
+                    return;
+                }
+
                 var stats = State.getCategoryStats();
                 var wrongList = Storage.getWrongList();
                 var wrongSet = new Set(wrongList);
                 var categoryWrongFromBook = 0;
-                var state = State.getCurrent();
                 for (var i = 0; i < state.order.length; i++) {
                     if (wrongSet.has(state.order[i])) {
                         categoryWrongFromBook++;
@@ -864,9 +1333,25 @@
                     judgeButtons.style.display = 'none';
                     choiceOptions.style.display = 'flex';
                     this._renderChoiceOptions(question, qIndex);
-                    if (question.type === 'multi' && !State.isAnswered(qIndex)) {
-                        btnSubmit.style.display = 'block';
-                        btnSubmit.disabled = true;
+                    
+                    var isExamActive = state.exam && state.exam.inExam;
+                    var isExamCompleted = state.exam && state.exam.isCompleted;
+
+                    if (question.type === 'multi') {
+                        if (isExamActive && !isExamCompleted) {
+                            btnSubmit.style.display = 'block';
+                            var selectedCount = choiceOptions.querySelectorAll('.choice-option.selected').length;
+                            btnSubmit.disabled = selectedCount === 0;
+                            btnSubmit.textContent = '确认选择';
+                        } else {
+                            if (!State.isAnswered(qIndex)) {
+                                btnSubmit.style.display = 'block';
+                                btnSubmit.disabled = true;
+                                btnSubmit.textContent = '提交答案';
+                            } else {
+                                btnSubmit.style.display = 'none';
+                            }
+                        }
                     } else {
                         btnSubmit.style.display = 'none';
                     }
@@ -880,7 +1365,21 @@
                 btnTrue.className = 'answer-btn btn-true';
                 btnFalse.className = 'answer-btn btn-false';
 
-                if (State.isAnswered(qIndex)) {
+                var state = State.getCurrent();
+                var isExamActive = state.exam && state.exam.inExam;
+                var isExamCompleted = state.exam && state.exam.isCompleted;
+
+                if (isExamActive && !isExamCompleted) {
+                    btnTrue.disabled = false;
+                    btnFalse.disabled = false;
+
+                    var userAnswer = State.getAnswer(qIndex);
+                    if (userAnswer === '√') {
+                        btnTrue.classList.add('selected');
+                    } else if (userAnswer === '×') {
+                        btnFalse.classList.add('selected');
+                    }
+                } else if (State.isAnswered(qIndex)) {
                     btnTrue.disabled = true;
                     btnFalse.disabled = true;
 
@@ -911,6 +1410,10 @@
 
             _renderChoiceOptions(question, qIndex) {
                 var container = document.getElementById('choiceOptions');
+                var state = State.getCurrent();
+                var isExamActive = state.exam && state.exam.inExam;
+                var isExamCompleted = state.exam && state.exam.isCompleted;
+
                 var answered = State.isAnswered(qIndex);
                 var userAnswer = answered ? State.getAnswer(qIndex) : null;
                 var html = '';
@@ -921,16 +1424,22 @@
                     var isCorrectOption = false;
                     var extraClass = '';
 
-                    if (answered) {
-                        // Determine correct options
+                    if (isExamActive && !isExamCompleted) {
+                        if (question.type === 'single') {
+                            isSelected = (opt.label === userAnswer);
+                        } else {
+                            isSelected = userAnswer && userAnswer.indexOf(opt.label) !== -1;
+                        }
+                        if (isSelected) {
+                            extraClass = ' selected';
+                        }
+                    } else if (answered) {
                         if (question.type === 'single') {
                             isCorrectOption = (opt.label === question.answer);
                         } else {
-                            // multi: answer is like "ABC"
                             isCorrectOption = question.answer.indexOf(opt.label) !== -1;
                         }
 
-                        // Determine if user selected this option
                         if (question.type === 'single') {
                             isSelected = (opt.label === userAnswer);
                         } else {
@@ -1089,6 +1598,9 @@
                 var currentQIndex = State.getCurrentQuestionIndex();
                 var categoryLabels = {all: '全部', judge: '判断题', single: '单选题', multi: '多选题'};
 
+                var isExamActive = state.exam && state.exam.inExam;
+                var isExamCompleted = state.exam && state.exam.isCompleted;
+
                 var bodyHtml = '<div class="question-list-tabs">';
                 var categories = ['all', 'judge', 'single', 'multi'];
                 for (var i = 0; i < categories.length; i++) {
@@ -1110,13 +1622,21 @@
                     var itemClass = 'question-grid-item';
                     var statusIcon = '';
                     if (qIndex === currentQIndex) itemClass += ' current';
-                    if (state.answered[qIndex] !== undefined) {
-                        if (state.answered[qIndex] === question.answer) {
-                            itemClass += ' correct';
-                            statusIcon = '<span class="item-status">✓</span>';
-                        } else {
-                            itemClass += ' wrong';
-                            statusIcon = '<span class="item-status">✗</span>';
+
+                    if (isExamActive && !isExamCompleted) {
+                        if (State.isAnswered(qIndex)) {
+                            itemClass += ' answered-dot';
+                        }
+                    } else {
+                        var userAns = State.getAnswer(qIndex);
+                        if (userAns !== undefined) {
+                            if (userAns === question.answer) {
+                                itemClass += ' correct';
+                                statusIcon = '<span class="item-status">✓</span>';
+                            } else {
+                                itemClass += ' wrong';
+                                statusIcon = '<span class="item-status">✗</span>';
+                            }
                         }
                     }
                     bodyHtml += '<div class="' + itemClass + '" data-question-index="' + qIndex +
@@ -1153,9 +1673,14 @@
     /* ------- Events Module (Task 3) ------- */
     const Events = (function() {
         function toggleMultiChoice(label) {
+            var state = State.getCurrent();
+            var isExamActive = state.exam && state.exam.inExam;
+            var isExamCompleted = state.exam && state.exam.isCompleted;
+
             var question = State.getCurrentQuestion();
             var qIndex = State.getCurrentQuestionIndex();
-            if (!question || State.isAnswered(qIndex)) return;
+            if (!question) return;
+            if ((!isExamActive || isExamCompleted) && State.isAnswered(qIndex)) return;
 
             var option = document.querySelector('#choiceOptions .choice-option[data-label="' + label + '"]');
             if (!option) return;
@@ -1166,34 +1691,49 @@
         }
 
         function handleAnswer(userAnswer) {
+            var state = State.getCurrent();
+            var isExamActive = state.exam && state.exam.inExam;
+            var isExamCompleted = state.exam && state.exam.isCompleted;
+
             var question = State.getCurrentQuestion();
             var qIndex = State.getCurrentQuestionIndex();
-            if (State.isAnswered(qIndex)) return;
+
+            if (!isExamActive || isExamCompleted) {
+                if (State.isAnswered(qIndex)) return;
+            }
 
             var isCorrect = State.answerQuestion(userAnswer);
             UI.render();
 
-            if (isCorrect) {
-                UI.showToast('回答正确！', 'success');
+            if (isExamActive && !isExamCompleted) {
+                // 考试中未交卷，300ms 后自动跳下一题
+                if (question.type === 'single' || question.type === 'judge') {
+                    if (State.canGoNext()) {
+                        setTimeout(function() {
+                            var s = State.getCurrent();
+                            if (s.exam && s.exam.inExam && !s.exam.isCompleted && s.order[s.currentIndex] === qIndex) {
+                                State.goNext();
+                                UI.render();
+                            }
+                        }, 300);
+                    }
+                }
             } else {
-                UI.showToast('回答错误', 'error');
-            }
+                if (isCorrect) {
+                    UI.showToast('回答正确！', 'success');
+                } else {
+                    UI.showToast('回答错误', 'error');
+                }
 
-            // Show completion when all filtered questions answered (skip for wrong redo mode)
-            if (State.getCategory() !== 'wrong') {
-                var stats = State.getCategoryStats();
-                if (stats.answered >= stats.total) {
-                    setTimeout(function() {
-                        UI.showCompletion();
-                    }, 600);
+                if (State.getCategory() !== 'wrong') {
+                    var stats = State.getCategoryStats();
+                    if (stats.answered >= stats.total) {
+                        setTimeout(function() {
+                            UI.showCompletion();
+                        }, 600);
+                    }
                 }
             }
-        }
-
-        function updateModeBadge() {
-            var state = State.getCurrent();
-            document.getElementById('modeBadge').textContent =
-                state.mode === 'sequential' ? '顺序刷题' : '随机刷题';
         }
 
         return {
@@ -1223,16 +1763,19 @@
 
                     var question = State.getCurrentQuestion();
                     var qIndex = State.getCurrentQuestionIndex();
-                    if (!question || State.isAnswered(qIndex)) return;
+                    
+                    var state = State.getCurrent();
+                    var isExamActive = state.exam && state.exam.inExam;
+                    var isExamCompleted = state.exam && state.exam.isCompleted;
+
+                    if (!question) return;
+                    if ((!isExamActive || isExamCompleted) && State.isAnswered(qIndex)) return;
 
                     if (question.type === 'single') {
-                        // Single choice: immediately submit
                         var label = option.getAttribute('data-label');
                         handleAnswer(label);
                     } else if (question.type === 'multi') {
-                        // Multi choice: toggle selection
                         option.classList.toggle('selected');
-                        // Enable/disable submit button based on selection
                         var selected = document.querySelectorAll('#choiceOptions .choice-option.selected');
                         document.getElementById('btnSubmit').disabled = selected.length === 0;
                     }
@@ -1242,7 +1785,13 @@
                 document.getElementById('btnSubmit').addEventListener('click', function() {
                     var question = State.getCurrentQuestion();
                     var qIndex = State.getCurrentQuestionIndex();
-                    if (!question || State.isAnswered(qIndex)) return;
+                    
+                    var state = State.getCurrent();
+                    var isExamActive = state.exam && state.exam.inExam;
+                    var isExamCompleted = state.exam && state.exam.isCompleted;
+
+                    if (!question) return;
+                    if ((!isExamActive || isExamCompleted) && State.isAnswered(qIndex)) return;
 
                     var selected = document.querySelectorAll('#choiceOptions .choice-option.selected');
                     if (selected.length === 0) return;
@@ -1251,7 +1800,6 @@
                     for (var i = 0; i < selected.length; i++) {
                         answer += selected[i].getAttribute('data-label');
                     }
-                    // Sort alphabetically to match expected answer format
                     answer = answer.split('').sort().join('');
                     handleAnswer(answer);
                 });
@@ -1296,6 +1844,40 @@
                     }
                 });
 
+                // 交卷按钮
+                document.getElementById('btnSubmitExam').addEventListener('click', function() {
+                    var state = State.getCurrent();
+                    if (!state || !state.exam || !state.exam.inExam || state.exam.isCompleted) return;
+
+                    var totalQuestions = state.exam.questions.length;
+                    var answeredCount = Object.keys(state.exam.userAnswers).length;
+                    var unanswered = totalQuestions - answeredCount;
+
+                    if (unanswered > 0) {
+                        App.showConfirm('📝', '您还有 ' + unanswered + ' 道题未作答，确定现在交卷吗？', function() {
+                            submitExam(false);
+                        });
+                    } else {
+                        App.showConfirm('📝', '确定交卷并查看考试结果吗？', function() {
+                            submitExam(false);
+                        });
+                    }
+                });
+
+                // 退出按钮
+                document.getElementById('btnExitExam').addEventListener('click', function() {
+                    var state = State.getCurrent();
+                    if (!state || !state.exam || !state.exam.inExam) return;
+
+                    if (!state.exam.isCompleted) {
+                        App.showConfirm('⚠️', '退出考试将无法保存本次成绩，确认退出吗？', function() {
+                            exitExamMode();
+                        });
+                    } else {
+                        exitExamMode();
+                    }
+                });
+
                 // Keyboard shortcuts
                 document.addEventListener('keydown', function(e) {
                     if (e.key === 'Escape') {
@@ -1317,12 +1899,19 @@
                     } else if (e.key === 'Enter') {
                         var q = State.getCurrentQuestion();
                         var qIdx = State.getCurrentQuestionIndex();
-                        if (q && q.type === 'multi' && !State.isAnswered(qIdx)) {
-                            var selected = document.querySelectorAll('#choiceOptions .choice-option.selected');
-                            if (selected.length > 0) {
-                                var answer = '';
-                                for (var i = 0; i < selected.length; i++) answer += selected[i].getAttribute('data-label');
-                                handleAnswer(answer.split('').sort().join(''));
+                        
+                        var state = State.getCurrent();
+                        var isExamActive = state.exam && state.exam.inExam;
+                        var isExamCompleted = state.exam && state.exam.isCompleted;
+
+                        if (q && q.type === 'multi') {
+                            if ((isExamActive && !isExamCompleted) || !State.isAnswered(qIdx)) {
+                                var selected = document.querySelectorAll('#choiceOptions .choice-option.selected');
+                                if (selected.length > 0) {
+                                    var answer = '';
+                                    for (var i = 0; i < selected.length; i++) answer += selected[i].getAttribute('data-label');
+                                    handleAnswer(answer.split('').sort().join(''));
+                                }
                             }
                         }
                     } else {
@@ -1331,18 +1920,27 @@
                         if (!label) return;
                         var q = State.getCurrentQuestion();
                         if (!q) return;
+                        var qIdx = State.getCurrentQuestionIndex();
+
+                        var state = State.getCurrent();
+                        var isExamActive = state.exam && state.exam.inExam;
+                        var isExamCompleted = state.exam && state.exam.isCompleted;
+
                         if (q.type === 'judge') {
-                            handleAnswer(label === 'A' ? '√' : '×');
+                            if ((isExamActive && !isExamCompleted) || !State.isAnswered(qIdx)) {
+                                handleAnswer(label === 'A' ? '√' : '×');
+                            }
                         } else if (q.type === 'single') {
-                            handleAnswer(label);
+                            if ((isExamActive && !isExamCompleted) || !State.isAnswered(qIdx)) {
+                                handleAnswer(label);
+                            }
                         } else if (q.type === 'multi') {
-                            toggleMultiChoice(label);
+                            if ((isExamActive && !isExamCompleted) || !State.isAnswered(qIdx)) {
+                                toggleMultiChoice(label);
+                            }
                         }
                     }
                 });
-
-                // Initial mode badge
-                updateModeBadge();
             }
         };
     })();
@@ -1384,20 +1982,7 @@
         // --- Mode Switch Confirmation ---
         function bindModeSwitchConfirmation() {
             document.getElementById('btnModeSwitch').addEventListener('click', function() {
-                var state = State.getCurrent();
-                var newMode = (state.mode === 'sequential') ? 'random' : 'sequential';
-
-                showConfirm('🔄', '切换模式将重置当前进度，是否继续？', function() {
-                    State.reset();
-                    State.setMode(newMode);
-                    UI.render();
-                    document.getElementById('modeBadge').textContent =
-                        newMode === 'sequential' ? '顺序刷题' : '随机刷题';
-                    UI.showToast(
-                        newMode === 'sequential' ? '已切换为顺序模式' : '已切换为随机模式',
-                        'info'
-                    );
-                });
+                showModeSwitchModal();
             });
         }
 

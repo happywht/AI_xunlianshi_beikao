@@ -1796,3 +1796,291 @@
         .sync-feedback.error {
             color: var(--wrong);
         }
+
+        /* ==================== Mock Exam Mode Styling ==================== */
+        body.exam-mode #statsBar,
+        body.exam-mode #categoryTabs,
+        body.exam-mode #btnReset,
+        body.exam-mode #btnModeSwitch,
+        body.exam-mode #btnWrongBook {
+            display: none !important;
+        }
+
+        body.exam-mode .exam-bar {
+            display: flex !important;
+        }
+
+        .exam-bar {
+            padding: 16px 20px;
+            background: linear-gradient(135deg, var(--primary-light) 0%, var(--primary-dark) 100%);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            color: #ffffff;
+            box-shadow: var(--shadow);
+            animation: staggerFadeIn 0.4s ease;
+        }
+
+        .exam-info {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .exam-timer {
+            font-family: var(--font-family);
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: var(--accent-light);
+            background: rgba(240, 165, 0, 0.15);
+            padding: 4px 12px;
+            border-radius: 20px;
+            border: 1px solid rgba(240, 165, 0, 0.25);
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            letter-spacing: 0.5px;
+            box-shadow: 0 0 10px rgba(240, 165, 0, 0.1);
+        }
+
+        .exam-timer.urgent {
+            color: #ff4d4f;
+            background: rgba(255, 77, 79, 0.15);
+            border-color: rgba(255, 77, 79, 0.3);
+            animation: pulseUrgent 1s infinite alternate;
+        }
+
+        @keyframes pulseUrgent {
+            from { box-shadow: 0 0 4px rgba(255, 77, 79, 0.2); }
+            to { box-shadow: 0 0 16px rgba(255, 77, 79, 0.6); }
+        }
+
+        .exam-progress-text {
+            font-family: var(--font-family);
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: rgba(255, 255, 255, 0.7);
+            background: rgba(255, 255, 255, 0.06);
+            padding: 4px 12px;
+            border-radius: 20px;
+        }
+
+        .exam-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .exam-action-btn {
+            padding: 8px 16px;
+            border: none;
+            border-radius: var(--radius-sm);
+            font-size: 0.85rem;
+            font-weight: 700;
+            font-family: var(--font-family);
+            cursor: pointer;
+            transition: var(--transition-fast);
+        }
+
+        .exam-action-btn.submit-btn-exam {
+            background: linear-gradient(135deg, var(--correct) 0%, #27ae60 100%);
+            color: #ffffff;
+            box-shadow: 0 4px 10px var(--correct-glow);
+        }
+
+        .exam-action-btn.submit-btn-exam:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 6px 14px var(--correct-glow);
+        }
+
+        .exam-action-btn.exit-btn-exam {
+            background: rgba(255, 255, 255, 0.1);
+            color: rgba(255, 255, 255, 0.85);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+        }
+
+        .exam-action-btn.exit-btn-exam:hover {
+            background: rgba(255, 77, 79, 0.15);
+            color: #ff4d4f;
+            border-color: rgba(255, 77, 79, 0.25);
+        }
+
+        /* 目录弹窗在考试模式下的作答状态标记 */
+        body.exam-mode .question-grid-item.correct,
+        body.exam-mode .question-grid-item.wrong {
+            background: var(--bg-warm) !important;
+            border-color: var(--primary) !important;
+            color: var(--primary) !important;
+        }
+        body.exam-mode .question-grid-item.answered-dot::after {
+            content: '';
+            position: absolute;
+            bottom: 4px;
+            width: 5px;
+            height: 5px;
+            border-radius: 50%;
+            background: var(--primary);
+        }
+
+        /* 查看解析模式下重新激活正确/错误高亮 */
+        body.exam-mode.review-mode .question-grid-item.correct {
+            background: var(--correct-light) !important;
+            border-color: var(--correct-border) !important;
+            color: var(--correct) !important;
+        }
+        body.exam-mode.review-mode .question-grid-item.wrong {
+            background: var(--wrong-light) !important;
+            border-color: var(--wrong-border) !important;
+            color: var(--wrong) !important;
+        }
+
+        /* ==================== Exam Report Card (Glassmorphism) ==================== */
+        .exam-report {
+            padding: 10px 5px;
+            text-align: center;
+        }
+
+        .report-header {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-bottom: 24px;
+        }
+
+        .report-badge {
+            font-family: var(--font-family);
+            font-size: 0.8rem;
+            font-weight: 700;
+            padding: 4px 16px;
+            border-radius: 20px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 12px;
+            display: inline-block;
+        }
+
+        .report-badge.pass {
+            background: rgba(46, 204, 113, 0.15);
+            color: var(--correct);
+            border: 1px solid rgba(46, 204, 113, 0.3);
+        }
+
+        .report-badge.fail {
+            background: rgba(231, 76, 60, 0.15);
+            color: var(--wrong);
+            border: 1px solid rgba(231, 76, 60, 0.3);
+        }
+
+        .report-score-box {
+            position: relative;
+            display: inline-block;
+            margin-bottom: 10px;
+        }
+
+        .report-score {
+            font-family: var(--font-serif);
+            font-size: 4.5rem;
+            font-weight: 900;
+            line-height: 1;
+            background: linear-gradient(135deg, var(--primary) 30%, var(--accent) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            position: relative;
+        }
+
+        .score-unit {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: var(--primary-light);
+            margin-left: 2px;
+            -webkit-text-fill-color: initial;
+        }
+
+        .report-title {
+            font-family: var(--font-serif);
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: var(--primary);
+            margin-top: 8px;
+        }
+
+        .report-stats-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+            margin-bottom: 28px;
+        }
+
+        .report-stat-item {
+            background: var(--bg);
+            border-radius: var(--radius-sm);
+            padding: 14px 10px;
+            border: 1px solid var(--border-light);
+            transition: var(--transition-fast);
+        }
+
+        .report-stat-item:hover {
+            background: var(--bg-warm);
+        }
+
+        .report-stat-item .stat-num {
+            font-family: var(--font-serif);
+            font-size: 1.3rem;
+            font-weight: 800;
+            color: var(--primary);
+        }
+
+        .report-stat-item .stat-desc {
+            font-family: var(--font-family);
+            font-size: 0.72rem;
+            color: var(--text-secondary);
+            margin-top: 4px;
+        }
+
+        .report-btn-group {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .report-btn {
+            width: 100%;
+            min-height: var(--btn-min-height);
+            border: none;
+            border-radius: var(--radius-sm);
+            font-size: 0.95rem;
+            font-weight: 700;
+            font-family: var(--font-family);
+            cursor: pointer;
+            transition: var(--transition-fast);
+        }
+
+        .report-btn.btn-review {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
+            color: var(--accent-light);
+            box-shadow: 0 4px 12px rgba(26, 26, 46, 0.2);
+        }
+
+        .report-btn.btn-review:hover {
+            box-shadow: 0 6px 16px rgba(26, 26, 46, 0.3);
+            transform: translateY(-1px);
+        }
+
+        .report-btn.btn-exit {
+            background: var(--bg-warm);
+            color: var(--text-primary);
+            border: 1px solid var(--border);
+        }
+
+        .report-btn.btn-exit:hover {
+            background: var(--border);
+        }
+
+        /* 考试中，判断题选中高亮 */
+        .answer-btn.selected {
+            background: var(--primary) !important;
+            color: #FFFFFF !important;
+            border-color: var(--primary) !important;
+            box-shadow: 0 0 0 3px rgba(26, 26, 46, 0.15), var(--shadow-hover);
+        }
+
