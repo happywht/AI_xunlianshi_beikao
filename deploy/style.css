@@ -2349,6 +2349,27 @@
             }
         }
 
+        @media (max-width: 600px) {
+            .practice-workspace {
+                padding: 0 12px 24px;
+                gap: 16px;
+            }
+            .workspace-left, .workspace-right {
+                padding: 16px;
+                border-radius: 12px;
+            }
+            .practice-grid {
+                grid-template-columns: 1fr;
+                padding: 10px 12px 24px;
+                gap: 16px;
+            }
+            .workspace-tabs {
+                margin: 0 -16px 16px -16px !important;
+                padding: 16px 16px 0 16px !important;
+                flex-wrap: wrap;
+            }
+        }
+
         /* 任务书内容排版 */
         .task-title {
             font-family: var(--font-serif);
@@ -2413,6 +2434,30 @@
             display: flex;
             gap: 12px;
             flex-wrap: wrap;
+        }
+
+        .extra-resources-tip {
+            margin-top: 18px;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: var(--primary);
+        }
+
+        .extra-resources-list {
+            margin: 0;
+            padding-left: 22px;
+            font-size: 0.82rem;
+            line-height: 1.7;
+            color: var(--text-secondary);
+        }
+
+        .extra-resources-list li {
+            margin-bottom: 6px;
+        }
+
+        .extra-resources-list strong {
+            color: var(--text-primary);
+            font-family: var(--font-mono, ui-monospace, SFMono-Regular, monospace);
         }
 
         .download-link-btn {

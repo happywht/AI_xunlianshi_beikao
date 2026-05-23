@@ -531,6 +531,11 @@ print(peak_hours)`,
         downloads: [
             { name: "3.2.1_图像识别评估系统交互流程设计.ipynb", url: "practices/3.2.1/3.2.1_图像识别评估系统交互流程设计.ipynb", type: "ipynb" }
         ],
+        extraResources: [
+            { name: "resnet.onnx", note: "考试现场由 U 盘提供，可从 ONNX Model Zoo（github.com/onnx/models）获取等价的 ResNet50 模型用于本地练习" },
+            { name: "labels.txt", note: "ImageNet 1000 类标签文本文件，参考代码假定为每行一类、按类别索引顺序排列" },
+            { name: "img_test.jpg", note: "任意一张 RGB 测试图片，建议使用 ImageNet 中常见的物体照片以便验证 Top-5 输出" }
+        ],
         code: `# ----------------------------------------------------
 # 图像识别评估系统交互流程设计 (ONNX) - 参考代码
 # ----------------------------------------------------
@@ -654,6 +659,10 @@ for i in range(5):
 3. 数据处理准确与完整。`,
         downloads: [
             { name: "4.2.1_智能零售分析系统数据采集和处理指导.ipynb", url: "practices/4.2.1/4.2.1_智能零售分析系统数据采集和处理指导.ipynb", type: "ipynb" }
+        ],
+        extraResources: [
+            { name: "4.2.1.docx", note: "数据采集与处理指导方案 Word 模板，由考试现场 U 盘提供；本地练习时可自行新建 Word 文档按参考大纲撰写" },
+            { name: "pos_data.csv / member_data.csv", note: "POS 销售流水与会员档案样例数据，本题为文案策划型实操，参考代码仅作辅助伪代码示例，无需真实运行" }
         ],
         code: `# ----------------------------------------------------
 # 智能零售分析系统数据采集和处理指导 - 核心大纲
@@ -1954,7 +1963,10 @@ process_retail_data('pos_data.csv', 'member_data.csv')`,
                     
                     // 隐藏实操题容器
                     var practiceContainer = document.getElementById('practiceContainer');
-                    if (practiceContainer) practiceContainer.style.display = 'none';
+                    if (practiceContainer) {
+                        practiceContainer.style.display = 'none';
+                        practiceContainer.innerHTML = '';
+                    }
                 }
 
                 var question = State.getCurrentQuestion();
@@ -2557,7 +2569,7 @@ process_retail_data('pos_data.csv', 'member_data.csv')`,
             },
 
             renderMarkdownInline(text) {
-                return text
+                return this.escapeHtml(text)
                     .replace(/\`([^\`]+)\`/g, '<code>$1</code>')
                     .replace(/\*\*([^\*]+)\*\*/g, '<strong>$1</strong>')
                     .replace(/\*([^\*]+)\*/g, '<em>$1</em>');
@@ -2581,7 +2593,7 @@ process_retail_data('pos_data.csv', 'member_data.csv')`,
 
                     for (var i = 0; i < keys.length; i++) {
                         var item = PRACTICES[keys[i]];
-                        var record = state.practices[item.id] || { score: 0, completed: false };
+                        var record = state.practices[item.id] || { score: 0, checked: [], completed: false };
                         var percent = record.completed ? Math.round((record.score / item.score) * 100) : 0;
 
                         var cardClass = 'practice-card';
@@ -2663,6 +2675,15 @@ process_retail_data('pos_data.csv', 'member_data.csv')`,
                         html += '</a>';
                     }
                     html += '</div>';
+                    if (item.extraResources && item.extraResources.length) {
+                        html += '<p class="task-text extra-resources-tip">📌 以下资源由考试方现场提供 / 需考生自备，本系统不内置：</p>';
+                        html += '<ul class="extra-resources-list">';
+                        for (var k = 0; k < item.extraResources.length; k++) {
+                            var ex = item.extraResources[k];
+                            html += '<li><strong>' + this.escapeHtml(ex.name) + '</strong> — ' + this.escapeHtml(ex.note) + '</li>';
+                        }
+                        html += '</ul>';
+                    }
                     html += '</div>';
                     html += '</div>';
 
