@@ -817,9 +817,9 @@ process_retail_data('pos_data.csv', 'member_data.csv')`,
             return shuffled.slice(0, size);
         }
 
-        var selectedJudges = getRandomSubarray(judgeIndices, 20);
-        var selectedSingles = getRandomSubarray(singleIndices, 40);
-        var selectedMultis = getRandomSubarray(multiIndices, 20);
+        var selectedJudges = getRandomSubarray(judgeIndices, 40);
+        var selectedSingles = getRandomSubarray(singleIndices, 140);
+        var selectedMultis = getRandomSubarray(multiIndices, 10);
 
         return selectedJudges.concat(selectedSingles).concat(selectedMultis);
     }
@@ -989,8 +989,8 @@ process_retail_data('pos_data.csv', 'member_data.csv')`,
             questions: examQuestions,
             userAnswers: {},
             startTime: new Date().toISOString(),
-            duration: 3600,
-            timeLeft: 3600,
+            duration: 5400,
+            timeLeft: 5400,
             isCompleted: false,
             score: 0,
             submitTime: null,
@@ -1047,7 +1047,7 @@ process_retail_data('pos_data.csv', 'member_data.csv')`,
             '</div>' +
             '<div class="wrong-book-item" style="border-left-color: var(--correct);" id="optExam">' +
             '<div class="wb-question">📝 模拟考试模式</div>' +
-            '<div class="wb-meta" style="font-size:0.75rem;">精选官方题配比（20判断 + 40单选 + 20多选），60分钟闭卷考。</div>' +
+            '<div class="wb-meta" style="font-size:0.75rem;">精选官方题配比（40判断 + 140单选 + 10多选），90分钟闭卷考。</div>' +
             '</div>' +
             '</div>';
 
@@ -1663,8 +1663,8 @@ process_retail_data('pos_data.csv', 'member_data.csv')`,
                     questions: [],
                     userAnswers: {},
                     startTime: null,
-                    duration: 3600,
-                    timeLeft: 3600,
+                    duration: 5400,
+                    timeLeft: 5400,
                     isCompleted: false,
                     score: 0,
                     submitTime: null,
