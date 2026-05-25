@@ -5,6 +5,340 @@
     let QUESTIONS = [];
 
 /* ==================================================================
+   PRACTICAL EXAM DATA - 5 1.2.x Business Optimization & Design Questions
+   ================================================================== */
+const PRACTICES_12X = {
+    "1.2.1": {
+        id: "1.2.1",
+        name: "电商平台顾客评价情感识别优化设计",
+        time: "30min",
+        score: 20,
+        tags: ["电商平台", "情感识别", "业务优化", "大语言模型"],
+        background: `### 1. 场地设备要求
+* 人工智能训练师主机：CPU（Intel i5 及以上）、内存（不少于 16GB）、操作系统（Windows 10）、办公软件（Word 2016 及以上）；
+
+### 2. 工作任务
+在某电商平台的顾客评价情感识别中，用户反映的主要问题包括：情感识别准确性不高，导致分析结果偏差；响应速度慢，用户需长时间等待识别结果；用户界面不友好，操作复杂；缺乏定制化服务，无法满足特定需求。这些问题影响了用户的购物体验和满意度，需进行优化。
+
+**请根据标准解题模板，完成以下工作任务**：
+1. **（1）** 请列举顾客评价情感识别业务模块中用户反映最强烈的两个问题，并解释这两个问题为什么会让用户感到不满，影响他们的使用体验。
+   将上述答案写在 **1.2.1.docx** 答题卷上，题号为“**1.2.1-1**”。
+2. **（2）** 请设计一个优化顾客评价情感识别业务模块的方案，包括关键的实施步骤和你期望的优化效果。要求方案具体、可行，能够有效提升用户体验和服务质量。
+   将上述答案写在 **1.2.1.docx** 答题卷上，题号为“**1.2.1-2**”。
+
+### 3. 技能要求
+1. 能够结合业务知识，识别业务流程中单一模块的问题；
+2. 能够结合人工智能技术设计业务模块优化方案并推动实现。
+
+### 4. 质量指标
+1. 深刻理解数据，细致分析。`,
+        templateUsed1: "模板一（数据准确性）+ 模板二（响应速度）",
+        answer1: `#### 📝 题号 1.2.1-1 满分示范答案
+
+##### 🚨 问题一：情感识别准确性不高（套用【数据准确性不高】模板）
+* **系统问题**：**顾客评价情感识别模块**在**“顾客评价情感分析与分类极性判定”**方面存在数据准确性不高的问题。
+* **具体表现与影响**：具体表现为**将用户正面积极评价误识别为负面，或将强烈的负面吐槽判定为中性**，导致**最终导出的情感倾向分析与商户评分结果存在严重偏差**。
+* **用户不满原因**：这会让用户（平台商家及运营管理人员）感到不满，因为**错误的识别结果无法真实还原消费者的真实体验回馈，误导商家的备货决策、产品改进与售后公关方向**，严重影响他们的使用体验。
+
+##### 🚨 问题二：响应速度慢（套用【响应速度慢/反馈不及时】模板）
+* **系统问题**：**顾客评价情感识别模块**在**“批量评价数据实时导入与并发极性识别”**方面存在响应速度慢的问题。
+* **具体表现与场景**：用户需要**长达数秒甚至数分钟的加载**才能获得**单批次情感识别的统计结果**，在**“双十一、618大促等商家集中处理海量评价”**场景下无法及时**捕获潜在负面舆情并进行公关应对**。
+* **用户不满原因**：这会让用户感到不满，因为**慢速响应的等待过程极度耗费精力，降低了日常客服运营效率，且滞后的预警可能导致负面差评发酵成大规模品牌舆情危机**，严重影响他们的使用体验。`,
+        templateUsed2: "模板一（数据采集处理）+ 模板二（分布式架构）",
+        answer2: `#### 📝 题号 1.2.1-2 满分示范答案
+
+##### 💡 顾客评价情感识别业务模块优化方案
+
+###### 一、 优化方案设计
+1. **数据与模型侧优化（针对准确性）**：优化数据采集和处理流程，提升数据准确性。具体包括：建立多源数据融合机制，完善数据清洗和预处理流程（引入高性能多语境情感大模型），引入数据质量监控体系，定期进行数据验证和校准。
+2. **系统架构与性能侧优化（针对响应慢）**：优化系统架构和算法性能，提升响应速度。具体包括：采用分布式计算架构，优化算法模型，引入缓存机制（利用Redis进行高频同质评论缓存），建立负载均衡系统，实现并行处理能力。
+
+###### 二、 关键实施步骤
+1. **建立多源数据融合机制（套用模板一实施步骤）**：
+   * 整合来自**不同电商渠道（淘宝、京东、拼多多等）、社交媒体评论、社群反馈等多源数据源**，建立统一的情感语义标签标准和格式规范。
+   * 确保数据的一致性和完整性，通过文本去噪声、分词和拼写纠错等预处理流程剔除水军刷单文案，实现数据的有效融合。
+2. **采用分布式计算架构（套用模板二实施步骤）**：
+   * 将**情感识别系统拆分为文本预处理、模型推理服务、数据统计可视化等多个微服务模块**。
+   * 实现**负载分散和并行处理，提高系统整体处理能力，显著减少在高并发海量评论导入场景下的响应时间**。
+
+###### 三、 期望的优化效果
+1. **准确性指标（套用模板一效果）**：数据准确性提升 **20-30%**（意图与情感极性识别准确率由 75% 提升至 95% 以上），用户对系统输出结果的信任度显著增强，运营决策质量明显改善。
+2. **响应耗时指标（套用模板二效果）**：系统响应速度提升 **50%** 以上（批量识别延迟从平均 5.2秒 压缩至 1.2秒 以内），用户体验显著改善，系统处理高吞吐高并发的能力大幅增强。`,
+        checklist: [
+            { text: "准确定位并列举出“情感识别准确性不高”与“响应速度慢”两大最强烈痛点 (4分)", score: 4 },
+            { text: "基于模板一/二精准剖析痛点成因及对商家运营体验的严重影响，条理清晰 (4分)", score: 4 },
+            { text: "提出结合“情感大模型”与“分布式架构”的具体可行业务模块优化方案 (4分)", score: 4 },
+            { text: "制定包含“多源融合去噪清洗”与“微服务解耦并行处理”的关键实施步骤 (4分)", score: 4 },
+            { text: "给出准确率提升 20-30% 及响应提速 50% 以上的可量化预期优化效果 (4分)", score: 4 }
+        ]
+    },
+    "1.2.2": {
+        id: "1.2.2",
+        name: "养老平台心率监测模块优化设计与实现",
+        time: "30min",
+        score: 20,
+        tags: ["智慧养老", "物联网", "健康监测", "边缘计算"],
+        background: `### 1. 场地设备要求
+* 人工智能训练师主机：CPU（Intel i5 及以上）、内存（不少于 16GB）、操作系统（Windows 10）、办公软件（Word 2016 及以上）；
+
+### 2. 工作任务
+某智慧养老平台的心率监测模块目前存在数据准确性不高、异常预警响应慢等问题，影响了老年人健康监测的体验和服务质量。作为人工智能训练师，你需要结合业务知识和人工智能技术，对该模块进行优化设计与实现。
+
+**请根据标准解题模板，完成以下工作任务**：
+1. **（1）** 列出心率监测模块当前存在的具体问题，如数据准确性、异常预警响应等；简述这些问题对老年人健康监测的影响；指出导致这些问题的主要技术或流程原因。
+   将上述答案写在 **1.2.2.docx** 答题卷上，题号为“**1.2.2-1**”。
+2. **（2）** 简述针对心率监测模块问题的优化方案，可涉及技术、流程等方面；列出优化方案的关键实施步骤，如数据采集、预处理、模型训练等；概述如何协调团队资源以确保优化方案的实现，并简述预期效果。
+   将上述答案写在 **1.2.2.docx** 答题卷上，题号为“**1.2.2-2**”。
+
+### 3. 技能要求
+1. 能够结合业务知识，识别业务流程中单一模块的问题；
+2. 能够结合人工智能技术设计业务模块优化方案并推动实现。
+
+### 4. 质量指标
+1. 深刻理解数据，细致分析。`,
+        templateUsed1: "模板一（数据准确性）+ 模板二（响应速度）",
+        answer1: `#### 📝 题号 1.2.2-1 满分示范答案
+
+##### 🚨 问题一：数据准确性不高（套用【数据准确性不高】模板）
+* **系统问题**：**养老平台心率监测模块**在**“连续心率生理体征数据处理”**方面存在数据准确性不高的问题。
+* **具体表现与影响**：具体表现为**老年人在日常走动、翻身时产生运动伪影，或手环佩戴不当松动导致杂波干扰，输出异常的高偏或低偏心率数据**，导致**心率异常漏报或频繁假阳性报警**。
+* **用户不满原因**：这会对老年人健康监测产生严重负面影响。**频繁的假警报会引发老年人及其家属不必要的恐慌和“狼来了”式的警报疲劳**，而**真正的突发异常（如心肌梗死前兆）漏报则会错失黄金救治时间，直接威胁生命安全**，极大削弱了用户对系统的使用体验与信任。
+* **技术/流程原因**：导致该问题的技术或流程原因是**硬件传感器抗噪弱、缺乏针对体动伪影的高性能滤波清洗算法，以及缺乏多体征联合校验的数据流闭环**。
+
+##### 🚨 问题二：异常预警响应慢（套用【响应速度慢/反馈不及时】模板）
+* **系统问题**：**养老平台心率监测模块**在**“异常生理信号预警提醒推送触发”**方面存在响应速度慢的问题。
+* **具体表现与场景**：用户需要**长达数分钟甚至二十分钟**才能获得**异常心率紧急推送警报**，在**“老人夜间突发急性心脏骤停、恶性心律失常”**场景下无法及时**通知紧急联系人或院前急救**。
+* **用户不满原因**：这会对老年人健康监测产生致命影响。**心脏意外的抢救属于秒级赛跑，迟缓的预警让智慧养老平台的安全保障承诺形同虚设**，严重影响老年人和家属的安全体验。
+* **技术原因**：导致该问题的技术原因包括**云端集中处理导致的巨大网络通信往返时延、在大规模高并发状态下系统队列堵塞，以及手环设备端缺乏边缘异常初筛计算逻辑**。`,
+        templateUsed2: "模板一（卡尔曼去噪）+ 模板二（端边云分布式）",
+        answer2: `#### 📝 题号 1.2.2-2 满分示范答案
+
+##### 💡 心率监测模块优化方案及团队资源协调
+
+###### 一、 优化方案设计
+1. **数据清洗侧优化（针对准确性）**：优化数据采集和处理流程，提升数据准确性。具体包括：建立多源数据融合机制（联合血氧与三轴加速度），完善数据清洗和预处理流程（引入卡尔曼滤波与滑动自适应噪声对消算法），引入数据质量监控体系。
+2. **系统架构侧优化（针对预警慢）**：优化系统架构和算法性能，提升响应速度。引入端-边-云协同的分布式计算架构，在手环端部署轻量级异常阈值判定，云端拆分为高响应预警微服务，建立负载均衡与高性能消息队列。
+
+###### 二、 关键实施步骤
+1. **建立多源数据融合与去噪清洗机制（套用模板一实施步骤）**：
+   * **数据采集**：高频采集PPG（光电容积脉搏波）和加速度计数据。
+   * **数据预处理**：应用自适应噪声对消技术（ANC）剥离体动干扰，通过移动平均和中值滤波清洗极值。
+   * **模型训练**：结合大量临床心电/心率时序标注数据训练特定分类模型，实现异常心率的特异性提取。
+2. **采用端-边-云协同与分布式处理（套用模板二实施步骤）**：
+   * 在**手环端实现异常预警的轻量化规则初筛，若发现严重异常立即触发广播，减少对云端通信的依赖**。
+   * 在**云端采用微服务架构，基于高性能消息队列（如 Flink / Kafka）进行并行风控计算**，打通推送网关秒级投递。
+
+###### 三、 团队资源协调
+1. **硬件与物联网团队**：负责提升手环传感器的采样质量、优化蓝牙低功耗传输协议，保障原始生理信号的完整采集与设备级边缘初筛逻辑烧录。
+2. **算法与数据标注团队**：负责生理信号去噪、滤波算法的开发，并对异常心率进行高保真人工标注，训练高特异性分类器以降低假警报率。
+3. **后端与运维团队**：负责构建微服务架构、搭建分布式消息队列与高可用推送网关，配置服务器负载均衡，保障预警并发处理能力。
+
+###### 四、 预期效果
+1. **准确度效果（套用模板一效果）**：数据准确性提升 **20-30%**（假阳性与误报率降低 30% 以上），用户对监测结果和异常警报的信任度显著增强。
+2. **时效性效果（套用模板二效果）**：系统预警响应速度提升 **50%** 以上（端到端紧急预警时延由之前的 3-5分钟 缩短至 3秒 以内），老年人安全保障体验全面改善。`,
+        checklist: [
+            { text: "指明心率监测“数据不准”和“预警慢”的具体表现及对老年人健康的危害 (4分)", score: 4 },
+            { text: "深刻剖析体动干扰、佩戴松动、云端处理延迟等软硬件及流程原因 (4分)", score: 4 },
+            { text: "设计包含“卡尔曼去噪滤波”与“端-边-云协同”的业务模块优化方案 (4分)", score: 4 },
+            { text: "列出包含数据采集、自适应去噪、模型训练及消息队列微服务等关键实施步骤 (4分)", score: 4 },
+            { text: "概述协调硬件、算法、后端团队的职责分配，并给出时延降低50%的预期效果 (4分)", score: 4 }
+        ]
+    },
+    "1.2.3": {
+        id: "1.2.3",
+        name: "智慧金融异常预警与信用评分优化设计",
+        time: "30min",
+        score: 20,
+        tags: ["智慧金融", "风控评估", "交易欺诈", "实时计算"],
+        background: `### 1. 场地设备要求
+* 人工智能训练师主机：CPU（Intel i5 及以上）、内存（不少于 16GB）、操作系统（Windows 10）、办公软件（Word 2016 及以上）；
+
+### 2. 工作任务
+某智慧金融服务平台在数据处理和异常预警方面目前存在明显短板，具体表现为数据准确性不高、异常预警响应慢等，这些问题直接削弱了用户金融健康监测的体验和服务质量。作为人工智能训练师，你的任务是融合金融业务知识与人工智能技术，对该平台的相关模块进行优化设计与实现。
+
+**请根据标准解题模板，完成以下工作任务**：
+1. **（1）** 请列举智慧金融服务业务模块中用户反映最强烈的几个问题，并解释这些问题为什么会让用户感到不满，影响他们的使用体验。
+   将上述答案写在 **1.2.3.docx** 答题卷上，题号为“**1.2.3-1**”。
+2. **（2）** 假设你要优化智慧金融服务业务模块，以提升用户体验和服务质量。请设计一个优化方案，列出关键的实施步骤，并描述你期望的优化效果。
+   将上述答案写在 **1.2.3.docx** 答题卷上，题号为“**1.2.3-2**”。
+
+### 3. 技能要求
+1. 能够结合业务知识，识别业务流程中单一模块的问题；
+2. 能够结合人工智能技术设计业务模块优化方案并推动实现。
+
+### 4. 质量指标
+1. 深刻理解数据，细致分析。`,
+        templateUsed1: "模板一（数据准确性）+ 模板二（响应速度）",
+        answer1: `#### 📝 题号 1.2.3-1 满分示范答案
+
+##### 🚨 问题一：信用评估与风控数据准确性不高（套用【数据准确性不高】模板）
+* **系统问题**：**智慧金融服务系统**在**“贷款申请人风险信用评分与评估判定”**方面存在数据准确性不高的问题。
+* **具体表现与影响**：具体表现为**征信缺失值直接填充错误、未对高负债字段做合理加权逻辑，使得优质借款人被系统错判为高风险，或者让真正有严重拖欠倾向的借款人蒙混过关**，导致**最终导出的信用评分及违约概率模型精度极低**。
+* **用户不满原因**：这会让用户感到不满，因为**对于个人申请者而言，误判导致优质借款人被无理拒贷，严重阻碍其合法融资行为；对于金融放贷机构而言，不良资产识别失效将引发大额的死账和坏账损失**，严重削弱了借贷双方对系统的体验与信任。
+
+##### 🚨 问题二：欺诈交易预警响应慢（套用【响应速度慢/反馈不及时】模板）
+* **系统问题**：**智慧金融服务系统**在**“实时欺诈盗刷交易预警及拦截”**方面存在响应速度慢的问题。
+* **具体表现与场景**：用户需要**长达数分钟甚至数小时**才能获得**异常盗刷、异常越权转账的预警及拦截判定结果**，在**“盗窃犯罪团伙秒级拆分转移盗刷资金”**场景下无法及时**实施阻断与资产冻结**。
+* **用户不满原因**：这会让用户感到不满，因为**金融欺诈具有瞬时性，几分钟的延迟意味着被盗刷的资产已经被洗空，慢吞吞的“事后预警”毫无保护意义，使用户蒙受巨大的资金损失**，彻底粉碎了用户的资金安全感与使用体验。`,
+        templateUsed2: "模板一（数据融合预处理）+ 模板二（流式分布式架构）",
+        answer2: `#### 📝 题号 1.2.3-2 满分示范答案
+
+##### 💡 智慧金融模块优化方案设计
+
+###### 一、 优化方案设计
+1. **数据整合清洗侧优化（针对准确性）**：优化数据采集和处理流程，提升数据准确性。具体包括：建立多源数据融合机制，完善数据清洗和预处理流程（引入支持缺失插补的 SMOTE 重采样逻辑与特征重要性过滤），引入数据质量监控体系，定期进行数据校验。
+2. **系统流计算侧优化（针对响应慢）**：优化系统架构和算法性能，提升响应速度。具体包括：采用分布式计算架构，优化算法模型，引入缓存机制（使用Redis热缓存黑名单），建立负载均衡系统，实现并行流计算处理能力。
+
+###### 二、 关键实施步骤
+1. **建立多源金融数据融合与清洗预处理（套用模板一实施步骤）**：
+   * 联合**多渠道金融信息（如银行交易流水、征信报告、电商消费习惯等）**，建立统一的数据模型和格式规范。
+   * 应用多重共线性检测，剔除冗余字段，引入自适应均值/随机森林插补法填充缺失数据，利用 SMOTE 技术对极其不平衡的“拖欠客户样本”进行过采样，以保证信用评分因变量的一致性与完整性。
+2. **基于 Apache Flink / Spark Streaming 部署分布式流式处理（套用模板二实施步骤）**：
+   * 将**交易风控与预警系统解耦为特征工程提取、风控规则匹配、逻辑回归及大模型分类判定等微服务模块**。
+   * 采用**负载均衡和高并发并行处理，对流入的实时刷卡交易流进行秒级分布式拦截过滤**，彻底消减等待时延。
+
+###### 三、 期望的优化效果
+1. **准确度提升（套用模板一效果）**：金融风控评估准确性提升 **20-30%**（信用评估模型的召回率 Recall 提升至 85% 以上），用户对授信和风控输出结果的信任度显著增强。
+2. **预警耗时下降（套用模板二效果）**：异常预警响应速度提升 **50%** 以上（异常欺诈交易从刷卡到系统判定拦截的时延从 3-5秒 降至 20毫秒 以内），系统对极端高并发实时支付的处理能力大幅增强。`,
+        checklist: [
+            { text: "列出信用评分不准与欺诈拦截响应慢的最强烈痛点及其危害 (4分)", score: 4 },
+            { text: "指出拒贷或坏账产生导致借贷双方信任度大损、资金损失严重的不满原因 (4分)", score: 4 },
+            { text: "设计融合“多源征信多重共线性去噪”与“实时流式计算”的金融优化方案 (4分)", score: 4 },
+            { text: "详细写出引入自适应插补、SMOTE过采样及Flink流计算微服务的实施步骤 (4分)", score: 4 },
+            { text: "量化描述模型召回率提升 20-30% 以及欺诈拦截延时降至毫秒级的优化效果 (4分)", score: 4 }
+        ]
+    },
+    "1.2.4": {
+        id: "1.2.4",
+        name: "智能卖点生成系统优化设计与实现",
+        time: "30min",
+        score: 20,
+        tags: ["智能营销", "文案生成", "个性化", "大语言模型"],
+        background: `### 1. 场地设备要求
+* 人工智能训练师主机：CPU（Intel i5 及以上）、内存（不少于 16GB）、操作系统（Windows 10）、办公软件（Word 2016 及以上）；
+
+### 2. 工作任务
+针对智能卖点生成系统，目前用户反馈中存在卖点生成不准确、缺乏个性化定制等一些显著的问题，这些问题直接影响了用户的使用体验和系统的服务质量。作为人工智能训练师，任务是结合人工智能技术和业务知识，对该系统的相关模块进行优化设计与实现。
+
+**请根据标准解题模板，完成以下工作任务**：
+1. **（1）** 请列举智能卖点生成系统业务模块中用户反映最强烈的几个问题，并解释这些问题为什么会让用户感到不满，影响他们的使用体验。
+   将上述答案写在 **1.2.4.docx** 答题卷上，题号为“**1.2.4-1**”。
+2. **（2）** 假设你要优化智能卖点生成系统业务模块，以提升用户体验和服务质量。请设计一个优化方案，列出关键的实施步骤，并描述你期望的优化效果。
+   将上述答案写在 **1.2.4.docx** 答题卷上，题号为“**1.2.4-2**”。
+
+### 3. 技能要求
+1. 能够结合业务知识，识别业务流程中单一模块的问题；
+2. 能够结合人工智能技术设计业务模块优化方案并推动实现。
+
+### 4. 质量指标
+1. 深刻理解数据，细致分析。`,
+        templateUsed1: "模板一（数据准确性）+ 模板三（缺乏个性化）",
+        answer1: `#### 📝 题号 1.2.4-1 满分示范答案
+
+##### 🚨 问题一：卖点文案生成不准确（套用【数据准确性不高】模板）
+* **系统问题**：**智能卖点生成系统**在**“商品详情与核心卖点文案提炼”**方面存在数据准确性不高的问题。
+* **具体表现与影响**：具体表现为**生成的内容严重偏离商品真实的物理属性，捏造夸大功效，或者把非此商品的特点张冠李戴**，导致**最终产出的营销卖点大段失真**。
+* **用户不满原因**：这会让用户（电商卖家与文案策划）感到不满，因为**不真实的卖点一旦用于店铺展示，会导致商家面临虚假宣传的合规与法律风险；同时，胡编乱造的文案用户无法采纳，迫使商家不得不进行大量的人工重写与修正**，极大地浪费了时间成本，影响他们的使用体验。
+
+##### 🚨 问题二：缺乏个性化受众风格定制（套用【缺乏个性化/定制化服务】模板）
+* **系统问题**：**智能卖点生成系统**在**“根据目标受众群体的偏好差异化输出”**方面存在缺乏个性化定制的问题。
+* **具体表现与场景**：系统**无法根据“目标受众画像（如Z世代、白领女性、新晋宝妈）及品牌独特调性”提供“差异化的文案生成服务”**，导致**生成的卖点文案语调单一、千篇一律**。
+* **用户不满原因**：这会让用户感到不满，因为**大同小异的同质化文案根本无法触达细分群体的核心痛点，商品难以在红海竞争中建立特色，品牌的个性化调性也荡然无存**，大幅降低了用户对该工具的采纳粘性与体验。`,
+        templateUsed2: "模板一（商品数据清洗）+ 模板三（客群画像个性化）",
+        answer2: `#### 📝 题号 1.2.4-2 满分示范答案
+
+##### 💡 智能卖点生成系统模块优化方案
+
+###### 一、 优化方案设计
+1. **事实性数据侧优化（针对生成不准）**：优化数据采集和处理流程，提升数据准确性。具体包括：建立多源数据融合机制，完善数据清洗和预处理流程（引入商品实体对齐与知识图谱约束），引入数据质量监控体系，定期进行数据验证。
+2. **营销风格侧优化（针对缺乏个性化）**：建立用户画像和个性化推荐系统，提供定制化文案服务。具体包括：收集用户行为数据，构建受众群体画像模型，开发个性化文案风格生成算法，建立动态反馈调整机制。
+
+###### 二、 关键实施步骤
+1. **建立多源商品数据融合与数据去噪清洗（套用模板一实施步骤）**：
+   * 整合**商品规格参数库、厂商企划案、历史真实好评文案等多源数据源**，建立统一的商品物理标准格式。
+   * 通过文本清洗过滤虚假的竞品数据，确保输入到大模型的数据具备高度一致性和完整性，强制排除大模型的虚无幻想与夸大事实。
+2. **构建多维度目标客群受众画像模型（套用模板三实施步骤）**：
+   * 基于**消费者画像与历史高转化文案点击行为数据，建立细分受众群体的人群特征标签体系**（如性价比关注者、精致白领、科技发烧友）。
+   * 构筑多维度的受众画像和营销调性匹配模型，为大模型的 Prompt 注入精准的人群特征和风格分析，动态生成最匹配的卖点。
+
+###### 三、 期望的优化效果
+1. **准确度效果（套用模板一效果）**：营销卖点文案的事实准确性提升 **20-30%**，虚假虚捏营销词的发生概率降低 30% 以上，文案人员的首发采纳信任度显著增强。
+2. **个性化效果（套用模板三效果）**：个性化文案风格定制能力显著增强，系统产出的文案针对特定目标人群的转化率和用户满意度提升 **15-25%**，用户的续订率与粘性明显提高。`,
+        checklist: [
+            { text: "列出营销文案生成“不实幻觉”与“千篇一律”的两大强烈痛点表现及危害 (4分)", score: 4 },
+            { text: "剖析虚假宣传带来的法律风险和同质化文案无转化的用户痛点与不满原因 (4分)", score: 4 },
+            { text: "设计结合“多源规格去噪约束”与“受众群体画像定制”的智能卖点优化方案 (4分)", score: 4 },
+            { text: "制定包含“商品物理规格实体对齐”与“营销调性画像映射”的关键实施步骤 (4分)", score: 4 },
+            { text: "给出文案采纳率提升 20-30% 以及受众点击转化率提升 15-25% 的可量化效果 (4分)", score: 4 }
+        ]
+    },
+    "1.2.5": {
+        id: "1.2.5",
+        name: "腾讯云智能数智人系统优化设计与实现",
+        time: "30min",
+        score: 20,
+        tags: ["数智人", "人机交互", "情感共鸣", "知识图谱"],
+        background: `### 1. 场地设备要求
+* 人工智能训练师主机：CPU（Intel i5 及以上）、内存（不少于 16GB）、操作系统（Windows 10）、办公软件（Word 2016 及以上）；
+
+### 2. 工作任务
+针对腾讯云智能数智人系统，目前用户反馈中存在一些显著的问题，如数智人响应不准确、缺乏个性化交互能力等，这些问题直接影响了用户的使用体验和系统的服务质量。作为人工智能训练师，任务是结合人工智能技术和业务知识，对该系统的相关模块进行优化设计与实现。
+
+**请根据标准解题模板，完成以下工作任务**：
+1. **（1）** 请列举腾讯云智能数智人系统业务模块中用户反映最强烈的几个问题，并解释这些问题为什么会让用户感到不满，影响他们的使用体验。
+   将上述答案写在 **1.2.5.docx** 答题卷上，题号为“**1.2.5-1**”。
+2. **（2）** 设你要优化腾讯云智能数智人系统业务模块，以提升用户体验和服务质量。请设计一个优化方案，列出关键的实施步骤，并描述你期望的优化效果。
+   将上述答案写在 **1.2.5.docx** 答题卷上，题号为“**1.2.5-2**”。
+
+### 3. 技能要求
+1. 能够结合业务知识，识别业务流程中单一模块的问题；
+2. 能够结合人工智能技术设计业务模块优化方案并推动实现。
+
+### 4. 质量指标
+1. 深刻理解数据，细致分析。`,
+        templateUsed1: "模板一（数据准确性）+ 模板三（缺乏个性化）",
+        answer1: `#### 📝 题号 1.2.5-1 满分示范答案
+
+##### 🚨 问题一：数智人响应回答不准确（套用【数据准确性不高】模板）
+* **系统问题**：**腾讯云智能数智人系统**在**“实时客服问答意图识别与常识库大模型推理”**方面存在数据准确性不高的问题。
+* **具体表现与影响**：具体表现为**数智人在解答复杂业务或企业特定产品时，意图识别失真或产生“大模型幻觉”而答非所问，提供与企业规定背道而驰的错误解答**，导致**交互输出的信息偏差极其巨大**。
+* **用户不满原因**：这会让用户（使用数智人的企业客户）感到不满，因为**错误的应答直接误导了最终消费者，造成客户流失或纠纷，同时由于应答不准无法真正分流客服压力，迫使人工客服不得不频繁接入救火**，完全违背了引入数智人的降本增效初衷，严重影响他们的使用体验。
+
+##### 🚨 问题二：缺乏个性化情感交互能力（套用【缺乏个性化/定制化服务】模板）
+* **系统问题**：**腾讯云智能数智人系统**在**“拟人化情感共鸣及特定用户动态交互”**方面存在缺乏个性化定制的问题。
+* **具体表现与场景**：系统**无法根据“用户的实时语气语速、情绪波动状态（如急切、疑惑、愤怒）及客户类型”提供“差异化的面部表情、发音语速和内容侧重”**，导致**数智人交互动作呆板僵硬、像冰冷的机械播报**。
+* **用户不满原因**：这会让用户感到不满，因为**无温无感的老旧交互根本无法给客户提供优质的尊贵体验，且在面对客户愤怒投诉等特定场景下，冷冰冰的话术和毫无波澜的面部表情反而会进一步激怒客户**，造成负面影响，无法满足高端接待、个性化导购等场景差异化需求。`,
+        templateUsed2: "模板一（多源知识融合）+ 模板三（情绪特征画像）",
+        answer2: `#### 📝 题号 1.2.5-2 满分示范答案
+
+##### 💡 腾讯云数智人系统业务模块优化方案
+
+###### 一、 优化方案设计
+1. **对话知识侧优化（针对回答不准）**：优化知识数据采集和处理流程，提升数据准确性。具体包括：建立多源数据融合机制，完善数据清洗和预处理流程（采用企业专属知识图谱 RAG 检索增强技术），引入数据质量监控体系，定期进行数据校准。
+2. **面部与语调侧优化（针对缺乏个性化）**：建立用户画像和个性化情感交互系统，提供定制化服务。具体包括：收集用户语音及交互情绪数据，构建情绪与用户特征画像模型，开发面部表情和语速语调的个性化自适应控制算法。
+
+###### 二、 关键实施步骤
+1. **建立多源企业知识融合与RAG去噪清洗机制（套用模板一实施步骤）**：
+   * 整合**企业产品常见手册、在线客服沉淀的历史高保真应答记录、垂直行业规范库等多源数据源**，建立统一的数智人知识向量标准和格式规范。
+   * 消除冗余和低质杂乱问答对，确保输入模型的数据一致性和完整性，从根源消除数智人满嘴跑火车的胡言乱语。
+2. **构建多维度用户情绪与偏好画像模型（套用模板三实施步骤）**：
+   * 基于**用户实时的声学音强、语速及文本负面情感信息，实时建立用户情绪偏好特征标签体系**。
+   * 构造自适应面部情绪映射模型，为数智人提供定制化交互的表情系数与语调生成。
+
+###### 三、 期望的优化效果
+1. **准确度效果（套用模板一效果）**：意图识别与知识问答的准确性提升 **20-30%**（首问意图解决率提升至 93% 以上，企业客服误判偏差基本清零），用户满意度和对数智人的业务信任度显著增强。
+2. **个性化交互效果（套用模板三效果）**：数智人情感交互与个性化回应能力显著增强，因冷感交互而流失的用户比例明显下降，单次交互时长和用户粘性提升 **15-25%**。`,
+        checklist: [
+            { text: "具体列出数智人“答非所问/大模型幻觉”与“拟人化情感缺乏/机械播报”的两大用户强烈不满问题 (4分)", score: 4 },
+            { text: "结合人工客服被迫介入、激怒投诉客群等具体场景深入剖析危害和不满原因 (4分)", score: 4 },
+            { text: "设计联合“企业知识向量图谱约束”与“实时声学情绪特征画像”的数智人优化方案 (4分)", score: 4 },
+            { text: "给出构建统一企业向量索引知识清洗与提取自适应情绪面部表情控制系数的步骤 (4分)", score: 4 },
+            { text: "准确给出意图识别准确率提升 20-30% 以及客户交互满意度提升 15-25% 的可量化效果 (4分)", score: 4 }
+        ]
+    }
+};
+
+/* ==================================================================
    PRACTICAL EXAM DATA - 6 High-Fidelity Practice Questions
    ================================================================== */
 const PRACTICES = {
@@ -1939,11 +2273,46 @@ process_retail_data('pos_data.csv', 'member_data.csv')`,
                     var statsBar = document.getElementById('statsBar');
                     if (statsBar) statsBar.style.display = 'none';
                     
+                    // 隐藏 1.2.x 容器
+                    var practice12xContainer = document.getElementById('practice12xContainer');
+                    if (practice12xContainer) {
+                        practice12xContainer.style.display = 'none';
+                        practice12xContainer.innerHTML = '';
+                    }
+
                     // 显示实操题容器并渲染
                     var practiceContainer = document.getElementById('practiceContainer');
                     if (practiceContainer) practiceContainer.style.display = 'block';
                     
                     this.renderPractices();
+                    return;
+                } else if (currentCat === 'practice12x') {
+                    // 1.2.x 方案设计实操模式下，动态给body增加类名
+                    document.body.classList.add('practice-mode');
+                    
+                    // 隐藏理论题答题区与底部控制栏
+                    document.getElementById('questionContainer').style.display = 'none';
+                    document.getElementById('feedbackContainer').style.display = 'none';
+                    document.getElementById('navigationBar').style.display = 'none';
+                    document.getElementById('bottomBar').style.display = 'none';
+                    
+                    var progressWrapper = document.querySelector('.progress-wrapper');
+                    if (progressWrapper) progressWrapper.style.display = 'none';
+                    var statsBar = document.getElementById('statsBar');
+                    if (statsBar) statsBar.style.display = 'none';
+                    
+                    // 隐藏原有实操容器
+                    var practiceContainer = document.getElementById('practiceContainer');
+                    if (practiceContainer) {
+                        practiceContainer.style.display = 'none';
+                        practiceContainer.innerHTML = '';
+                    }
+
+                    // 显示方案设计容器并渲染
+                    var practice12xContainer = document.getElementById('practice12xContainer');
+                    if (practice12xContainer) practice12xContainer.style.display = 'block';
+                    
+                    this.renderPractice12x();
                     return;
                 } else {
                     // 非实操模式下，清除所有实操专属类名
@@ -1966,6 +2335,11 @@ process_retail_data('pos_data.csv', 'member_data.csv')`,
                     if (practiceContainer) {
                         practiceContainer.style.display = 'none';
                         practiceContainer.innerHTML = '';
+                    }
+                    var practice12xContainer = document.getElementById('practice12xContainer');
+                    if (practice12xContainer) {
+                        practice12xContainer.style.display = 'none';
+                        practice12xContainer.innerHTML = '';
                     }
                 }
 
@@ -2454,6 +2828,8 @@ process_retail_data('pos_data.csv', 'member_data.csv')`,
             // ==================================================================
             activePracticeId: null,
             activeWorkspaceTab: {}, // { "1.1.1": "code", ... }
+            activePractice12xId: null,
+            activeWorkspaceTab12x: {}, // { "1.2.1": "doc", ... }
 
             escapeHtml(text) {
                 if (!text) return '';
@@ -2898,6 +3274,309 @@ process_retail_data('pos_data.csv', 'member_data.csv')`,
                 modalHtml += '</div>';
 
                 Modal.open('实操自测归档', modalHtml);
+            },
+
+            // ==================================================================
+            // PRACTICAL 1.2.X EXAM INTERACTION LOGIC
+            // ==================================================================
+            renderPractice12x() {
+                var container = document.getElementById('practice12xContainer');
+                if (!container) return;
+
+                if (!this.activePractice12xId) {
+                    var catTabs = document.getElementById('categoryTabs');
+                    if (catTabs) catTabs.style.display = '';
+                    var html = '<div class="practice-dashboard-header">';
+                    html += '<h1 class="practice-main-title">📝 人工智能训练师方案设计与业务优化实操 (1.2.x)</h1>';
+                    html += '<p class="practice-main-subtitle">深度集成四大解题模板，多维核心业务场景高保真满分示范，配备交互式评分自评与多端云同步</p>';
+                    html += '</div>';
+
+                    html += '<div class="practice-grid">';
+                    var keys = Object.keys(PRACTICES_12X);
+                    var state = State.getCurrent();
+
+                    for (var i = 0; i < keys.length; i++) {
+                        var item = PRACTICES_12X[keys[i]];
+                        var record = state.practices[item.id] || { score: 0, checked: [], completed: false };
+                        var percent = record.completed ? Math.round((record.score / item.score) * 100) : 0;
+
+                        var cardClass = 'practice-card';
+                        if (record.completed) cardClass += ' completed';
+
+                        html += '<div class="' + cardClass + '" onclick="UI.enterPractice12xWorkspace(\'' + item.id + '\')">';
+                        html += '<div class="practice-card-glow"></div>';
+                        html += '<div class="practice-card-header">';
+                        html += '<span class="practice-code-badge">' + item.id + '</span>';
+                        html += '<span class="practice-status-badge ' + (record.completed ? 'passed' : 'pending') + '">';
+                        html += record.completed ? '✓ 已自测' : '待自评';
+                        html += '</span>';
+                        html += '</div>';
+
+                        html += '<h3 class="practice-card-title">' + item.name + '</h3>';
+                        
+                        html += '<div class="practice-card-meta">';
+                        html += '<div class="practice-meta-item">⏱️ ' + item.time + '</div>';
+                        html += '<div class="practice-meta-item">🎯 配分 ' + item.score + '分</div>';
+                        html += '</div>';
+
+                        html += '<div class="practice-tags">';
+                        for (var j = 0; j < item.tags.length; j++) {
+                            html += '<span class="practice-tag">' + item.tags[j] + '</span>';
+                        }
+                        html += '</div>';
+
+                        // 进度条
+                        html += '<div class="practice-score-progress">';
+                        html += '<div class="practice-score-label">';
+                        html += '<span>自评进度</span>';
+                        html += '<span>' + (record.completed ? record.score + ' / ' + item.score + ' 分' : '待自评') + '</span>';
+                        html += '</div>';
+                        html += '<div class="practice-progress-bg">';
+                        html += '<div class="practice-progress-fill" style="width: ' + percent + '%"></div>';
+                        html += '</div>';
+                        html += '</div>';
+
+                        html += '<button class="practice-start-btn">查看标准范文并自测</button>';
+                        html += '</div>';
+                    }
+                    html += '</div>';
+
+                    container.innerHTML = html;
+                } else {
+                    var catTabs = document.getElementById('categoryTabs');
+                    if (catTabs) catTabs.style.display = 'none';
+                    var item = PRACTICES_12X[this.activePractice12xId];
+                    var state = State.getCurrent();
+                    var record = state.practices[item.id] || { score: 0, checked: [], completed: false };
+                    var currentTab = this.activeWorkspaceTab12x[item.id] || 'doc';
+
+                    var html = '<div class="workspace-header">';
+                    html += '<button class="back-btn" onclick="UI.exitPractice12xWorkspace()">← 返回题目列表</button>';
+                    html += '<div class="workspace-title-area">';
+                    html += '<h1 class="workspace-title">[' + item.id + '] ' + item.name + '</h1>';
+                    html += '<div class="practice-workspace-subtitle">⏱️ 推荐时间: ' + item.time + ' | 总配分: ' + item.score + '分</div>';
+                    html += '</div>';
+                    html += '</div>';
+
+                    html += '<div class="practice-workspace">';
+                    
+                    // Left panel
+                    html += '<div class="workspace-left">';
+                    html += '<div class="panel-section">';
+                    html += '<h2 class="task-title">📋 任务说明书</h2>';
+                    html += '<div class="markdown-content">' + this.renderMarkdown(item.background) + '</div>';
+                    html += '</div>';
+
+                    html += '<div class="download-panel practice-12x-answer-sheet-panel">';
+                    html += '<h3 class="download-panel-title">📝 答题要求说明</h3>';
+                    html += '<p class="task-text">本题为<strong>“方案优化设计与业务分析”</strong>实操大题，考生需将答案撰写在答题卷文件中：</p>';
+                    html += '<div class="practice-12x-doc-badge">';
+                    html += '📁 答题卷文件名：<span class="file-name">' + item.id + '.docx</span>';
+                    html += '</div>';
+                    html += '<p class="task-text extra-resources-tip">📌 答题卡上对应题号：</p>';
+                    html += '<ul class="extra-resources-list">';
+                    html += '<li>第（1）题解答填在 <strong>“' + item.id + '-1”</strong> 区域</li>';
+                    html += '<li>第（2）题解答填在 <strong>“' + item.id + '-2”</strong> 区域</li>';
+                    html += '</ul>';
+                    html += '</div>';
+                    html += '</div>';
+
+                    // Right panel
+                    html += '<div class="workspace-right">';
+                    html += '<div class="workspace-tabs">';
+                    var tabsInfo = [
+                        { key: 'doc', label: '📄 满分标准范文' },
+                        { key: 'checklist', label: '🎯 评分自测' }
+                    ];
+                    for (var t = 0; t < tabsInfo.length; t++) {
+                        var tInfo = tabsInfo[t];
+                        var activeClass = tInfo.key === currentTab ? 'active' : '';
+                        html += '<button class="workspace-tab-btn ' + activeClass + '" onclick="UI.renderWorkspace12xTab(\'' + item.id + '\', \'' + tInfo.key + '\')">' + tInfo.label + '</button>';
+                    }
+                    html += '</div>';
+
+                    html += '<div class="workspace-content-pane active">';
+                    
+                    if (currentTab === 'doc') {
+                        html += '<div class="doc-viewer markdown-content practice-12x-doc-viewer">';
+                        html += '<div class="template-notice-bar">';
+                        html += '💡 本参考范文已严格套用 <strong>' + this.escapeHtml(item.templateUsed1) + '</strong> 与 <strong>' + this.escapeHtml(item.templateUsed2) + '</strong> 满分模板格式。';
+                        html += '</div>';
+                        
+                        html += '<div class="practice-12x-answer-section">';
+                        html += '<div class="practice-12x-answer-header">';
+                        html += '<span>（1）问题分析解答参考</span>';
+                        html += '<span class="used-template-badge">' + this.escapeHtml(item.templateUsed1) + '</span>';
+                        html += '</div>';
+                        html += '<div class="practice-12x-answer-body">' + this.renderMarkdown(item.answer1, true) + '</div>';
+                        html += '</div>';
+
+                        html += '<div class="practice-12x-answer-section">';
+                        html += '<div class="practice-12x-answer-header">';
+                        html += '<span>（2）优化设计方案参考</span>';
+                        html += '<span class="used-template-badge">' + this.escapeHtml(item.templateUsed2) + '</span>';
+                        html += '</div>';
+                        html += '<div class="practice-12x-answer-body">' + this.renderMarkdown(item.answer2, true) + '</div>';
+                        html += '</div>';
+                        
+                        html += '</div>';
+                    }
+                    else if (currentTab === 'checklist') {
+                        html += '<div class="checklist-tab-container">';
+                        html += '<div class="score-control-panel">';
+                        html += '<div class="score-display-row">';
+                        html += '<span class="score-display-label">🏆 当前自评得分 / 总配分</span>';
+                        html += '<div>';
+                        html += '<span class="score-display-num" id="realtimeScore12x">0</span>';
+                        html += '<span style="font-size: 1.2rem; color: #a0aec0;"> / ' + item.score + ' 分</span>';
+                        html += '</div>';
+                        html += '</div>';
+                        html += '<div class="checklist-progress-bg">';
+                        html += '<div class="checklist-progress-fill" id="scoreProgressBar12x" style="width: 0%"></div>';
+                        html += '</div>';
+                        html += '</div>';
+
+                        html += '<p class="task-text" style="margin-bottom: 16px;">请对照你在本地答题卡中撰写的实际方案与文字，在下方进行逐项自评得分：</p>';
+                        html += '<div class="checklist-container">';
+                        for (var c = 0; c < item.checklist.length; c++) {
+                            var chk = item.checklist[c];
+                            var isChecked = record.checked && record.checked.indexOf(c) !== -1;
+                            
+                            html += '<div class="checklist-item ' + (isChecked ? 'checked' : '') + '" onclick="UI.toggleChecklistItem12x(\'' + item.id + '\', ' + c + ')">';
+                            html += '<div class="checklist-checkbox-wrapper">';
+                            html += '<div class="checklist-checkbox"></div>';
+                            html += '</div>';
+                            html += '<span class="checklist-item-text">' + this.escapeHtml(chk.text) + '</span>';
+                            html += '<span class="checklist-item-score">+' + chk.score + '分</span>';
+                            html += '</div>';
+                        }
+                        html += '</div>';
+
+                        html += '<div class="workspace-actions" style="margin-top: 24px;">';
+                        html += '<button class="workspace-action-btn btn-back" onclick="UI.exitPractice12xWorkspace()">← 返回列表</button>';
+                        html += '<button class="workspace-action-btn btn-submit" onclick="UI.submitPractice12xScore(\'' + item.id + '\')">🎉 交卷并归档成绩</button>';
+                        html += '</div>';
+                        html += '</div>';
+                    }
+
+                    html += '</div>';
+                    html += '</div>';
+                    html += '</div>';
+
+                    container.innerHTML = html;
+                    
+                    if (currentTab === 'checklist') {
+                        this.updateRealtimeScoreDisplay12x(item.id);
+                    }
+                }
+            },
+
+            enterPractice12xWorkspace(id) {
+                this.activePractice12xId = id;
+                this.activeWorkspaceTab12x[id] = 'doc';
+                document.body.classList.add('workspace-active');
+                this.renderPractice12x();
+            },
+
+            exitPractice12xWorkspace() {
+                this.activePractice12xId = null;
+                document.body.classList.remove('workspace-active');
+                this.renderPractice12x();
+            },
+
+            renderWorkspace12xTab(id, tabName) {
+                this.activeWorkspaceTab12x[id] = tabName;
+                this.renderPractice12x();
+            },
+
+            toggleChecklistItem12x(id, idx) {
+                var state = State.getCurrent();
+                if (!state.practices[id]) {
+                    state.practices[id] = { score: 0, checked: [], completed: false };
+                }
+                var record = state.practices[id];
+                var cIdx = record.checked.indexOf(idx);
+                var isCheckedNow = false;
+                if (cIdx === -1) {
+                    record.checked.push(idx);
+                    isCheckedNow = true;
+                } else {
+                    record.checked.splice(cIdx, 1);
+                }
+
+                var items = document.querySelectorAll('.checklist-container .checklist-item');
+                if (items && items[idx]) {
+                    var itemNode = items[idx];
+                    if (isCheckedNow) {
+                        itemNode.classList.add('checked');
+                    } else {
+                        itemNode.classList.remove('checked');
+                    }
+                }
+
+                this.updateRealtimeScoreDisplay12x(id);
+            },
+
+            updateRealtimeScoreDisplay12x(id) {
+                var item = PRACTICES_12X[id];
+                if (!item) return;
+                var state = State.getCurrent();
+                var record = state.practices[id] || { score: 0, checked: [], completed: false };
+                var totalScore = 0;
+                if (record.checked) {
+                    for (var i = 0; i < record.checked.length; i++) {
+                        var chkIdx = record.checked[i];
+                        if (item.checklist[chkIdx]) {
+                            totalScore += item.checklist[chkIdx].score;
+                        }
+                    }
+                }
+
+                var scoreNum = document.getElementById('realtimeScore12x');
+                var scoreBar = document.getElementById('scoreProgressBar12x');
+                if (scoreNum && scoreBar) {
+                    scoreNum.textContent = totalScore;
+                    var percent = Math.min(100, Math.round((totalScore / item.score) * 100));
+                    scoreBar.style.width = percent + '%';
+                }
+            },
+
+            submitPractice12xScore(id) {
+                var item = PRACTICES_12X[id];
+                if (!item) return;
+                var state = State.getCurrent();
+                var record = state.practices[id] || { score: 0, checked: [], completed: false };
+                var totalScore = 0;
+                if (record.checked) {
+                    for (var i = 0; i < record.checked.length; i++) {
+                        var chkIdx = record.checked[i];
+                        if (item.checklist[chkIdx]) {
+                            totalScore += item.checklist[chkIdx].score;
+                        }
+                    }
+                }
+
+                record.score = totalScore;
+                record.completed = true;
+
+                State.persist();
+
+                if (window.Sync && typeof Sync.uploadState === 'function') {
+                    Sync.uploadState();
+                }
+
+                var modalHtml = '<div class="practice-submit-success-modal">';
+                modalHtml += '<div class="success-icon">🏆</div>';
+                modalHtml += '<h2 class="success-modal-title">设计自评提交成功！</h2>';
+                modalHtml += '<p class="success-modal-desc">您的 1.2.x 方案设计自测成绩已成功存入本地持久化记录，并触发多端云同步。</p>';
+                modalHtml += '<div class="success-score-box">';
+                modalHtml += '<span class="label">本次自评得分</span>';
+                modalHtml += '<span class="score">' + totalScore + ' <span class="total">/ ' + item.score + '</span></span>';
+                modalHtml += '</div>';
+                modalHtml += '<button class="success-modal-close-btn" onclick="Modal.close(); UI.exitPractice12xWorkspace();">确定</button>';
+                modalHtml += '</div>';
+
+                Modal.open('方案自测归档', modalHtml);
             }
         };
     })();
