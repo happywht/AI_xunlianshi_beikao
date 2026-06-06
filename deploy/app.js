@@ -1065,7 +1065,3004 @@ process_retail_data('pos_data.csv', 'member_data.csv')`,
             { text: "制定包括加密、访问限制和去标识化的数据安全与合规策略 (1分)", score: 1 },
             { text: "设计可靠的云存储、备份恢复与机器学习建模，输出 4.2.1.docx (1分)", score: 1 }
         ]
-    }
+    },
+
+"1.1.2": {
+        id: "1.1.2",
+        name: "智能农业系统中的业务数据采集和处理流程设计",
+        time: "30min",
+        score: 25,
+        tags: ["数据采集", "数据清洗", "传感器数据", "Python分析"],
+        background: `### 1. 场地设备要求
+人工智能训练师主机：CPU（intel i5 及以上）、内存（不少于 16GB）、操作系统（windows10）、支持深度学习训练；
+
+### 2. 工作任务
+某农业公司计划引入智能农业系统，通过安装在农田中的各种传感器（如温度传感器、湿度传感器、土壤传感器等）实时监控农田环境，收集数据并进行分析，以优化作物管理和提高产量。为此，公司需要设计并实现一套数据采集和处理流程，确保数据的高效采集、传输和处理，为智能分析提供可靠的数据支持。
+
+我们提供一个传感器数据集（sensor_data.csv），包含以下字段：
+* **SensorID**: 传感器ID
+* **Timestamp**: 时间戳
+* **SensorType**: 传感器类型（Temperature温度, Humidity湿度, SoilMoisture土壤水分, SoilPH土壤酸碱度, Light光传感器）
+* **Value**: 传感器读数
+* **Location**: 传感器安装位置
+
+你作为智能农业系统的人工智能训练师，根据提供的sensor_data.csv数据集和Python代码框架（1.1.2.ipynb），完成以下数据的采集和处理任务。
+
+（1）传感器数据统计：通过补全并运行Python代码（1.1.2.ipynb）分别统计每种传感器的数据数量和平均值。将上述统计结果截图以jpg的格式保存，命名为"1.1.2-1"。
+
+（2）按位置统计温度和湿度数据：通过补全并运行Python代码统计每个位置的温度和湿度传感器数据的平均值。将上述统计结果截图以jpg的格式保存，命名为"1.1.2-2"。
+
+（3）数据清洗和异常值处理：将明显异常的温度（< -10 或 > 50）和湿度（< 0 或 > 100）数据进行标记并统计。对缺失值使用前面数据的值（如果前面值没有采用后面数据的值）进行填补。将清洗后的数据保存为新文件cleaned_sensor_data.csv。
+
+所有结果文件储存在桌面新建的考生文件夹中，文件夹命名为"准考证号+身份证号后六位"。
+
+### 3. 技能要求
+（1）能结合人工智能技术要求和业务特征，设计整套业务数据采集流程
+（2）能结合人工智能技术要求和业务特征，设计整套业务数据处理流程
+
+### 4. 质量指标
+（1）设计出的业务数据底层逻辑清晰，有效合理。
+（2）数据完整性：每个传感器数据记录数应完整，缺失值尽量少。
+（3）数据准确性：传感器数据应合理，与参考数据偏差小。`,
+        downloads: [
+            { name: "sensor_data.csv", url: "practices/1.1.2/sensor_data.csv", type: "csv" },
+            { name: "1.1.2.ipynb", url: "practices/1.1.2/1.1.2.ipynb", type: "ipynb" }
+        ],
+        extraResources: [],
+        code: `# ----------------------------------------------------
+# 智能农业系统中的业务数据采集和处理流程设计 - 参考代码
+# ----------------------------------------------------
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+
+# 读取数据集
+data = pd.read_csv('sensor_data.csv')
+
+# 1. 传感器数据统计
+sensor_stats = data.groupby('SensorType')['Value'].agg(['count', 'mean'])
+print("传感器数据数量和平均值:")
+print(sensor_stats)
+
+# 2. 按位置统计温度和湿度数据
+location_stats = data[data['SensorType'].isin(['Temperature', 'Humidity'])] \\
+    .groupby(['Location', 'SensorType'])['Value'].mean().unstack()
+print("每个位置的温度和湿度数据平均值:")
+print(location_stats)
+
+# 3. 数据清洗和异常值处理
+data['is_abnormal'] = np.where(
+    ((data['SensorType'] == 'Temperature') & ((data['Value'] < -10) | (data['Value'] > 50))) |
+    ((data['SensorType'] == 'Humidity') & ((data['Value'] < 0) | (data['Value'] > 100))),
+    True, False
+)
+print("异常值数量:", data['is_abnormal'].sum())
+
+# 填补缺失值（前向填充 + 后向填充）
+data['Value'].fillna(method='ffill', inplace=True)
+data['Value'].fillna(method='bfill', inplace=True)
+
+# 保存清洗后的数据
+cleaned_data = data.drop(columns=['is_abnormal'])
+cleaned_data.to_csv('cleaned_sensor_data.csv', index=False)
+print("数据清洗完成，已保存为 'cleaned_sensor_data.csv'")`,
+        doc: `### 运行输出范例 (截图命名参考)
+
+#### 1.1.2-1.jpg — 传感器数据统计
+\`\`\`
+传感器数据数量和平均值:
+                    count       mean
+SensorType
+Humidity            200  55.320000
+Light               200  521.450000
+SoilMoisture        200  38.910000
+SoilPH              200   6.775000
+Temperature         200  25.560000
+\`\`\`
+
+#### 1.1.2-2.jpg — 按位置统计温度和湿度平均值
+\`\`\`
+每个位置的温度和湿度数据平均值:
+SensorType  Humidity  Temperature
+Location
+Field A      56.10       26.30
+Field B      54.80       24.90
+Field C      55.06       25.48
+\`\`\``,
+        checklist: [
+            { text: "正确读取 sensor_data.csv 数据集 (2分)", score: 2 },
+            { text: "统计每种传感器的数据数量和平均值，截图保存为 1.1.2-1.jpg (5分)", score: 5 },
+            { text: "按位置统计温度和湿度数据的平均值，截图保存为 1.1.2-2.jpg (4分)", score: 4 },
+            { text: "标记异常温度（<-10或>50）和异常湿度（<0或>100），统计异常值数量 (6分)", score: 6 },
+            { text: "使用前向/后向填充处理缺失值 (4分)", score: 4 },
+            { text: "清洗后数据保存为 cleaned_sensor_data.csv (4分)", score: 4 }
+        ]
+    },
+
+    "1.1.3": {
+        id: "1.1.3",
+        name: "金融机构信用评估系统中的业务数据审核流程设计",
+        time: "30min",
+        score: 25,
+        tags: ["数据审核", "数据清洗", "信用评估", "Python分析"],
+        background: `### 1. 场地设备要求
+人工智能训练师主机：CPU（intel i5 及以上）、内存（不少于 16GB）、操作系统（windows10）、支持深度学习训练；
+
+### 2. 工作任务
+某金融机构计划引入智能信用评估系统，通过分析客户的历史交易数据和信用记录，使用机器学习算法预测客户的信用风险等级，从而辅助贷款审批和风险控制。为了确保数据的准确性和可靠性，该机构需要设计并实现一套全面的业务数据审核流程，确保数据在进入信用评估系统之前经过严格的审核和清洗。
+
+我们提供一个客户信用数据集（credit_data.csv），包含以下字段：
+* **CustomerID**: 客户ID
+* **Name**: 客户姓名
+* **Age**: 年龄
+* **Income**: 收入
+* **LoanAmount**: 贷款金额
+* **LoanTerm**: 贷款期限（月）
+* **CreditScore**: 信用评分
+* **Default**: 是否违约（0: 否，1: 是）
+* **TransactionHistory**: 历史交易记录（JSON格式）
+
+你作为人工智能训练师，根据提供的credit_data.csv数据集和Python代码框架（1.1.3.ipynb），完成以下数据的审核和处理任务。
+
+（1）数据完整性审核：通过运行Python代码检查数据集中的每个字段是否存在缺失值和重复值。将上述审核结果截图以jpg的格式保存，命名为"1.1.3-1"。
+
+（2）数据合理性审核：审核以下字段的合理性——年龄应在18到70岁之间；收入应大于2000；贷款金额应小于收入的5倍；信用评分应在300到850之间。对不合理的数据进行标记，并将审核结果截图以jpg的格式保存，命名为"1.1.3-2"。
+
+（3）数据清洗和异常值处理：将不合理的数据进行标记，并对异常值所在行进行删除；清洗后的数据保存为新文件cleaned_credit_data.csv。
+
+所有结果文件储存在桌面新建的考生文件夹中，文件夹命名为"准考证号+身份证号后六位"。
+
+### 3. 技能要求
+（1）能结合人工智能技术要求和业务特征，设计整套业务数据处理流程
+（2）能结合人工智能技术要求和业务特征，设计整套业务数据审核流程
+
+### 4. 质量指标
+（1）完整性指标：数据集中无缺失值和重复记录。
+（2）合理性指标：所有数据点符合业务规则，无异常值存在。
+（3）清洗效果指标：清洗后的数据集完整、合理，且适于建模分析。`,
+        downloads: [
+            { name: "credit_data.csv", url: "practices/1.1.3/credit_data.csv", type: "csv" },
+            { name: "1.1.3.ipynb", url: "practices/1.1.3/1.1.3.ipynb", type: "ipynb" }
+        ],
+        extraResources: [],
+        code: `# ----------------------------------------------------
+# 金融机构信用评估系统中的业务数据审核流程设计 - 参考代码
+# ----------------------------------------------------
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+
+# 读取数据集
+data = pd.read_csv('credit_data.csv')
+
+# 1. 数据完整性审核
+missing_values = data.isnull().sum()
+duplicate_values = data.duplicated().sum()
+print("缺失值统计:")
+print(missing_values)
+print("重复值统计:")
+print(duplicate_values)
+
+# 2. 数据合理性审核
+data['is_age_valid'] = data['Age'].between(18, 70)
+data['is_income_valid'] = data['Income'] > 2000
+data['is_loan_amount_valid'] = data['LoanAmount'] < (data['Income'] * 5)
+data['is_credit_score_valid'] = data['CreditScore'].between(300, 850)
+validity_checks = data[['is_age_valid', 'is_income_valid', 'is_loan_amount_valid', 'is_credit_score_valid']].all(axis=1)
+data['is_valid'] = validity_checks
+print("数据合理性检查:")
+print(data[['is_age_valid', 'is_income_valid', 'is_loan_amount_valid', 'is_credit_score_valid', 'is_valid']].describe())
+
+# 3. 数据清洗和异常值处理
+invalid_rows = data[~data['is_valid']]
+cleaned_data = data[data['is_valid']]
+cleaned_data = cleaned_data.drop(columns=['is_age_valid', 'is_income_valid', 'is_loan_amount_valid', 'is_credit_score_valid', 'is_valid'])
+cleaned_data.to_csv('cleaned_credit_data.csv', index=False)
+print("数据清洗完成，已保存为 'cleaned_credit_data.csv'")`,
+        doc: `### 运行输出范例 (截图命名参考)
+
+#### 1.1.3-1.jpg — 数据完整性审核
+\`\`\`
+缺失值统计:
+CustomerID            0
+Name                  0
+Age                   2
+Income                1
+LoanAmount            0
+LoanTerm              0
+CreditScore           1
+Default               0
+TransactionHistory    3
+dtype: int64
+重复值统计: 2
+\`\`\`
+
+#### 1.1.3-2.jpg — 数据合理性审核
+\`\`\`
+数据合理性检查:
+       is_age_valid  is_income_valid  is_loan_amount_valid  is_credit_score_valid    is_valid
+count          50.0             50.0                  50.0                   50.0        50.0
+mean            1.0              0.9                   0.96                    1.0        0.86
+std             0.0              0.3                   0.19                    0.0        0.35
+min             1.0              0.0                    0.0                    1.0         0.0
+\`\`\``,
+        checklist: [
+            { text: "正确读取 credit_data.csv 数据集 (2分)", score: 2 },
+            { text: "检查缺失值和重复值，截图保存为 1.1.3-1.jpg (5分)", score: 5 },
+            { text: "审核年龄(18-70)、收入(>2000)、贷款金额(<收入5倍)、信用评分(300-850)的合理性 (8分)", score: 8 },
+            { text: "截图保存合理性审核结果为 1.1.3-2.jpg (2分)", score: 2 },
+            { text: "删除不合理数据行，清洗后数据保存为 cleaned_credit_data.csv (8分)", score: 8 }
+        ]
+    },
+
+    "1.1.4": {
+        id: "1.1.4",
+        name: "电商平台用户行为分析系统的数据采集与处理流程设计",
+        time: "30min",
+        score: 25,
+        tags: ["数据采集", "数据清洗", "数据标准化", "Python分析"],
+        background: `### 1. 场地设备要求
+人工智能训练师主机：CPU（intel i5 及以上）、内存（不少于 16GB）、操作系统（windows10）、支持深度学习训练；
+
+### 2. 工作任务
+某电商平台希望通过用户行为数据分析，了解用户购物习惯、购买倾向等，从而优化产品推荐系统，提高用户满意度和销售额。作为数据分析师，您需要设计一套全面的业务数据采集与处理流程，确保数据在进入用户行为分析系统之前经过严格的采集、清洗和预处理。
+
+我们提供一个用户行为数据集（user_behavior_data.csv），包含以下字段：
+* **UserID**: 用户ID
+* **UserName**: 用户名
+* **Age**: 年龄
+* **Gender**: 性别（Male/Female）
+* **Location**: 位置
+* **LastLogin**: 上次登录时间
+* **PurchaseAmount**: 购买金额
+* **PurchaseCategory**: 购买类别（例如，电子产品、服装、食品等）
+* **ReviewScore**: 用户评价评分（1-5）
+* **LoginFrequency**: 登录频率（每日、每周、每月）
+
+你作为人工智能训练师，根据提供的user_behavior_data.csv数据集和Python代码框架（1.1.4.ipynb），完成以下数据的采集与处理任务。
+
+（1）数据采集：从本地文件user_behavior_data.csv中读取数据，并将数据加载到DataFrame中。打印前5条数据。
+
+（2）数据清洗与预处理：处理缺失值（填充或删除）；确保每个字段的数据类型正确；删除不合理的年龄、购买金额和评价评分；对购买金额和评价评分进行标准化处理。清洗后的数据保存为新文件cleaned_user_behavior_data.csv。
+
+（3）数据统计：统计每个购买类别的用户数；统计不同性别的平均购买金额；统计不同年龄段（18-25、26-35、36-45、46-55、56-65、65岁以上）的用户数。将统计结果分别截图保存为"1.1.4-1"、"1.1.4-2"、"1.1.4-3"。
+
+所有结果文件储存在桌面新建的考生文件夹中，文件夹命名为"准考证号+身份证号后六位"。
+
+### 3. 技能要求
+（1）能结合人工智能技术要求和业务特征，设计整套业务数据采集流程
+（2）能结合人工智能技术要求和业务特征，设计整套业务数据处理流程
+
+### 4. 质量指标
+（1）完整性指标：数据集中无缺失值和重复记录。
+（2）合理性指标：所有数据点符合业务规则，无异常值存在。
+（3）清洗效果指标：清洗后的数据集完整、合理，且适于建模分析。`,
+        downloads: [
+            { name: "user_behavior_data.csv", url: "practices/1.1.4/user_behavior_data.csv", type: "csv" },
+            { name: "1.1.4.ipynb", url: "practices/1.1.4/1.1.4.ipynb", type: "ipynb" }
+        ],
+        extraResources: [],
+        code: `# ----------------------------------------------------
+# 电商平台用户行为分析系统的数据采集与处理流程设计 - 参考代码
+# ----------------------------------------------------
+import pandas
+import numpy as np
+import matplotlib.pyplot as plt
+
+# 1. 数据采集
+data = pandas.read_csv('user_behavior_data.csv')
+print("数据采集完成，已加载到DataFrame中")
+print(data.head())
+
+# 2. 数据清洗与预处理
+# 处理缺失值（删除）
+data = data.dropna()
+
+# 数据类型转换
+data['Age'] = data['Age'].astype(int)
+data['PurchaseAmount'] = data['PurchaseAmount'].astype(float)
+data['ReviewScore'] = data['ReviewScore'].astype(int)
+
+# 处理异常值
+data = data[(data['Age'].between(18, 70)) &
+            (data['PurchaseAmount'] > 0) &
+            (data['ReviewScore'].between(1, 5))]
+
+# 数据标准化
+data['PurchaseAmount'] = (data['PurchaseAmount'] - data['PurchaseAmount'].mean()) / data['PurchaseAmount'].std()
+data['ReviewScore'] = (data['ReviewScore'] - data['ReviewScore'].mean()) / data['ReviewScore'].std()
+
+# 保存清洗后的数据
+data.to_csv('cleaned_user_behavior_data.csv', index=False)
+print("数据清洗完成，已保存为 'cleaned_user_behavior_data.csv'")
+
+# 3. 数据统计
+purchase_category_counts = data['PurchaseCategory'].value_counts()
+print("每个购买类别的用户数:\\n", purchase_category_counts)
+
+gender_purchase_amount_mean = data.groupby('Gender')['PurchaseAmount'].mean()
+print("不同性别的平均购买金额:\\n", gender_purchase_amount_mean)
+
+bins = [18, 26, 36, 46, 56, 66, np.inf]
+labels = ['18-25', '26-35', '36-45', '46-55', '56-65', '65+']
+data['AgeGroup'] = pandas.cut(data['Age'], bins=bins, labels=labels, right=False)
+age_group_counts = data['AgeGroup'].value_counts().sort_index()
+print("不同年龄段的用户数:\\n", age_group_counts)`,
+        doc: `### 运行输出范例 (截图命名参考)
+
+#### 1.1.4-1.jpg — 每个购买类别的用户数
+\`\`\`
+每个购买类别的用户数:
+电子产品    25
+服装       20
+食品       18
+家居       15
+图书       12
+\`\`\`
+
+#### 1.1.4-2.jpg — 不同性别的平均购买金额
+\`\`\`
+不同性别的平均购买金额:
+Gender
+Female   -0.0532
+Male      0.0641
+\`\`\`
+
+#### 1.1.4-3.jpg — 不同年龄段的用户数
+\`\`\`
+不同年龄段的用户数:
+18-25    22
+26-35    28
+36-45    18
+46-55    12
+56-65     8
+65+       2
+\`\`\``,
+        checklist: [
+            { text: "正确读取 user_behavior_data.csv 并打印前5条数据 (4分)", score: 4 },
+            { text: "处理缺失值（删除）并确保数据类型正确 (6分)", score: 6 },
+            { text: "删除不合理的年龄、购买金额和评价评分，进行标准化处理 (6分)", score: 6 },
+            { text: "清洗后数据保存为 cleaned_user_behavior_data.csv (2分)", score: 2 },
+            { text: "统计每个购买类别用户数，截图保存为 1.1.4-1.jpg (3分)", score: 3 },
+            { text: "统计不同性别平均购买金额，截图保存为 1.1.4-2.jpg (2分)", score: 2 },
+            { text: "统计不同年龄段用户数，截图保存为 1.1.4-3.jpg (2分)", score: 2 }
+        ]
+    },
+
+    "1.1.5": {
+        id: "1.1.5",
+        name: "智能交通系统的数据采集、处理和审核流程设计",
+        time: "30min",
+        score: 25,
+        tags: ["数据采集", "数据清洗", "数据审核", "交通数据", "Python分析"],
+        background: `### 1. 场地设备要求
+人工智能训练师主机：CPU（intel i5 及以上）、内存（不少于 16GB）、操作系统（windows10）、支持深度学习训练；
+
+### 2. 工作任务
+某智能交通系统希望通过车辆的行驶数据，利用人工智能技术进行交通流量预测和拥堵预警。你作为人工智能训练师，需要设计一套全面的业务数据采集、处理和审核流程，确保数据在进入交通流量分析系统之前经过严格的采集、清洗、审核和预处理。
+
+我们提供一个车辆行驶数据集（vehicle_traffic_data.csv），包含以下字段：
+* **VehicleID**: 车辆ID
+* **DriverName**: 驾驶员姓名
+* **Age**: 年龄
+* **Gender**: 性别（Male/Female）
+* **Speed**: 车速（km/h）
+* **TravelDistance**: 行驶距离（km）
+* **TravelTime**: 行驶时间（min）
+* **TrafficEvent**: 交通事件（Normal, Accident, Traffic Jam, Breakdown）
+
+你作为人工智能训练师，根据提供的vehicle_traffic_data.csv数据集和Python代码框架（1.1.5.ipynb），完成以下数据的采集、处理和审核任务。
+
+（1）数据采集：从本地文件vehicle_traffic_data.csv中读取数据，并将数据加载到DataFrame中。显示前5行数据截图以jpg的格式保存，命名为"1.1.5-1"。
+
+（2）数据清洗与预处理：处理缺失值（删除）；确保每个字段的数据类型正确；删除不合理的年龄、车速、行驶距离和行驶时间。清洗后的数据保存为新文件cleaned_vehicle_traffic_data.csv。
+
+（3）数据合理性审核：审核年龄（18-70岁）、车速（0-200km/h）、行驶距离（1-1000km）、行驶时间（1-1440分钟）的合理性，对不合理的数据进行标记，截图保存为"1.1.5-2"。
+
+（4）数据统计：统计每种交通事件的发生次数（截图"1.1.5-3"）；统计不同性别的平均车速、行驶距离和行驶时间（截图"1.1.5-4"）；统计不同年龄段的驾驶员数（截图"1.1.5-5"）。
+
+所有结果文件储存在桌面新建的考生文件夹中，文件夹命名为"准考证号+身份证号后六位"。
+
+### 3. 技能要求
+（1）能结合人工智能技术要求和业务特征，设计整套业务数据采集流程
+（2）能结合人工智能技术要求和业务特征，设计整套业务数据处理流程
+（3）能结合人工智能技术要求和业务特征，设计整套业务数据审核流程
+
+### 4. 质量指标
+（1）数据完整性：数据无缺失，每项记录完整。
+（2）数据合理性：所有数值在合理范围内，无异常点。
+（3）数据一致性：字段类型正确，数据格式统一。
+（4）分析准确性：统计结果反映真实数据分布，无偏差。`,
+        downloads: [
+            { name: "vehicle_traffic_data.csv", url: "practices/1.1.5/vehicle_traffic_data.csv", type: "csv" },
+            { name: "1.1.5.ipynb", url: "practices/1.1.5/1.1.5.ipynb", type: "ipynb" }
+        ],
+        extraResources: [],
+        code: `# ----------------------------------------------------
+# 智能交通系统的数据采集、处理和审核流程设计 - 参考代码
+# ----------------------------------------------------
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+
+# 1. 数据采集
+data = pd.read_csv('vehicle_traffic_data.csv')
+print("数据采集完成，已加载到DataFrame中")
+print(data.head())
+
+# 2. 数据清洗与预处理
+# 处理缺失值（删除）
+data = data.dropna()
+
+# 数据类型转换
+data['Age'] = data['Age'].astype(int)
+data['Speed'] = data['Speed'].astype(float)
+data['TravelDistance'] = data['TravelDistance'].astype(float)
+data['TravelTime'] = data['TravelTime'].astype(float)
+
+# 处理异常值
+data = data[(data['Age'].between(18, 70)) &
+            (data['Speed'].between(0, 200)) &
+            (data['TravelDistance'].between(1, 1000)) &
+            (data['TravelTime'].between(1, 1440))]
+
+# 保存清洗后的数据
+data.to_csv('cleaned_vehicle_traffic_data.csv', index=False)
+print("数据清洗完成，已保存为 'cleaned_vehicle_traffic_data.csv'")
+
+# 3. 数据合理性审核
+unreasonable_data = data[~((data['Age'].between(18, 70)) &
+                           (data['Speed'].between(0, 200)) &
+                           (data['TravelDistance'].between(1, 1000)) &
+                           (data['TravelTime'].between(1, 1440)))]
+print("不合理的数据:\\n", unreasonable_data)
+
+# 4. 数据统计
+traffic_event_counts = data['TrafficEvent'].value_counts()
+print("每种交通事件的发生次数:\\n", traffic_event_counts)
+
+gender_stats = data.groupby('Gender')[['Speed', 'TravelDistance', 'TravelTime']].mean()
+print("不同性别的平均车速、行驶距离和行驶时间:\\n", gender_stats)
+
+age_bins = [18, 26, 36, 46, 56, 66, np.inf]
+age_labels = ['18-25', '26-35', '36-45', '46-55', '56-65', '65+']
+data['AgeGroup'] = pd.cut(data['Age'], bins=age_bins, labels=age_labels, right=False)
+age_group_counts = data['AgeGroup'].value_counts().sort_index()
+print("不同年龄段的驾驶员数:\\n", age_group_counts)`,
+        doc: `### 运行输出范例 (截图命名参考)
+
+#### 1.1.5-1.jpg — 数据前5行
+\`\`\`
+   VehicleID DriverName  Age  Gender  Speed  TravelDistance  TravelTime TrafficEvent
+0        V001       张三   35    Male   80.5           45.2        35.0       Normal
+1        V002       李四   28  Female   65.0           30.1        28.5       Normal
+2        V003       王五   42    Male  120.0          150.3        90.0  Traffic Jam
+3        V004       赵六   55    Male   45.0           10.5        15.0     Breakdown
+4        V005       钱七   31  Female   90.0           60.8        42.0       Normal
+\`\`\`
+
+#### 1.1.5-3.jpg — 交通事件发生次数
+\`\`\`
+每种交通事件的发生次数:
+Normal         180
+Traffic Jam     45
+Accident        12
+Breakdown        8
+\`\`\`
+
+#### 1.1.5-4.jpg — 不同性别的平均统计
+\`\`\`
+不同性别的平均车速、行驶距离和行驶时间:
+           Speed  TravelDistance  TravelTime
+Gender
+Female    72.35           58.6       38.2
+Male      78.90           65.3       42.7
+\`\`\``,
+        checklist: [
+            { text: "正确读取 vehicle_traffic_data.csv 并显示前5行，截图保存为 1.1.5-1.jpg (4分)", score: 4 },
+            { text: "处理缺失值（删除）并确保数据类型正确 (5分)", score: 5 },
+            { text: "删除不合理的年龄、车速、行驶距离和行驶时间，保存 cleaned_vehicle_traffic_data.csv (4分)", score: 4 },
+            { text: "审核数据合理性，标记不合理数据，截图保存为 1.1.5-2.jpg (2分)", score: 2 },
+            { text: "统计每种交通事件发生次数，截图保存为 1.1.5-3.jpg (4分)", score: 4 },
+            { text: "统计不同性别平均车速、行驶距离和行驶时间，截图保存为 1.1.5-4.jpg (3分)", score: 3 },
+            { text: "统计不同年龄段驾驶员数，截图保存为 1.1.5-5.jpg (3分)", score: 3 }
+        ]
+    },
+
+    "2.2.2": {
+        id: "2.2.2",
+        name: "智慧交通中燃油效率随机森林模型开发与测试",
+        time: "20min",
+        score: 25,
+        tags: ["线性回归", "随机森林", "模型测试", "燃油效率"],
+        background: `### 1. 场地设备要求
+（1）人工智能训练师主机 1 台；
+（2）Python 编译环境；
+（3）汽车燃油效率数据集（auto-mpg.csv）。
+
+### 2. 工作任务
+在现代交通中，燃油效率（MPG）是衡量汽车性能和交通系统优化的重要指标之一。高效的燃油利用不仅能够降低车辆运营成本，还能减少碳排放，促进环保。开发一个用于预测汽车燃油效率的模型可以帮助智慧交通系统优化路线规划和车辆调度，从而提升整体交通效率和减少能源消耗。
+
+现要求根据提供的汽车燃油效率数据集，补全2.2.2.ipynb代码。选择合适的特征，开发一个燃油效率预测模型。利用测试工具对模型进行测试，并对测试结果进行分析，完成测试报告，并运用工具对错误原因进行纠正。
+
+（1）正确加载数据集，显示前五行的数据。
+（2）使用线性回归模型进行模型训练，要求设定自变量和因变量，并根据自变量特征进行模型训练，最终将训练好的模型以"2.2.2_model.pkl"命名保存，结果文件以"2.2.2_results.txt"命名保存。
+（3）使用测试工具对模型进行测试，并记录测试结果，以"2.2.2_report.txt"命名保存。
+（4）运用工具分析算法中错误案例产生的原因并进行纠正，重新进行模型训练（使用随机森林），并以"2.2.2_results_rf.txt"命名保存。
+（5）对测试结果进行详细分析，并编写测试报告，包括模型性能评估、错误分析及改进建议，将答案写到答题卷文件中。
+
+数据集说明：
+* **mpg**: 燃油效率，每加仑油可以行驶的英里数
+* **cylinders**: 发动机气缸的数量
+* **displacement**: 发动机所有气缸的总容积
+* **horsepower**: 发动机的马力
+* **weight**: 车辆的重量
+* **acceleration**: 加速
+* **model year**: 车辆的生产年份
+* **origin**: 车辆的制造地或品牌所属国家
+* **car name**: 每辆车的具体名称或型号
+
+### 3. 技能要求
+（1）能够维护日常训练集与测试集
+（2）能使用工具对算法进行训练
+（3）能够使用测试工具对人工智能产品的使用进行测试
+（4）能够对测试结果进行分析，编写测试报告
+（5）能够运用工具，分析算法中错误案例产生的原因并进行纠正
+
+### 4. 质量指标
+（1）深入理解业务，训练符合业务需求的模型。
+（2）数据预处理步骤完整，方法选择合理。
+（3）代码实现正确，结果符合预期。
+（4）测试结果分析全面，报告详细。`,
+        downloads: [
+            { name: "auto-mpg.csv", url: "practices/2.2.2/auto-mpg.csv", type: "csv" },
+            { name: "2.2.2.ipynb", url: "practices/2.2.2/2.2.2.ipynb", type: "ipynb" }
+        ],
+        extraResources: [],
+        code: `# ----------------------------------------------------
+# 智慧交通中燃油效率随机森林模型开发与测试 - 参考代码
+# ----------------------------------------------------
+import pandas as pd
+from sklearn.model_selection import train_test_split
+from sklearn.linear_model import LinearRegression
+from sklearn.preprocessing import StandardScaler
+from sklearn.pipeline import Pipeline
+import pickle
+from sklearn.ensemble import RandomForestRegressor
+
+# 加载数据集
+df = pd.read_csv('auto-mpg.csv')
+print(df.head())
+
+# 处理缺失值
+df['horsepower'] = pd.to_numeric(df['horsepower'], errors='coerce')
+df = df.dropna()
+
+# 选择相关特征进行建模
+X = df[['cylinders', 'displacement', 'horsepower', 'weight', 'acceleration', 'model year', 'origin']]
+y = df['mpg']
+
+# 划分训练集和测试集
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+
+# 创建标准化 + 线性回归管道
+pipeline = Pipeline([
+    ('scaler', StandardScaler()),
+    ('linreg', LinearRegression())
+])
+pipeline.fit(X_train, y_train)
+
+# 保存模型
+with open('2.2.2_model.pkl', 'wb') as model_file:
+    pickle.dump(pipeline, model_file)
+
+# 预测并保存结果
+y_pred = pipeline.predict(X_test)
+results_df = pd.DataFrame(y_pred, columns=['预测结果'])
+results_df.to_csv('2.2.2_results.txt', index=False)
+
+# 测试线性回归模型
+with open('2.2.2_report.txt', 'w') as f:
+    f.write(f'训练集得分: {pipeline.score(X_train, y_train)}\\n')
+    f.write(f'测试集得分: {pipeline.score(X_test, y_test)}\\n')
+
+# 使用随机森林回归模型纠正错误
+rf_model = RandomForestRegressor(n_estimators=100, random_state=42)
+rf_model.fit(X_train, y_train)
+
+# 预测并保存随机森林结果
+y_pred_rf = rf_model.predict(X_test)
+results_rf_df = pd.DataFrame(y_pred_rf, columns=['预测结果'])
+results_rf_df.to_csv('2.2.2_results_rf.txt', index=False)
+
+# 测试随机森林模型
+with open('2.2.2_report_rf.txt', 'w') as f:
+    f.write(f'训练集得分: {rf_model.score(X_train, y_train)}\\n')
+    f.write(f'测试集得分: {rf_model.score(X_test, y_test)}\\n')
+
+print(f'随机森林训练集得分: {rf_model.score(X_train, y_train)}')
+print(f'随机森林测试集得分: {rf_model.score(X_test, y_test)}')`,
+        doc: `### 运行输出范例
+
+#### 数据前5行
+\`\`\`
+    mpg  cylinders  displacement  horsepower  weight  acceleration  model year  origin
+0  18.0          8         307.0       130.0  3504.0          12.0          70       1
+1  15.0          8         350.0       165.0  3693.0          11.5          70       1
+2  18.0          8         318.0       150.0  3436.0          11.0          70       1
+3  16.0          8         304.0       150.0  3433.0          12.0          70       1
+4  17.0          8         302.0       140.0  3449.0          10.5          70       1
+\`\`\`
+
+#### 线性回归 vs 随机森林得分对比
+\`\`\`
+线性回归:  训练集 ~0.83  测试集 ~0.80
+随机森林:  训练集 ~0.97  测试集 ~0.88
+\`\`\`
+
+### 测试报告要点
+1. 线性回归模型测试集得分约0.80，存在一定预测误差
+2. 随机森林模型通过集成学习显著提升预测精度（测试集~0.88）
+3. 改进建议：可尝试特征工程、调参（n_estimators, max_depth）或引入交叉验证`,
+        checklist: [
+            { text: "正确加载 auto-mpg.csv 数据集并显示前五行 (3分)", score: 3 },
+            { text: "使用线性回归模型训练，保存模型为 2.2.2_model.pkl，结果保存为 2.2.2_results.txt (5分)", score: 5 },
+            { text: "使用测试工具测试线性回归模型，保存报告为 2.2.2_report.txt (4分)", score: 4 },
+            { text: "使用随机森林回归模型重新训练，保存结果为 2.2.2_results_rf.txt 和 2.2.2_report_rf.txt (5分)", score: 5 },
+            { text: "编写详细测试报告（模型性能评估、错误分析及改进建议），保存为 2.2.2.docx (5分)", score: 5 },
+            { text: "代码和结果保存为 2.2.2.html (3分)", score: 3 }
+        ]
+    },
+
+"2.1.2": {
+        id: "2.1.2",
+        name: "低碳生活行为影响因素数据清洗和标注流程设计",
+        time: "20min",
+        score: 25,
+        tags: ["数据清洗", "数据标注", "特征选择", "标准化", "低碳生活"],
+        background: `### 1. 场地设备要求
+（1）人工智能训练师主机 1 台；
+（2）Python 编译环境；
+（3）大学生低碳生活行为的影响因素数据集。
+
+### 2. 工作任务
+在应对气候变化的背景下，了解和促进低碳生活行为变得越来越重要。现要求根据提供的"大学生低碳生活行为的影响因素数据集"，选择合适的特征，开发一个预测大学生低碳生活行为的模型。提供的数据集样本数据包含300多个关于大学生低碳生活行为的自变量和因变量。自变量为主观规范、知觉行为控制、低碳行为态度，中介变量为行为意愿，因变量为低碳生活行为。同时，性别、生源地、月生活费作为控制变量进行研究。在开发预测模型之前，首先要对数据进行数据清洗和标注。补全2.1.2.ipynb代码。完成下面的数据预处理任务，并设计一套标注流程规范：
+
+（1）正确加载数据集，并显示前五行的数据；
+（2）检查数据集中的缺失值，使用删除包含缺失值的行的办法处理，记录缺失值处理后的数据行数；
+（3）检查数据集中的重复值并删除所有重复值，并记录删除的行数；
+（4）对数值型数据进行标准化处理，确保数据在同一量纲下进行分析；
+（5）根据业务需求和数据特性，选择对低碳生活行为预测最有用的特征，将"低碳行为积极性"设为目标变量并标注；
+（6）对数据进行划分（8:2）；
+（7）保存处理后的数据，命名为 2.1.2_cleaned_data.csv。
+
+### 3. 技能要求
+（1）能够结合人工智能技术要求和业务特征，设计数据清洗和标注流程；
+（2）能够结合人工智能技术要求和业务特征，制定数据清洗和标注规范。
+
+### 4. 质量指标
+（1）数据预处理步骤完整，方法选择合理；
+（2）代码实现正确，结果符合预期。`,
+        downloads: [
+            { name: "大学生低碳生活行为的影响因素数据集.xlsx", url: "practices/2.1.2/大学生低碳生活行为的影响因素数据集.xlsx", type: "xlsx" },
+            { name: "2.1.2.ipynb", url: "practices/2.1.2/2.1.2.ipynb", type: "ipynb" }
+        ],
+        extraResources: [],
+        code: `# ----------------------------------------------------
+# 低碳生活行为影响因素数据清洗和标注流程设计 - 参考代码
+# ----------------------------------------------------
+import pandas
+import numpy as np
+from sklearn.preprocessing import StandardScaler
+from sklearn.model_selection import train_test_split
+
+# 1. 加载数据集
+data = pandas.read_excel('大学生低碳生活行为的影响因素数据集.xlsx')
+print(data.head())
+
+# 2. 处理缺失值
+initial_row_count = data.shape[0]
+data = data.dropna()
+final_row_count = data.shape[0]
+print(f'处理后数据行数: {final_row_count}, 删除的行数: {initial_row_count - final_row_count}')
+
+# 3. 删除重复行
+data = data.drop_duplicates()
+
+# 4. 标准化数值型数据
+numerical_features = ['4.您的月生活费']
+scaler = StandardScaler()
+data[numerical_features] = scaler.fit_transform(data[numerical_features])
+
+# 5. 特征选择
+selected_features = [
+    '1.您的性别', '2.您的年级', '3.您的生源地',
+    '4.您的月生活费', '5.您进行过绿色低碳的相关生活方式吗?',
+    '6.您觉得"低碳"，与你的生活关系密切吗？',
+    '7.低碳生活是否会成为未来的主流生活方式？',
+    '8.您是否认为低碳生活会提高您的生活质量？'
+]
+X = data[selected_features]
+y = data['低碳行为积极性']
+
+# 6. 数据划分（8:2）
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+
+# 7. 保存处理后的数据
+cleaned_data = pandas.concat([X, y], axis=1)
+cleaned_data.to_csv('2.1.2_cleaned_data.csv', index=False)`,
+        doc: `### 运行输出范例
+
+#### 数据前5行
+\`\`\`
+   序号  1.您的性别  2.您的年级  3.您的生源地  ...  低碳行为积极性
+0   1      1       3       2  ...             4
+1   2      2       2       1  ...             3
+2   3      1       1       3  ...             5
+3   4      2       4       2  ...             2
+4   5      1       2       1  ...             4
+\`\`\`
+
+#### 缺失值处理
+\`\`\`
+处理后数据行数: 295, 删除的行数: 8
+\`\`\``,
+        checklist: [
+            { text: "正确加载数据集，显示前五行数据 (3分)", score: 3 },
+            { text: "检查并删除缺失值，记录处理后的数据行数 (3分)", score: 3 },
+            { text: "检查并删除重复值，记录删除的行数 (3分)", score: 3 },
+            { text: "对数值型数据进行标准化处理 (3分)", score: 3 },
+            { text: "选择8个关键特征，设定低碳行为积极性为目标变量 (5分)", score: 5 },
+            { text: "按8:2比例划分数据集 (3分)", score: 3 },
+            { text: "保存处理后数据为 2.1.2_cleaned_data.csv (2分)", score: 2 },
+            { text: "制定数据清洗和标注规范，保存为 2.1.2.docx (3分)", score: 3 }
+        ]
+    },
+
+    "2.2.3": {
+        id: "2.2.3",
+        name: "日常运动量随机森林预测模型开发与测试",
+        time: "20min",
+        score: 25,
+        tags: ["随机森林", "XGBoost", "模型测试", "回归分析"],
+        background: `### 1. 场地设备要求
+（1）人工智能训练师主机 1 台；
+（2）Python 编译环境；
+（3）fitness analysis数据集。
+
+### 2. 工作任务
+随着人们健康意识的增强，越来越多的人开始关注日常运动和健康管理。使用提供的训练数据，补全2.2.3.ipynb代码。选择合适的特征，开发一个预测模型，基于个体性别，个体对运动的看法和个人健康评价来预测个体年龄。利用测试工具对模型进行测试，并对测试结果进行分析，完成测试报告，并运用工具对错误原因进行纠正。
+
+（1）正确加载数据集，并显示前五行的数据；
+（2）使用随机森林模型进行模型训练，设定自变量和因变量，根据自变量特征进行模型训练，最终将训练好的模型以文件名2.2.3_model.pkl保存，结果文件以2.2.3_results.txt保存；
+（3）使用测试工具对模型进行测试，并记录测试结果，命名2.2.3_report.txt保存；
+（4）对测试结果进行详细分析，编写测试报告，保存为2.2.3.docx；
+（5）运用工具分析算法中错误案例产生的原因并进行纠正，重新得到模型训练结果，以文件名2.2.3_results_xgb.txt保存。
+
+### 3. 技能要求
+（1）能够维护日常训练集与测试集；
+（2）能使用工具对算法进行训练；
+（3）能够使用测试工具对人工智能产品的使用进行测试；
+（4）能够对测试结果进行分析，编写测试报告；
+（5）能够运用工具，分析算法中错误案例产生的原因并进行纠正。
+
+### 4. 质量指标
+（1）深入理解业务，训练符合业务需求的模型；
+（2）数据预处理步骤完整，方法选择合理；
+（3）代码实现正确，结果符合预期；
+（4）测试结果分析全面，报告详细。`,
+        downloads: [
+            { name: "fitness analysis.csv", url: "practices/2.2.3/fitness analysis.csv", type: "csv" },
+            { name: "2.2.3.ipynb", url: "practices/2.2.3/2.2.3.ipynb", type: "ipynb" }
+        ],
+        extraResources: [],
+        code: `# ----------------------------------------------------
+# 日常运动量随机森林预测模型开发与测试 - 参考代码
+# ----------------------------------------------------
+import pandas as pd
+from sklearn.model_selection import train_test_split
+from sklearn.ensemble import RandomForestRegressor
+import pickle
+from sklearn.metrics import mean_squared_error, r2_score
+import xgboost as xgb
+
+# 1. 加载数据集
+df = pd.read_csv("fitness analysis.csv")
+print(df.head())
+
+# 数据清洗
+df = df.applymap(lambda x: x.strip() if isinstance(x, str) else x)
+df.columns = df.columns.str.strip()
+
+# 2. 随机森林模型训练
+X = df[["Your gender", "How important is exercise to you ?", "How healthy do you consider yourself?"]]
+X = pd.get_dummies(X)
+y = df['Your age'].apply(lambda x: int(x.split(' ')[0]))
+
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+
+rf_model = RandomForestRegressor(n_estimators=100, random_state=42)
+rf_model.fit(X_train, y_train)
+
+with open("2.2.3_model.pkl", "wb") as model_file:
+    pickle.dump(rf_model, model_file)
+
+y_pred = rf_model.predict(X_test)
+results_df = pd.DataFrame(y_pred, columns=["预测结果"])
+results_df.to_csv("2.2.3_results.txt", index=False)
+
+# 3. 测试模型
+train_score = rf_model.score(X_train, y_train)
+test_score = rf_model.score(X_test, y_test)
+mse = mean_squared_error(y_test, y_pred)
+r2 = r2_score(y_test, y_pred)
+with open("2.2.3_report.txt", "w") as report_file:
+    report_file.write(f"训练集得分: {train_score}\\n")
+    report_file.write(f"测试集得分: {test_score}\\n")
+    report_file.write(f"均方误差(MSE): {mse}\\n")
+    report_file.write(f"决定系数(R^2): {r2}\\n")
+
+# 5. XGBoost纠正
+xgb_model = xgb.XGBRegressor(n_estimators=100, random_state=42)
+xgb_model.fit(X_train, y_train)
+y_pred_xgb = xgb_model.predict(X_test)
+results_df_xgb = pd.DataFrame(y_pred_xgb, columns=["预测结果"])
+results_df_xgb.to_csv("2.2.3_results_xgb.txt", index=False)
+
+with open("2.2.3_report_xgb.txt", "w") as f:
+    f.write(f"XGBoost训练集得分: {xgb_model.score(X_train, y_train)}\\n")
+    f.write(f"XGBoost测试集得分: {xgb_model.score(X_test, y_test)}\\n")
+
+print(f'XGBoost训练集得分: {xgb_model.score(X_train, y_train)}')
+print(f'XGBoost测试集得分: {xgb_model.score(X_test, y_test)}')`,
+        doc: `### 运行输出范例
+
+#### 随机森林 vs XGBoost 对比
+\`\`\`
+随机森林:  训练集 ~0.85  测试集 ~0.65  MSE ~3.2
+XGBoost:   训练集 ~0.92  测试集 ~0.72  MSE ~2.5
+\`\`\`
+
+### 测试报告要点
+1. 随机森林模型测试集R²约0.65，存在一定泛化误差
+2. XGBoost通过梯度提升策略提升预测精度（R²~0.72）
+3. 特征工程建议：可增加运动频率、饮食习惯等特征`,
+        checklist: [
+            { text: "正确加载 fitness analysis.csv 数据集并显示前五行 (3分)", score: 3 },
+            { text: "使用随机森林模型训练，保存模型为 2.2.3_model.pkl，结果为 2.2.3_results.txt (5分)", score: 5 },
+            { text: "使用测试工具测试模型，保存报告为 2.2.3_report.txt (4分)", score: 4 },
+            { text: "编写详细测试报告（性能评估、错误分析及改进建议），保存为 2.2.3.docx (5分)", score: 5 },
+            { text: "使用XGBoost纠正错误，保存结果为 2.2.3_results_xgb.txt (5分)", score: 5 },
+            { text: "代码和结果保存为 2.2.3.html (3分)", score: 3 }
+        ]
+    },
+
+    "2.2.5": {
+        id: "2.2.5",
+        name: "智能步数预测模型开发与测试",
+        time: "20min",
+        score: 25,
+        tags: ["决策树", "回归分析", "模型测试", "步数预测"],
+        background: `### 1. 场地设备要求
+（1）人工智能训练师主机 1 台；
+（2）Python 编译环境；
+（3）fitness analysis数据集。
+
+### 2. 工作任务
+随着健康意识的增强，越来越多的人开始使用智能设备跟踪自己的日常活动。准确预测每日步数对于用户来说至关重要，因为它可以帮助他们更好地管理健康状况，设定合理的运动目标，并提高生活质量。现要求根据提供的预处理好的fitness analysis数据集，补全2.2.5.ipynb代码。选择合适的特征，开发一个步数预测模型，对用户未来一段时间内的每日步数进行预测。利用测试工具对模型进行测试，并对测试结果进行分析，完成测试报告。
+
+（1）正确加载数据集，并显示前五行的数据；
+（2）使用决策树模型，设定自变量和因变量（设定daily_steps为目标变量），进行模型训练，最终将训练好的模型以文件名2.2.5_model.pkl保存，结果文件以2.2.5_results.txt保存；
+（3）使用测试工具对模型进行测试，并记录测试结果，命名2.2.5_report.txt保存；
+（4）对测试结果进行详细分析，编写测试报告，保存为2.2.5.docx。
+
+### 3. 技能要求
+（1）能够维护日常训练集与测试集；
+（2）能使用工具对算法进行训练；
+（3）能够使用测试工具对人工智能产品的使用进行测试；
+（4）能够对测试结果进行分析，编写测试报告。
+
+### 4. 质量指标
+（1）深入理解业务，训练符合业务需求的模型；
+（2）数据预处理步骤完整，方法选择合理；
+（3）代码实现正确，结果符合预期；
+（4）测试结果分析全面，报告详细。`,
+        downloads: [
+            { name: "fitness analysis.csv", url: "practices/2.2.5/fitness analysis.csv", type: "csv" },
+            { name: "2.2.5.ipynb", url: "practices/2.2.5/2.2.5.ipynb", type: "ipynb" }
+        ],
+        extraResources: [],
+        code: `# ----------------------------------------------------
+# 智能步数预测模型开发与测试 - 参考代码
+# ----------------------------------------------------
+import pandas as pd
+from sklearn.model_selection import train_test_split
+from sklearn.tree import DecisionTreeRegressor
+import pickle
+from sklearn.metrics import mean_squared_error, mean_absolute_error, r2_score
+
+# 1. 加载数据集
+df = pd.read_csv('fitness analysis.csv')
+print(df.head())
+
+# 2. 特征选择与数据处理
+X = df[['Your gender ', 'How important is exercise to you ?', 'How healthy do you consider yourself?']]
+X = pd.get_dummies(X)
+y = df['daily_steps']
+
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+
+# 决策树回归模型
+dt_model = DecisionTreeRegressor(random_state=42)
+dt_model.fit(X_train, y_train)
+
+# 保存模型
+with open('2.2.5_model.pkl', 'wb') as model_file:
+    pickle.dump(dt_model, model_file)
+
+# 预测并保存结果
+y_pred = dt_model.predict(X_test)
+results = pd.DataFrame({'实际值': y_test, '预测值': y_pred})
+results.to_csv('2.2.5_results.txt', index=False, sep='\\t')
+
+# 3. 测试模型
+with open('2.2.5_report.txt', 'w') as f:
+    f.write(f'均方误差: {mean_squared_error(y_test, y_pred)}\\n')
+    f.write(f'平均绝对误差: {mean_absolute_error(y_test, y_pred)}\\n')
+    f.write(f'决定系数: {r2_score(y_test, y_pred)}\\n')
+
+print(f'均方误差: {mean_squared_error(y_test, y_pred)}')
+print(f'平均绝对误差: {mean_absolute_error(y_test, y_pred)}')
+print(f'决定系数: {r2_score(y_test, y_pred)}')`,
+        doc: `### 运行输出范例
+
+#### 决策树回归模型测试结果
+\`\`\`
+均方误差: 1250000000.0
+平均绝对误差: 28000.0
+决定系数: -0.15
+\`\`\`
+
+### 测试报告要点
+1. 决策树回归模型R²较低，可能存在过拟合
+2. 特征数量较少（仅性别、运动重要性、健康自评），建议增加更多特征
+3. 改进建议：使用随机森林或梯度提升方法提升预测精度`,
+        checklist: [
+            { text: "正确加载 fitness analysis.csv 数据集并显示前五行 (3分)", score: 3 },
+            { text: "使用决策树模型训练，设定 daily_steps 为目标变量，保存模型为 2.2.5_model.pkl (5分)", score: 5 },
+            { text: "预测结果保存为 2.2.5_results.txt (4分)", score: 4 },
+            { text: "使用测试工具测试模型，保存报告为 2.2.5_report.txt (4分)", score: 4 },
+            { text: "编写详细测试报告（性能评估、错误分析及改进建议），保存为 2.2.5.docx (5分)", score: 5 },
+            { text: "代码和结果保存为 2.2.5.html (4分)", score: 4 }
+        ]
+    },
+
+    "2.1.5": {
+        id: "2.1.5",
+        name: "健康与营养咨询数据预处理与数据规范设计",
+        time: "20min",
+        score: 25,
+        tags: ["数据清洗", "数据标注", "LabelEncoder", "可视化", "健康咨询"],
+        background: `### 1. 场地设备要求
+（1）人工智能训练师主机 1 台；
+（2）Python 编译环境；
+（3）健康咨询客户数据集。
+
+### 2. 工作任务
+在健康与营养咨询领域，客户的健康数据是评估其饮食和生活方式建议的重要依据。通过对客户健康数据的分析，可以帮助健康咨询师更准确地评估客户的健康状况，并制定个性化的营养和健康管理计划。现提供一份健康咨询客户数据集。请补全2.1.5.ipynb代码，完成下面的数据预处理任务：
+
+（1）加载数据集：查看表的数据类型，表结构和显示每一列的空缺值数量；
+（2）缺失值处理：对于含有缺失值的行进行删除操作；
+（3）数据类型转换：将"Your age"列的数据类型转换为整数类型，并处理其中的异常值；
+（4）数据去重：检查数据集中的重复值并删除所有重复值，并记录删除的行数；
+（5）数据归一化处理：对"如何形容你的当前健身水平？"列中的数据进行归一化处理；
+（6）绘制健身频率分布的饼图；
+（7）对数据进行标注划分；
+（8）保存处理后的数据，命名为 2.1.5_cleaned_data.csv。
+
+### 3. 技能要求
+（1）能够结合人工智能技术要求和业务特征，设计数据清洗和标注流程；
+（2）能够结合人工智能技术要求和业务特征，制定数据清洗和标注规范。
+
+### 4. 质量指标
+（1）数据预处理步骤完整，方法选择合理；
+（2）代码实现正确，结果符合预期。`,
+        downloads: [
+            { name: "健康咨询客户数据集.csv", url: "practices/2.1.5/健康咨询客户数据集.csv", type: "csv" },
+            { name: "2.1.5.ipynb", url: "practices/2.1.5/2.1.5.ipynb", type: "ipynb" }
+        ],
+        extraResources: [],
+        code: `# ----------------------------------------------------
+# 健康与营养咨询数据预处理与数据规范设计 - 参考代码
+# ----------------------------------------------------
+import pandas as pd
+from sklearn.preprocessing import LabelEncoder
+import matplotlib.pyplot as plt
+from sklearn.model_selection import train_test_split
+
+# 1. 加载数据集
+data = pd.read_csv('健康咨询客户数据集.csv')
+print(data.info())
+print(data.isnull().sum())
+
+# 2. 缺失值处理
+data_cleaned = data.dropna()
+
+# 3. 数据类型转换
+data_cleaned.loc[:, 'Your age'] = pd.to_numeric(data_cleaned['Your age'], errors='coerce')
+data_cleaned = data_cleaned.dropna(subset=['Your age'])
+data_cleaned = data_cleaned[data_cleaned['Your age'] >= 0]
+data_cleaned.loc[:, 'Your age'] = data_cleaned['Your age'].astype(int)
+print(data_cleaned['Your age'].dtype)
+
+# 4. 数据去重
+duplicates_removed = data_cleaned.duplicated().sum()
+data_cleaned = data_cleaned.drop_duplicates()
+print(f"Removed {duplicates_removed} duplicate rows")
+
+# 5. 数据归一化
+label_encoder = LabelEncoder()
+data_cleaned['How do you describe your current level of fitness ?'] = label_encoder.fit_transform(
+    data_cleaned['How do you describe your current level of fitness ?'])
+print(data_cleaned['How do you describe your current level of fitness ?'].unique())
+
+# 6. 绘制健身频率分布饼图
+data.columns = data.columns.str.strip()
+data_cleaned_freq = data.dropna(subset=['How often do you exercise?'])
+exercise_frequency_counts = data_cleaned_freq['How often do you exercise?'].value_counts()
+plt.figure(figsize=(10, 6))
+exercise_frequency_counts.plot.pie(autopct='%1.1f%%', startangle=90, colors=plt.cm.Paired.colors)
+plt.title('Distribution of Exercise Frequency')
+plt.ylabel('')
+plt.show()
+
+# 7. 数据标注划分
+data_filled = data.apply(lambda x: x.fillna(x.mode()[0]))
+train_data, test_data = train_test_split(data_filled, test_size=0.2, random_state=42)
+
+# 8. 保存处理后的数据
+data_cleaned.to_csv('2.1.5_cleaned_data.csv', index=False)`,
+        doc: `### 运行输出范例
+
+#### 数据结构
+\`\`\`
+<class 'pandas.core.frame.DataFrame'>
+RangeIndex: 500 entries, 0 to 499
+Data columns (total 15 columns)
+\`\`\`
+
+#### 缺失值统计
+\`\`\`
+Your age                    12
+Your gender                  0
+How often do you exercise?   5
+...
+\`\`\`
+
+#### 去重结果
+\`\`\`
+Removed 3 duplicate rows
+\`\`\``,
+        checklist: [
+            { text: "加载数据集，查看数据类型、结构和空缺值数量 (3分)", score: 3 },
+            { text: "删除含有缺失值的行 (3分)", score: 3 },
+            { text: "将 Your age 列转换为整数类型并处理异常值 (3分)", score: 3 },
+            { text: "删除重复值并记录删除行数 (3分)", score: 3 },
+            { text: "对健身水平列进行 LabelEncoder 归一化处理 (3分)", score: 3 },
+            { text: "绘制健身频率分布饼图 (4分)", score: 4 },
+            { text: "对数据进行标注划分（8:2） (3分)", score: 3 },
+            { text: "保存处理后数据为 2.1.5_cleaned_data.csv (3分)", score: 3 }
+        ]
+    },
+
+    "2.2.4": {
+        id: "2.2.4",
+        name: "低碳生活行为影响因素预测线性回归模型开发与测试",
+        time: "20min",
+        score: 25,
+        tags: ["线性回归", "XGBoost", "模型测试", "低碳生活"],
+        background: `### 1. 场地设备要求
+（1）人工智能训练师主机 1 台；
+（2）Python 编译环境；
+（3）大学生低碳生活行为的影响因素数据集。
+
+### 2. 工作任务
+在应对气候变化的背景下，了解和促进低碳生活行为变得越来越重要。现要求根据提供的"大学生低碳生活行为的影响因素数据集"，补全2.2.4.ipynb代码。选择合适的特征，开发一个预测大学生低碳生活行为的模型。利用测试工具对模型进行测试，并对测试结果进行分析，完成测试报告，并运用工具对错误原因进行纠正。
+
+（1）正确加载数据集，并显示前五行的数据；
+（2）使用线性回归模型，设定自变量和因变量，根据自变量特征进行模型训练，最终将训练好的模型以文件名2.2.4_model.pkl保存，结果文件以2.2.4_results.txt保存；
+（3）使用测试工具对模型进行测试，并记录测试结果，命名2.2.4_report.txt保存；
+（4）对测试结果进行详细分析，编写测试报告，保存为2.2.4.docx；
+（5）运用工具分析算法中错误案例产生的原因并进行纠正，重新得到模型训练结果，以文件名2.2.4_results_xg.txt保存。
+
+### 3. 技能要求
+（1）能够维护日常训练集与测试集；
+（2）能使用工具对算法进行训练；
+（3）能够使用测试工具对人工智能产品的使用进行测试；
+（4）能够对测试结果进行分析，编写测试报告；
+（5）能够运用工具，分析算法中错误案例产生的原因并进行纠正。
+
+### 4. 质量指标
+（1）深入理解业务，训练符合业务需求的模型；
+（2）数据预处理步骤完整，方法选择合理；
+（3）代码实现正确，结果符合预期；
+（4）测试结果分析全面，报告详细。`,
+        downloads: [
+            { name: "大学生低碳生活行为的影响因素数据集.xlsx", url: "practices/2.2.4/大学生低碳生活行为的影响因素数据集.xlsx", type: "xlsx" },
+            { name: "2.2.4.ipynb", url: "practices/2.2.4/2.2.4.ipynb", type: "ipynb" }
+        ],
+        extraResources: [],
+        code: `# ----------------------------------------------------
+# 低碳生活行为影响因素预测线性回归模型开发与测试 - 参考代码
+# ----------------------------------------------------
+import pandas as pd
+from sklearn.model_selection import train_test_split
+from sklearn.linear_model import LinearRegression
+from sklearn.metrics import mean_squared_error, r2_score
+import joblib
+from xgboost import XGBRegressor
+
+# 1. 加载数据集
+data = pd.read_excel('大学生低碳生活行为的影响因素数据集.xlsx')
+print(data.head())
+
+# 数据预处理
+data_cleaned = data.drop(columns=['序号', '所用时间'])
+data_cleaned = pd.get_dummies(data_cleaned, drop_first=True)
+
+# 定义目标变量
+target = '5.您进行过绿色低碳的相关生活方式吗?'
+X = data_cleaned.drop(columns=[target])
+y = data_cleaned[target]
+
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+
+# 2. 线性回归模型
+model = LinearRegression()
+model.fit(X_train, y_train)
+joblib.dump(model, '2.2.4_model.pkl')
+
+y_pred = model.predict(X_test)
+results = pd.DataFrame({'实际值': y_test, '预测值': y_pred})
+results.to_csv('2.2.4_results.txt', index=False, sep='\\t')
+
+# 3. 测试模型
+with open('2.2.4_report.txt', 'w') as f:
+    f.write(f'均方误差: {mean_squared_error(y_test, y_pred)}\\n')
+    f.write(f'决定系数: {r2_score(y_test, y_pred)}\\n')
+
+# 5. XGBoost纠正
+xgb_model = XGBRegressor(n_estimators=1000, learning_rate=0.05, max_depth=5, subsample=0.8, colsample_bytree=0.8)
+xgb_model.fit(X_train, y_train)
+y_pred_xg = xgb_model.predict(X_test)
+
+results_xg = pd.DataFrame({'实际值': y_test, '预测值': y_pred_xg})
+results_xg.to_csv('2.2.4_results_xg.txt', index=False, sep='\\t')
+
+with open('2.2.4_report_xgb.txt', 'w') as f:
+    f.write(f'均方误差: {mean_squared_error(y_test, y_pred_xg)}\\n')
+    f.write(f'决定系数: {r2_score(y_test, y_pred_xg)}\\n')
+
+print(f'XGBoost均方误差: {mean_squared_error(y_test, y_pred_xg)}')
+print(f'XGBoost决定系数: {r2_score(y_test, y_pred_xg)}')`,
+        doc: `### 运行输出范例
+
+#### 线性回归 vs XGBoost 对比
+\`\`\`
+线性回归:  MSE ~0.8  R² ~0.35
+XGBoost:   MSE ~0.4  R² ~0.65
+\`\`\`
+
+### 测试报告要点
+1. 线性回归模型R²仅约0.35，拟合不足
+2. XGBoost通过非线性建模显著提升预测精度（R²~0.65）
+3. 改进建议：增加特征交互项、调整XGBoost超参数`,
+        checklist: [
+            { text: "正确加载数据集并显示前五行 (3分)", score: 3 },
+            { text: "使用线性回归模型训练，保存模型为 2.2.4_model.pkl，结果为 2.2.4_results.txt (5分)", score: 5 },
+            { text: "使用测试工具测试模型，保存报告为 2.2.4_report.txt (4分)", score: 4 },
+            { text: "编写详细测试报告，保存为 2.2.4.docx (5分)", score: 5 },
+            { text: "使用XGBoost纠正错误，保存结果为 2.2.4_results_xg.txt (5分)", score: 5 },
+            { text: "代码和结果保存为 2.2.4.html (3分)", score: 3 }
+        ]
+    },
+
+"2.1.4": {
+        id: "2.1.4",
+        name: "医疗研究数据清洗和标注设计",
+        time: "20min",
+        score: 25,
+        tags: ["数据清洗", "数据标注", "医疗数据", "归一化", "可视化"],
+        background: `### 1. 场地设备要求
+（1）人工智能训练师主机 1 台；
+（2）Python 编译环境；
+（3）职业人群体检数据集。
+
+### 2. 工作任务
+随着医学技术的进步和医疗资源的丰富，医疗研究在改善患者治疗效果、提升医疗服务质量方面起到了重要作用。研究人员通过分析大量患者的治疗数据，能够评估不同治疗方案的效果，发现潜在的健康问题，并提出针对性的治疗建议。
+
+现提供一份医疗研究数据集（medical_data.csv），训练集样本数据一共5441条记录。请补全2.1.4.ipynb代码，完成下面的数据预处理任务：
+
+（1）加载数据集，查看表的数据类型、表结构和显示每一列的空缺值数量；
+（2）将"就诊日期"和"诊断日期"规范为"yyyy-mm-dd"格式，并将"病人ID"列名改为"患者ID"；
+（3）增加"诊断延迟"（诊断日期-就诊日期）和"病程"（当前日期-诊断日期）两列，删除不合理的数据（如负数，年龄为几百岁等）；
+（4）检查数据集中的重复值并删除所有重复值，并记录删除的行数；
+（5）对数据段[年龄，体重，身高]进行归一化处理；
+（6）统计不同疾病类型的治疗结果分布，并画出柱状图；
+（7）分析年龄和疾病严重程度的关系，绘制出散点图；
+（8）保存处理后的数据，命名为 2.1.4_cleaned_data.csv。
+
+### 3. 技能要求
+（1）能够结合人工智能技术要求和业务特征，设计数据清洗和标注流程；
+（2）能够结合人工智能技术要求和业务特征，制定数据清洗和标注规范。
+
+### 4. 质量指标
+（1）数据预处理步骤完整，方法选择合理；
+（2）代码实现正确，结果符合预期。`,
+        downloads: [
+            { name: "medical_data.csv", url: "practices/2.1.4/medical_data.csv", type: "csv" },
+            { name: "2.1.4.ipynb", url: "practices/2.1.4/2.1.4.ipynb", type: "ipynb" }
+        ],
+        extraResources: [],
+        code: `# ----------------------------------------------------
+# 医疗研究数据清洗和标注设计 - 参考代码
+# ----------------------------------------------------
+import pandas as pd
+import matplotlib.pyplot as plt
+import matplotlib.font_manager as fm
+from datetime import datetime
+from sklearn.preprocessing import MinMaxScaler
+
+# 1. 加载数据集（GBK编码）
+data = pd.read_csv('medical_data.csv', encoding='gbk')
+print(data.dtypes)
+print(data.info())
+print(data.isnull().sum())
+
+# 2. 规范日期格式
+data['就诊日期'] = pd.to_datetime(data['就诊日期'])
+data['诊断日期'] = pd.to_datetime(data['诊断日期'])
+data.rename(columns={'病人ID': '患者ID'}, inplace=True)
+print(data.head())
+
+# 3. 增加诊断延迟和病程列
+data['诊断延迟'] = (data['诊断日期'] - data['就诊日期']).dt.days
+data['病程'] = (datetime(2024, 9, 1) - data['诊断日期']).dt.days
+data = data[(data['诊断延迟'] >= 0) & (data['年龄'] > 0) & (data['年龄'] < 120)]
+print(data.describe())
+
+# 4. 删除重复值
+initial_rows = data.shape[0]
+data.drop_duplicates(inplace=True)
+deleted_rows = initial_rows - data.shape[0]
+print(f'删除的重复行数: {deleted_rows}')
+
+# 5. 归一化处理
+scaler = MinMaxScaler()
+columns_to_normalize = ['年龄', '体重', '身高']
+data[columns_to_normalize] = scaler.fit_transform(data[columns_to_normalize])
+print(data.head())
+
+# 6. 柱状图 - 治疗结果分布
+treatment_outcome_distribution = data.groupby('疾病类型')['治疗结果'].value_counts().unstack()
+treatment_outcome_distribution.plot(kind='bar', stacked=True)
+plt.title('不同疾病类型的治疗结果分布')
+plt.xlabel('疾病类型')
+plt.ylabel('治疗结果数量')
+plt.show()
+
+# 7. 散点图 - 年龄与疾病严重程度
+plt.scatter(data['年龄'], data['疾病严重程度'])
+plt.title('年龄和疾病严重程度的关系')
+plt.xlabel('年龄')
+plt.ylabel('疾病严重程度')
+plt.show()
+
+# 8. 保存
+data.to_csv('2.1.4_cleaned_data.csv', index=False)`,
+        doc: `### 运行输出范例
+
+#### 数据结构
+\`\`\`
+<class 'pandas.core.frame.DataFrame'>
+RangeIndex: 5441 entries, 0 to 5440
+Data columns (total 12 columns)
+\`\`\`
+
+#### 重复行删除
+\`\`\`
+删除的重复行数: 45
+\`\`\``,
+        checklist: [
+            { text: "正确加载数据集（GBK编码），查看数据类型、结构和空缺值 (3分)", score: 3 },
+            { text: "规范日期格式为 yyyy-mm-dd，修改列名 病人ID→患者ID (3分)", score: 3 },
+            { text: "增加诊断延迟和病程列，删除不合理数据（负数、异常年龄） (4分)", score: 4 },
+            { text: "删除重复值并记录删除行数 (2分)", score: 2 },
+            { text: "对年龄、体重、身高进行归一化处理 (3分)", score: 3 },
+            { text: "统计治疗结果分布并绘制柱状图 (4分)", score: 4 },
+            { text: "绘制年龄与疾病严重程度的散点图 (3分)", score: 3 },
+            { text: "保存处理后数据为 2.1.4_cleaned_data.csv (3分)", score: 3 }
+        ]
+    },
+
+    "2.1.3": {
+        id: "2.1.3",
+        name: "信用评分模型数据清洗和标注流程设计",
+        time: "20min",
+        score: 25,
+        tags: ["数据清洗", "异常值检测", "IQR", "特征工程", "信用评分"],
+        background: `### 1. 场地设备要求
+（1）人工智能训练师主机 1 台；
+（2）Python 编译环境；
+（3）Finance数据集。
+
+### 2. 工作任务
+互联网金融飞速发展，使得个人金融理财变得越来越容易。而其中信用评分技术是一种对贷款申请人做风险评估分值的统计模型，可以根据客户提供的资料、客户的历史数据、第三方平台数据，对客户的信用进行评估。现要求根据提供的Finance数据集，选择合适的特征，开发一个申请的评分模型。提供的数据集样本数据一共15000条，10个自变量，1个因变量（SeriousDlqin2yrs）。在开发评分模型之前，首先要对数据进行数据清洗。请补全2.1.3.ipynb代码完成以下任务：
+
+（1）正确加载数据集，并显示前五行的数据；
+（2）检查数据集中的异常值并处理异常值，使用箱线图检测异常值，使用IQR方法处理异常值；
+（3）检查数据集中的重复值并删除所有重复值，并记录删除的行数；
+（4）对数据进行归一化处理；
+（5）创建新的特征IncomeToDebtRatio，MonthlyIncome，并添加到数据集中；
+（6）将SeriousDlqin2yrs设为目标变量并标注；
+（7）对数据进行划分；
+（8）保存处理后的数据，命名为 2.1.3_cleaned_data.csv。
+
+### 3. 技能要求
+（1）能够进行数据清洗和特征工程，包括缺失值处理、异常值处理、数据标准化和特征创建；
+（2）能够使用Python编程实现上述数据预处理和特征工程步骤。
+
+### 4. 质量指标
+（1）数据预处理步骤完整，方法选择合理；
+（2）代码实现正确，结果符合预期。`,
+        downloads: [
+            { name: "finance数据集.csv", url: "practices/2.1.3/finance数据集.csv", type: "csv" },
+            { name: "2.1.3.ipynb", url: "practices/2.1.3/2.1.3.ipynb", type: "ipynb" }
+        ],
+        extraResources: [],
+        code: `# ----------------------------------------------------
+# 信用评分模型数据清洗和标注流程设计 - 参考代码
+# ----------------------------------------------------
+import pandas as pd
+import matplotlib.pyplot as plt
+import seaborn as sns
+from sklearn.preprocessing import MinMaxScaler
+from sklearn.model_selection import train_test_split
+
+# 1. 加载数据
+data = pd.read_csv('finance数据集.csv')
+print(data.head())
+
+# 2. 箱线图检测异常值 + IQR处理
+plt.figure(figsize=(12, 8))
+numeric_cols = data.select_dtypes(include=['float64', 'int64']).columns
+for i, col in enumerate(numeric_cols, 1):
+    plt.subplot(3, 4, i)
+    sns.boxplot(x=data[col])
+    plt.title(col)
+plt.tight_layout()
+plt.show()
+
+Q1 = data[numeric_cols].quantile(0.25)
+Q3 = data[numeric_cols].quantile(0.75)
+IQR = Q3 - Q1
+data_cleaned = data[~((data[numeric_cols] < (Q1 - 1.5 * IQR)) | (data[numeric_cols] > (Q3 + 1.5 * IQR))).any(axis=1)]
+
+# 3. 删除重复值
+duplicates = data_cleaned.duplicated()
+num_duplicates = duplicates.sum()
+data_cleaned = data_cleaned[~duplicates]
+print(f'删除的重复行数: {num_duplicates}')
+
+# 4. 归一化处理
+scaler = MinMaxScaler()
+data_cleaned[numeric_cols] = scaler.fit_transform(data_cleaned[numeric_cols])
+
+# 6. 设定目标变量
+target_variable = 'SeriousDlqin2yrs'
+
+# 7. 数据划分（80%训练）
+X = data_cleaned.drop(columns=[target_variable])
+y = data_cleaned[target_variable]
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+print(f'训练数据形状: {X_train.shape}')
+print(f'测试数据形状: {X_test.shape}')
+
+# 8. 保存
+data_cleaned.to_csv('2.1.3_cleaned_data.csv', index=False)`,
+        doc: `### 运行输出范例
+
+#### 数据前5行
+\`\`\`
+   SeriousDlqin2yrs  RevolvingUtilizationOfUnsecuredLines  age  ...
+0                 1                              0.766127   45  ...
+1                 0                              0.957151   40  ...
+\`\`\`
+
+#### 数据划分
+\`\`\`
+训练数据形状: (8000, 10)
+测试数据形状: (2000, 10)
+\`\`\``,
+        checklist: [
+            { text: "正确加载数据集，显示前五行 (3分)", score: 3 },
+            { text: "使用箱线图检测异常值，使用IQR方法处理异常值 (5分)", score: 5 },
+            { text: "删除重复值并记录删除行数 (3分)", score: 3 },
+            { text: "对数据进行归一化处理 (3分)", score: 3 },
+            { text: "将 SeriousDlqin2yrs 设为目标变量并标注 (3分)", score: 3 },
+            { text: "按8:2划分数据集 (3分)", score: 3 },
+            { text: "保存处理后数据为 2.1.3_cleaned_data.csv (2分)", score: 2 },
+            { text: "制定数据清洗和特征工程规范，保存为 2.1.3.docx (3分)", score: 3 }
+        ]
+    },
+
+    "3.2.2": {
+        id: "3.2.2",
+        name: "手写数字识别系统交互流程设计",
+        time: "20min",
+        score: 25,
+        tags: ["ONNX推理", "MNIST", "CNN", "图像识别", "交互流程"],
+        background: `### 1. 场地设备要求
+（1）人工智能训练师主机 1 台；
+（2）Python 编译环境；
+（3）Pytorch框架。
+
+### 2. 工作任务
+手写数字识别系统是在数字化转型和自动化需求日益增长的社会背景下应运而生的。传统的光学字符识别(OCR)技术在处理手写体时面临诸多挑战，如书写风格的多样性、笔迹的连笔和重叠等，导致识别率不高。然而，深度学习的兴起，尤其是卷积神经网络(CNN)的发展，为手写数字的精准识别提供了强大的工具。
+
+AI模型说明：提供的模型"mnist.onnx"是基于卷积神经网络训练得到的，专门用于进行手写数字的识别应用。该模型的使用交互流程为：
+1. 加载模型"mnist.onnx"；
+2. 加载一张本地手写数字图片"img_test.png"，并进行预处理图像以符合模型输入要求；
+3. 使用mnist模型对手写数字图片进行识别；
+4. 输出识别后的数字。
+
+请完成以下任务：
+（1）补全该模型的使用交互流程对应的Python代码（3.2.2.ipynb），实现本地测试图片"img_test.png"的识别，将识别结果截图保存为 3.2.2-1.jpg；
+（2）给出在手写数字识别系统中使用"mnist.onnx"模型的一种人机交互的最优流程，保存为 3.2.2.docx。
+
+### 3. 技能要求
+（1）能够确保模型在单一场景下稳定运行；
+（2）能通过分析，设计单一场景下人工和智能交互的最优流程。
+
+### 4. 质量指标
+（1）模型运行稳定，使用正常；
+（2）单一场景下人工和智能交互的最优流程切实可行。`,
+        downloads: [
+            { name: "mnist.onnx", url: "practices/3.2.2/mnist.onnx", type: "onnx" },
+            { name: "img_test.png", url: "practices/3.2.2/img_test.png", type: "png" },
+            { name: "3.2.2.ipynb", url: "practices/3.2.2/3.2.2.ipynb", type: "ipynb" }
+        ],
+        extraResources: [
+            { name: "mnist.onnx", note: "基于CNN训练的MNIST手写数字识别ONNX模型，用于推理测试" },
+            { name: "img_test.png", note: "手写数字测试图片" }
+        ],
+        code: `# ----------------------------------------------------
+# 手写数字识别系统交互流程设计 - 参考代码
+# ----------------------------------------------------
+import onnxruntime
+import numpy as np
+from PIL import Image
+
+# 1. 加载ONNX模型
+ort_session = onnxruntime.InferenceSession('mnist.onnx')
+
+# 2. 加载并预处理图像
+image = Image.open('img_test.png').convert('L')  # 转为灰度图
+image = image.resize((28, 28))  # 调整为MNIST输入尺寸
+image_array = np.array(image, dtype=np.float32)
+image_array = np.expand_dims(image_array, axis=0)  # 添加batch维度
+image_array = np.expand_dims(image_array, axis=0)  # 添加通道维度
+
+# 3. 执行预测
+ort_inputs = {ort_session.get_inputs()[0].name: image_array}
+ort_outs = ort_session.run(None, ort_inputs)
+
+# 4. 获取预测结果
+predicted_class = np.argmax(ort_outs[0])
+print(f"Predicted class: {predicted_class}")`,
+        doc: `### 运行输出范例
+
+#### 3.2.2-1.jpg — 识别结果截图
+\`\`\`
+Predicted class: 7
+\`\`\`
+
+### 交互流程设计要点
+1. 用户上传/拍摄手写数字图片
+2. 系统自动预处理图像（灰度化、缩放至28x28、归一化）
+3. ONNX模型推理，输出0-9的预测概率
+4. 显示识别结果及置信度
+5. 支持用户反馈纠正，积累标注数据`,
+        checklist: [
+            { text: "正确加载 mnist.onnx 模型 (3分)", score: 3 },
+            { text: "加载 img_test.png 并进行预处理（灰度化、缩放28x28、维度扩展） (5分)", score: 5 },
+            { text: "使用模型执行推理预测 (5分)", score: 5 },
+            { text: "正确输出预测数字结果，截图保存为 3.2.2-1.jpg (4分)", score: 4 },
+            { text: "设计人机交互最优流程，保存为 3.2.2.docx (8分)", score: 8 }
+        ]
+    },
+
+    "3.2.5": {
+        id: "3.2.5",
+        name: "人脸AI智能检测系统交互流程设计",
+        time: "20min",
+        score: 25,
+        tags: ["ONNX推理", "人脸检测", "目标检测", "交互优化", "NMS"],
+        background: `### 1. 场地设备要求
+（1）人工智能训练师主机 1 台；
+
+### 2. 工作任务
+在安防监控、智能交通等领域，实时准确的人脸检测需求日益增长。传统的人脸检测方法在面对复杂光照、多角度、遮挡等情况时，检测效果往往不尽人意。随着深度学习技术的发展，基于深度神经网络的人脸检测模型展现出强大的性能优势。
+
+AI模型说明："version-RFB-320.onnx" 模型是用于人脸检测的ONNX格式模型，对应的类别标签文件为"voc-model-labels.txt"。该模型的使用交互流程为：
+（1）加载模型和类别标签；
+（2）加载本地测试图片文件夹"imgs"中的所有图片并预处理；
+（3）使用模型对加载的图片进行人脸检测；
+（4）在图片上绘制检测到的人脸框，并将处理后的图片保存到"./detect_imgs_results_onnx"文件夹中；
+（5）统计所有图片中检测到的人脸总数并输出。
+
+请完成以下任务：
+（1）补全该模型的使用交互流程对应的Python代码（3.2.5.ipynb），实现本地测试图片文件夹"imgs"中所有图片的人脸检测，将运行结果截图保存为 3.2.5-1.jpg；
+（2）设计在人脸检测系统中使用"version-RFB-320.onnx"模型的一种人机交互优化方案，保存为 3.2.5.docx。
+
+### 3. 技能要求
+（1）能确保模型在单一场景下稳定运行；
+（2）能通过分析，找到单一场景下人工和智能交互的最优方式；
+（3）能对单一场景下人工和智能交互界面设计提出优化需求。
+
+### 4. 质量指标
+（1）模型运行稳定，使用正常；
+（2）单一场景下人工和智能交互的最优方式切实可行。`,
+        downloads: [
+            { name: "version-RFB-320.onnx", url: "practices/3.2.5/version-RFB-320.onnx", type: "onnx" },
+            { name: "voc-model-labels.txt", url: "practices/3.2.5/voc-model-labels.txt", type: "txt" },
+            { name: "imgs.zip", url: "practices/3.2.5/imgs/", type: "folder" },
+            { name: "3.2.5.ipynb", url: "practices/3.2.5/3.2.5.ipynb", type: "ipynb" }
+        ],
+        extraResources: [
+            { name: "version-RFB-320.onnx (1.2MB)", note: "RFB-320人脸检测ONNX模型" },
+            { name: "voc-model-labels.txt", note: "类别标签文件" },
+            { name: "imgs/", note: "测试图片文件夹" },
+            { name: "vision/", note: "辅助工具模块（box_utils等）" }
+        ],
+        code: `# ----------------------------------------------------
+# 人脸AI智能检测系统交互流程设计 - 参考代码
+# ----------------------------------------------------
+import os
+import time
+import cv2
+import numpy as np
+import vision.utils.box_utils_numpy as box_utils
+import onnxruntime as ort
+
+def predict(width, height, confidences, boxes, prob_threshold, iou_threshold=0.3, top_k=-1):
+    boxes = boxes[0]
+    confidences = confidences[0]
+    picked_box_probs = []
+    picked_labels = []
+    for class_index in range(1, confidences.shape[1]):
+        probs = confidences[:, class_index]
+        mask = probs > prob_threshold
+        probs = probs[mask]
+        if probs.shape[0] == 0:
+            continue
+        subset_boxes = boxes[mask, :]
+        box_probs = np.concatenate([subset_boxes, probs.reshape(-1, 1)], axis=1)
+        box_probs = box_utils.hard_nms(box_probs, iou_threshold=iou_threshold, top_k=top_k)
+        picked_box_probs.append(box_probs)
+        picked_labels.extend([class_index] * box_probs.shape[0])
+    if not picked_box_probs:
+        return np.array([]), np.array([]), np.array([])
+    picked_box_probs = np.concatenate(picked_box_probs)
+    picked_box_probs[:, 0] *= width
+    picked_box_probs[:, 1] *= height
+    picked_box_probs[:, 2] *= width
+    picked_box_probs[:, 3] *= height
+    return picked_box_probs[:, :4].astype(np.int32), np.array(picked_labels), picked_box_probs[:, 4]
+
+# 加载标签和模型
+class_names = [name.strip() for name in open('voc-model-labels.txt').readlines()]
+ort_session = ort.InferenceSession('version-RFB-320.onnx')
+input_name = ort_session.get_inputs()[0].name
+
+result_path = "./detect_imgs_results_onnx"
+threshold = 0.7
+path = "imgs"
+total_faces = 0
+
+if not os.path.exists(result_path):
+    os.makedirs(result_path)
+
+for file_path in os.listdir(path):
+    img_path = os.path.join(path, file_path)
+    orig_image = cv2.imread(img_path)
+    image = cv2.cvtColor(orig_image, cv2.COLOR_BGR2RGB)
+    image = cv2.resize(image, (320, 240))
+    image_mean = np.array([127, 127, 127])
+    image = (image - image_mean) / 128
+    image = np.transpose(image, [2, 0, 1])
+    image = np.expand_dims(image, axis=0).astype(np.float32)
+
+    confidences, boxes = ort_session.run(None, {input_name: image})
+    boxes, labels, probs = predict(orig_image.shape[1], orig_image.shape[0], confidences, boxes, threshold)
+
+    for i in range(boxes.shape[0]):
+        box = boxes[i, :]
+        label = f"{class_names[labels[i]]}: {probs[i]:.2f}"
+        cv2.rectangle(orig_image, (box[0], box[1]), (box[2], box[3]), (255, 255, 0), 4)
+        cv2.imwrite(os.path.join(result_path, file_path), orig_image)
+    total_faces += boxes.shape[0]
+
+print(f"sum:{total_faces}")`,
+        doc: `### 运行输出范例
+
+#### 3.2.5-1.jpg — 检测结果
+\`\`\`
+(1, 1000, 4)
+(1, 1000, 2)
+cost time:0.032s
+sum:5
+\`\`\`
+
+### 交互优化方案要点
+1. 支持摄像头实时检测 + 图片批量上传两种模式
+2. 置信度阈值可调节滑块
+3. 检测结果可视化：人脸框 + 置信度标注
+4. 支持检测结果导出（图片+JSON报告）`,
+        checklist: [
+            { text: "正确加载模型、标签文件，读取 imgs 文件夹中所有图片 (4分)", score: 4 },
+            { text: "对图片进行预处理（缩放320x240、归一化、维度转换） (4分)", score: 4 },
+            { text: "使用ONNX Runtime执行推理，NMS后处理 (5分)", score: 5 },
+            { text: "绘制人脸框并保存检测结果图片到 detect_imgs_results_onnx (4分)", score: 4 },
+            { text: "统计并输出人脸总数，截图保存为 3.2.5-1.jpg (3分)", score: 3 },
+            { text: "设计人机交互优化方案，保存为 3.2.5.docx (5分)", score: 5 }
+        ]
+    },
+
+"3.2.3": {
+        id: "3.2.3",
+        name: "面部表情识别系统交互流程设计",
+        time: "20min",
+        score: 25,
+        tags: ["ONNX推理", "表情识别", "CNN", "交互流程", "情感分析"],
+        background: `### 1. 场地设备要求
+（1）人工智能训练师主机 1 台；
+（2）Python 编译环境；
+（3）Pytorch框架。
+
+### 2. 工作任务
+面部表情识别系统是一种先进的计算机视觉技术，它能够分析人脸的微表情，识别出诸如快乐、悲伤、惊讶等基本情绪。通过捕捉和解读面部特征，如眼睛、眉毛和嘴部的动作，这类系统能在实时或预录的视频中判断人的情感状态。
+
+AI模型说明：提供的已训练的模型"emotion-ferplus.onnx"，其专门用于进行面部表情识别。定义情感类别与数字标签的映射表为{'neutral':0, 'happiness':1, 'surprise':2, 'sadness':3, 'anger':4, 'disgust':5, 'fear':6, 'contempt':7}。
+
+该模型的使用交互流程为：
+1. 加载模型"emotion-ferplus.onnx"和加载情感类别与数字标签的映射表；
+2. 加载一张本地图片"img_test.png"，并预处理图像；
+3. 使用已训练的模型对图片面部表情识别；
+4. 输出识别后的表情标签。
+
+请完成以下任务：
+（1）补全该模型的使用交互流程对应的Python代码（3.2.3.ipynb），实现本地测试图片"img_test.png"的识别，将识别结果截图保存为 3.2.3-1.jpg；
+（2）给出在面部表情识别系统中使用"emotion-ferplus.onnx"模型的一种人机交互的最优方式，保存为 3.2.3.docx。
+
+### 3. 技能要求
+（1）能够确保模型在单一场景下稳定运行；
+（2）能通过分析，找到单一场景下人工和智能交互的最优方式。
+
+### 4. 质量指标
+（1）模型运行稳定，使用正常；
+（2）单一场景下人工和智能交互的最优方式切实可行。`,
+        downloads: [
+            { name: "emotion-ferplus.onnx", url: "practices/3.2.3/emotion-ferplus.onnx", type: "onnx" },
+            { name: "img_test.png", url: "practices/3.2.3/img_test.png", type: "png" },
+            { name: "3.2.3.ipynb", url: "practices/3.2.3/3.2.3.ipynb", type: "ipynb" }
+        ],
+        extraResources: [
+            { name: "emotion-ferplus.onnx (33MB)", note: "FER+面部表情识别ONNX模型，支持8种情感分类" },
+            { name: "img_test.png", note: "面部表情测试图片" }
+        ],
+        code: `# ----------------------------------------------------
+# 面部表情识别系统交互流程设计 - 参考代码
+# ----------------------------------------------------
+import numpy as np
+from PIL import Image
+import onnxruntime as ort
+
+# 定义预处理函数
+def preprocess(image_path):
+    input_shape = (1, 1, 64, 64)
+    img = Image.open(image_path).convert('L')
+    img = img.resize((64, 64), Image.LANCZOS)
+    img_data = np.array(img, dtype=np.float32)
+    img_data = np.expand_dims(img_data, axis=0)
+    img_data = np.expand_dims(img_data, axis=1)
+    assert img_data.shape == input_shape
+    return img_data
+
+# 定义情感类别映射
+emotion_table = {'neutral':0, 'happiness':1, 'surprise':2, 'sadness':3,
+                 'anger':4, 'disgust':5, 'fear':6, 'contempt':7}
+
+# 加载模型
+ort_session = ort.InferenceSession('emotion-ferplus.onnx')
+
+# 加载并预处理图片
+input_data = preprocess('img_test.png')
+
+# 执行预测
+ort_inputs = {ort_session.get_inputs()[0].name: input_data}
+ort_outs = ort_session.run(None, ort_inputs)
+
+# 解码预测结果
+predicted_label = np.argmax(ort_outs[0])
+predicted_emotion = list(emotion_table.keys())[predicted_label]
+print(f"Predicted emotion: {predicted_emotion}")`,
+        doc: `### 运行输出范例
+
+#### 3.2.3-1.jpg — 识别结果截图
+\`\`\`
+Predicted emotion: happiness
+\`\`\`
+
+### 交互最优方式设计要点
+1. 实时摄像头捕获面部表情
+2. ONNX模型推理输出情感概率分布
+3. 可视化展示当前情感状态（饼图/柱状图）
+4. 历史情感变化趋势折线图`,
+        checklist: [
+            { text: "正确加载 emotion-ferplus.onnx 模型 (3分)", score: 3 },
+            { text: "定义情感类别映射表（8种情感） (3分)", score: 3 },
+            { text: "加载图片并预处理（灰度化、缩放64x64、维度扩展） (5分)", score: 5 },
+            { text: "执行推理预测并输出情感标签，截图保存为 3.2.3-1.jpg (4分)", score: 4 },
+            { text: "设计人机交互最优方式，保存为 3.2.3.docx (10分)", score: 10 }
+        ]
+    },
+
+    "3.2.4": {
+        id: "3.2.4",
+        name: "花朵智能识别系统交互流程设计",
+        time: "20min",
+        score: 25,
+        tags: ["ONNX推理", "花朵识别", "CNN", "图像分类", "交互流程"],
+        background: `### 1. 场地设备要求
+（1）人工智能训练师主机 1 台；
+（2）Python 编译环境；
+（3）Pytorch框架。
+
+### 2. 工作任务
+花朵智能识别系统在现代城市绿化管理中起着越来越重要的作用，其利用先进的计算机视觉技术，实现了对花朵种类的实时监控与管理。本系统要求开发一个基于已训练模型的花朵检测与分类系统，能够准确识别出不同类别的花朵。
+
+AI模型说明：提供的模型"flower-detection.onnx"是使用Pytorch框架和基于深度卷积神经网络训练得到的，专门用于进行花朵识别。对应的标签文件为"labels.txt"。该模型的使用交互流程为：
+1. 加载模型"flower-detection.onnx"和加载类别标签"labels.txt"；
+2. 加载一张本地花朵图片"flower_test.png"，并预处理图像；
+3. 使用flower-detection模型对花朵图片进行识别；
+4. 输出花朵的预测类型和识别的准确率。
+
+请完成以下任务：
+（1）补全该模型的使用交互流程对应的Python代码（3.2.4.ipynb），实现本地测试图片"flower_test.png"的识别，将识别结果截图保存为 3.2.4-1.jpg；
+（2）给出在花朵智能识别系统中使用"flower-detection.onnx"模型的一种人机交互的最优流程，保存为 3.2.4.docx。
+
+### 3. 技能要求
+（1）能够确保模型在单一场景下稳定运行；
+（2）能通过分析，设计单一场景下人工和智能交互的最优流程。
+
+### 4. 质量指标
+（1）模型运行稳定，使用正常；
+（2）单一场景下人工和智能交互的最优流程切实可行。`,
+        downloads: [
+            { name: "flower-detection.onnx", url: "practices/3.2.4/flower-detection.onnx", type: "onnx" },
+            { name: "labels.txt", url: "practices/3.2.4/labels.txt", type: "txt" },
+            { name: "flower_test.png", url: "practices/3.2.4/flower_test.png", type: "png" },
+            { name: "3.2.4.ipynb", url: "practices/3.2.4/3.2.4.ipynb", type: "ipynb" }
+        ],
+        extraResources: [
+            { name: "flower-detection.onnx (98MB)", note: "基于CNN的花朵分类ONNX模型" },
+            { name: "labels.txt", note: "花朵类别标签文件" },
+            { name: "flower_test.png", note: "花朵测试图片" }
+        ],
+        code: `# ----------------------------------------------------
+# 花朵智能识别系统交互流程设计 - 参考代码
+# ----------------------------------------------------
+import onnxruntime as ort
+import numpy as np
+import scipy.special
+from PIL import Image
+
+def preprocess_image(image, resize_size=256, crop_size=224, mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]):
+    image = image.resize((resize_size, resize_size), Image.BILINEAR)
+    w, h = image.size
+    left = (w - crop_size) / 2
+    top = (h - crop_size) / 2
+    image = image.crop((left, top, left + crop_size, top + crop_size))
+    image = np.array(image).astype(np.float32)
+    image = image / 255.0
+    image = (image - mean) / std
+    image = np.transpose(image, (2, 0, 1))
+    image = image.reshape((1,) + image.shape)
+    return image
+
+# 加载模型和标签
+session = ort.InferenceSession('flower-detection.onnx')
+with open('labels.txt', 'r') as f:
+    labels = [line.strip() for line in f.readlines()]
+
+input_name = session.get_inputs()[0].name
+output_name = session.get_outputs()[0].name
+
+# 加载并预处理图片
+image = Image.open('flower_test.png').convert('RGB')
+processed_image = preprocess_image(image).astype(np.float32)
+
+# 执行推理
+output = session.run([output_name], {input_name: processed_image})[0]
+accuracy = scipy.special.softmax(output, axis=-1)
+predicted_idx = np.argmax(accuracy[0])
+prob_percentage = accuracy[0][predicted_idx] * 100
+predicted_label = labels[predicted_idx]
+
+print(f"Predicted class: {predicted_label}, Accuracy: {prob_percentage:.2f}%")`,
+        doc: `### 运行输出范例
+
+#### 3.2.4-1.jpg — 识别结果截图
+\`\`\`
+Predicted class: rose, Accuracy: 95.32%
+\`\`\`
+
+### 交互最优流程设计要点
+1. 用户拍照/上传花朵图片
+2. 自动预处理（缩放、裁剪、归一化）
+3. ONNX模型推理输出Top-5分类概率
+4. 展示分类结果+相似花朵推荐
+5. 支持用户反馈纠正`,
+        checklist: [
+            { text: "正确加载 flower-detection.onnx 模型和 labels.txt 标签 (3分)", score: 3 },
+            { text: "加载 flower_test.png 并预处理（缩放、裁剪、归一化） (5分)", score: 5 },
+            { text: "执行推理预测，应用softmax获取概率 (5分)", score: 5 },
+            { text: "输出花朵类型和准确率，截图保存为 3.2.4-1.jpg (4分)", score: 4 },
+            { text: "设计人机交互最优流程，保存为 3.2.4.docx (8分)", score: 8 }
+        ]
+    },
+
+    "3.1.2": {
+        id: "3.1.2",
+        name: "智能照明系统的数据分析与优化",
+        time: "20min",
+        score: 25,
+        tags: ["数据分析", "智能照明", "用户习惯", "优化方案"],
+        background: `### 1. 场地设备要求
+（1）人工智能训练师主机 1 台；
+（2）Python 编译环境；
+（3）智能照明系统数据集。
+
+### 2. 工作任务
+智能照明系统是智能家居领域的一个关键部分，它利用传感器和互联网连接，根据用户的需求和环境条件自动调节光线强度和颜色。随着物联网（IoT）技术和机器学习的进步，智能照明系统变得越来越智能化。数据分析在这一过程中扮演了重要角色。
+
+（1）根据给定的数据集（智能照明系统数据集.xlsx），从以下三方面：
+- **用户使用习惯**：分析用户在一天中不同时段对灯光亮度和颜色的偏好；
+- **功能使用频率**：识别哪些智能场景被频繁使用，哪些较少使用；
+- **响应时间**：考察智能照明系统在接收到用户指令后至灯光调整完成之间的平均响应时间，找出可能的延迟瓶颈。
+
+给出一份分析报告，保存为 3.1.2-1.docx。
+
+（2）给出智能照明系统的3个优化方向和对应解决方案，保存为 3.1.2-2.docx。
+
+### 3. 技能要求
+（1）能对单一智能产品使用的数据进行全面分析，输出分析报告；
+（2）能对单一智能产品提出优化需求；
+（3）能为单一智能产品的应用设计智能解决方案。
+
+### 4. 质量指标
+（1）分析报告全面可靠；
+（2）优化方向合理，具有良好应用价值；
+（3）解决方案切实可行。`,
+        downloads: [
+            { name: "智能照明系统数据集.xlsx", url: "practices/3.1.2/智能照明系统数据集.xlsx", type: "xlsx" }
+        ],
+        extraResources: [],
+        code: `# ----------------------------------------------------
+# 智能照明系统的数据分析与优化 - 参考分析代码
+# ----------------------------------------------------
+import pandas as pd
+import matplotlib.pyplot as plt
+
+data = pd.read_excel('智能照明系统数据集.xlsx')
+print(data.head())
+print(data.info())
+print(data.describe())
+
+# 用户使用习惯分析
+print(data.groupby('时段')['亮度'].mean())
+print(data.groupby('时段')['颜色偏好'].value_counts())
+
+# 功能使用频率
+print(data['智能场景'].value_counts())
+
+# 响应时间分析
+print(f'平均响应时间: {data["响应时间"].mean():.2f}ms')
+print(f'最大响应时间: {data["响应时间"].max():.2f}ms')`,
+        doc: `### 标准范文要点
+
+#### 分析报告 (3.1.2-1.docx)
+1. **用户使用习惯**：晚间(18-22时)暖色调使用率最高；午间偏冷色调
+2. **功能使用频率**："阅读模式"使用频率最高，"影院模式"使用率较低
+3. **响应时间**：平均响应150ms，夜间高峰期延迟可达300ms
+
+#### 优化方案 (3.1.2-2.docx)
+1. 智能预调光：基于历史习惯自动预调节灯光
+2. 响应优化：边缘计算降低延迟至50ms以内
+3. 场景推荐：基于时间/天气主动推荐照明场景`,
+        checklist: [
+            { text: "用户使用习惯分析（不同时段亮度/颜色偏好） (5分)", score: 5 },
+            { text: "功能使用频率分析（智能场景使用统计） (5分)", score: 5 },
+            { text: "响应时间分析（平均响应时间和瓶颈） (5分)", score: 5 },
+            { text: "提出3个优化方向和对应解决方案 (10分)", score: 10 }
+        ]
+    },
+
+    "3.1.3": {
+        id: "3.1.3",
+        name: "智能健康手环的数据分析与优化",
+        time: "20min",
+        score: 25,
+        tags: ["数据分析", "健康手环", "活动模式", "优化方案"],
+        background: `### 1. 场地设备要求
+（1）人工智能训练师主机 1 台；
+（2）Python 编译环境；
+（3）智能健康手环数据集。
+
+### 2. 工作任务
+智能健康手环作为个人健康管理的重要工具，已经广泛应用于日常生活中。它们能够追踪用户的运动量、心率、睡眠质量等健康指标。通过精细化的数据分析来优化产品，可以提升用户满意度。
+
+（1）根据给定的数据集（智能健康手环数据集.xlsx），从以下三方面：
+- **用户活动模式**：分析用户在一周内不同时间段的活动水平，识别高峰时段和低谷时段；
+- **健康指标关注度**：识别哪些健康指标（如步数、心率、睡眠时长）最受用户关注，哪些较少被查看；
+- **数据同步性能**：评估手环与手机应用之间数据传输的平均延迟，找出影响同步传输速度的因素。
+
+给出一份分析报告，保存为 3.1.3-1.docx。
+
+（2）给出智能健康手环产品的3个优化方向和对应解决方案，保存为 3.1.3-2.docx。
+
+### 3. 技能要求
+（1）能对单一智能产品使用的数据进行全面分析，输出分析报告；
+（2）能对单一智能产品提出优化需求；
+（3）能为单一智能产品的应用设计智能解决方案。
+
+### 4. 质量指标
+（1）分析报告全面可靠；
+（2）优化方向合理，具有良好应用价值；
+（3）解决方案切实可行。`,
+        downloads: [
+            { name: "智能健康手环数据集.xlsx", url: "practices/3.1.3/智能健康手环数据集.xlsx", type: "xlsx" }
+        ],
+        extraResources: [],
+        code: `# ----------------------------------------------------
+# 智能健康手环的数据分析与优化 - 参考分析代码
+# ----------------------------------------------------
+import pandas as pd
+import matplotlib.pyplot as plt
+
+data = pd.read_excel('智能健康手环数据集.xlsx')
+print(data.head())
+print(data.info())
+
+# 用户活动模式分析
+print(data.groupby('星期')['步数'].mean())
+print(data.groupby('时段')['心率'].mean())
+
+# 健康指标关注度
+print(data[['步数查看次数', '心率查看次数', '睡眠查看次数']].sum())
+
+# 数据同步性能
+print(f'平均同步延迟: {data["同步延迟"].mean():.2f}s')`,
+        doc: `### 标准范文要点
+
+#### 分析报告 (3.1.3-1.docx)
+1. **用户活动模式**：工作日活动量低于周末，晚7-9点为运动高峰
+2. **健康指标关注度**：步数关注度最高，睡眠数据关注度最低
+3. **数据同步性能**：平均延迟2.3s，蓝牙弱信号区域延迟显著增加
+
+#### 优化方案 (3.1.3-2.docx)
+1. 智能运动提醒：基于活动模式自动推送运动建议
+2. 睡眠数据可视化增强：增加深度/浅度睡眠分析图表
+3. 同步优化：增量同步+压缩传输降低延迟`,
+        checklist: [
+            { text: "用户活动模式分析（一周内不同时段活动水平） (5分)", score: 5 },
+            { text: "健康指标关注度分析（步数/心率/睡眠查看频率） (5分)", score: 5 },
+            { text: "数据同步性能分析（延迟评估和影响因素） (5分)", score: 5 },
+            { text: "提出3个优化方向和对应解决方案 (10分)", score: 10 }
+        ]
+    },
+
+    "3.1.4": {
+        id: "3.1.4",
+        name: "智能健康监测系统的数据分析与优化",
+        time: "20min",
+        score: 25,
+        tags: ["数据分析", "健康监测", "活动周期", "优化方案"],
+        background: `### 1. 场地设备要求
+（1）人工智能训练师主机 1 台；
+（2）Python 编译环境；
+（3）智能健康监测系统数据集。
+
+### 2. 工作任务
+智能健康监测系统通过集成多种传感器和生物反馈机制，能够实时监测用户的健康状态，包括但不限于血压、血糖水平、身体成分分析等。这些系统通常与云端服务相连，提供个性化的健康建议和预警。
+
+（1）根据给定的数据集（智能健康监测系统数据集.xlsx），从以下三方面：
+- **用户活动周期**：分析用户一天中不同时间段的健康指标变化趋势，确定高风险时段和安全时段；
+- **健康指标偏好度**：识别哪些健康监测功能（如血压监测、血糖检测、体脂分析）受用户青睐，哪些功能使用较少；
+- **系统响应与准确性**：评估系统在监测各项健康指标时的响应时间，找出可能导致误报或延迟的关键因素。
+
+给出一份分析报告，保存为 3.1.4-1.docx。
+
+（2）给出智能健康监测系统的3个优化方向和对应解决方案，保存为 3.1.4-2.docx。
+
+### 3. 技能要求
+（1）能对单一智能产品使用的数据进行全面分析，输出分析报告；
+（2）能对单一智能产品提出优化需求；
+（3）能为单一智能产品的应用设计智能解决方案。
+
+### 4. 质量指标
+（1）分析报告全面可靠；
+（2）优化方向合理，具有良好应用价值；
+（3）解决方案切实可行。`,
+        downloads: [
+            { name: "智能健康监测系统数据集.xlsx", url: "practices/3.1.4/智能健康监测系统数据集.xlsx", type: "xlsx" }
+        ],
+        extraResources: [],
+        code: `# ----------------------------------------------------
+# 智能健康监测系统的数据分析与优化 - 参考分析代码
+# ----------------------------------------------------
+import pandas as pd
+import matplotlib.pyplot as plt
+
+data = pd.read_excel('智能健康监测系统数据集.xlsx')
+print(data.head())
+print(data.info())
+
+# 用户活动周期分析
+print(data.groupby('时段')[['血压', '血糖', '心率']].mean())
+
+# 健康指标偏好度
+print(data[['血压监测次数', '血糖检测次数', '体脂分析次数']].sum())
+
+# 系统响应时间
+print(f'平均响应时间: {data["响应时间"].mean():.2f}s')
+print(f'误报率: {data["误报"].mean()*100:.1f}%')`,
+        doc: `### 标准范文要点
+
+#### 分析报告 (3.1.4-1.docx)
+1. **用户活动周期**：清晨(6-8时)和傍晚(17-19时)为血压/血糖波动高峰
+2. **健康指标偏好度**：血压监测使用最频繁，体脂分析使用率最低
+3. **系统响应与准确性**：平均响应1.8s，血糖检测误报率较高
+
+#### 优化方案 (3.1.4-2.docx)
+1. 高风险预警：基于活动周期自动推送健康预警
+2. 检测精度提升：多传感器融合降低误报率
+3. 用户体验优化：简化体脂分析操作流程`,
+        checklist: [
+            { text: "用户活动周期分析（不同时段健康指标趋势） (5分)", score: 5 },
+            { text: "健康指标偏好度分析（各监测功能使用频率） (5分)", score: 5 },
+            { text: "系统响应与准确性分析（响应时间和误报因素） (5分)", score: 5 },
+            { text: "提出3个优化方向和对应解决方案 (10分)", score: 10 }
+        ]
+    },
+
+    "3.1.5": {
+        id: "3.1.5",
+        name: "智能家居环境控制系统的数据分析与优化",
+        time: "20min",
+        score: 25,
+        tags: ["数据分析", "智能家居", "环境控制", "优化方案"],
+        background: `### 1. 场地设备要求
+（1）人工智能训练师主机 1 台；
+（2）Python 编译环境；
+（3）智能家居环境控制系统数据集。
+
+### 2. 工作任务
+智能家居环境控制系统通过集成温度、湿度、光照等多个传感器，实现对家庭环境的智能化管理。系统可以根据用户习惯自动调整室内环境，提高居住舒适度和能源效率。为了优化这一系统，需要对收集到的大量环境数据进行深入分析。
+
+（1）根据给定的数据集（智能家居环境控制系统数据集.xlsx），从以下三方面：
+- **用户环境偏好**：分析用户在一天中不同时段对温度、湿度和光照强度的偏好设置；
+- **系统响应时间**：评估用户操作（如调节温度等）到系统反馈的平均延迟，找出影响响应速度的因素；
+- **能源消耗分析**：识别系统的平均能耗，寻找节能潜力。
+
+给出一份分析报告，保存为 3.1.5-1.docx。
+
+（2）给出智能家居环境控制系统的3个优化方向和对应解决方案，保存为 3.1.5-2.docx。
+
+### 3. 技能要求
+（1）能对单一智能产品使用的数据进行全面分析，输出分析报告；
+（2）能对单一智能产品提出优化需求；
+（3）能为单一智能产品的应用设计智能解决方案。
+
+### 4. 质量指标
+（1）分析报告全面可靠；
+（2）优化方向合理，具有良好应用价值；
+（3）解决方案切实可行。`,
+        downloads: [
+            { name: "智能家居环境控制系统数据集.xlsx", url: "practices/3.1.5/智能家居环境控制系统数据集.xlsx", type: "xlsx" }
+        ],
+        extraResources: [],
+        code: `# ----------------------------------------------------
+# 智能家居环境控制系统的数据分析与优化 - 参考分析代码
+# ----------------------------------------------------
+import pandas as pd
+import matplotlib.pyplot as plt
+
+data = pd.read_excel('智能家居环境控制系统数据集.xlsx')
+print(data.head())
+print(data.info())
+
+# 用户环境偏好
+print(data.groupby('时段')[['温度设置', '湿度设置', '光照设置']].mean())
+
+# 系统响应时间
+print(f'平均响应延迟: {data["响应时间"].mean():.2f}s')
+
+# 能源消耗
+print(f'平均日能耗: {data["能耗"].mean():.2f}kWh')
+print(data.groupby('模式')['能耗'].mean())`,
+        doc: `### 标准范文要点
+
+#### 分析报告 (3.1.5-1.docx)
+1. **用户环境偏好**：白天偏好较低温度(22-24°C)，晚间偏好暖色光照
+2. **系统响应时间**：平均响应2.1s，多设备联动时延迟增加
+3. **能源消耗**：制冷模式能耗最高，无人时仍有30%基础能耗
+
+#### 优化方案 (3.1.5-2.docx)
+1. 自适应温控：基于用户偏好+天气预报智能预调
+2. 设备联动优化：场景化指令合并减少响应延迟
+3. 节能模式：人体检测+自动休眠降低待机能耗`,
+        checklist: [
+            { text: "用户环境偏好分析（不同时段温度/湿度/光照偏好） (5分)", score: 5 },
+            { text: "系统响应时间分析（操作延迟和影响因素） (5分)", score: 5 },
+            { text: "能源消耗分析（平均能耗和节能潜力） (5分)", score: 5 },
+            { text: "提出3个优化方向和对应解决方案 (10分)", score: 10 }
+        ]
+    },
+
+"4.1.1": {
+        id: "4.1.1",
+        name: "Label Studio培训大纲编写",
+        time: "10min",
+        score: 5,
+        tags: ["培训大纲", "Label Studio", "数据标注", "培训讲义"],
+        background: `### 1. 场地设备要求
+（1）人工智能训练师主机；
+（2）Office软件。
+
+### 2. 工作任务
+A企业是一家康复训练机构，需要利用人工智能技术为康复患者提供个性化的康复训练计划，并实时监控训练效果。为了提高人工智能技术的应用效果，现计划对新进技术人员进行数据标注的培训。这次培训，将会使新进技术人员掌握Label Studio标注工具的使用，能对文本、图像、视频、音频进行标注，达到人工智能训练师五级/初级工的技能水平。
+
+请你根据要求补全素材4.1.1.docx中的培训大纲。
+
+### 3. 技能要求
+（1）能编写初级培训讲义；
+（2）能对初级工、中级工开展知识和技术培训。
+
+### 4. 质量指标
+（1）培训讲义编写逻辑合理；
+（2）培训资料正确有效；
+（3）语句组织通顺。`,
+        downloads: [
+            { name: "4.1.1.docx", url: "practices/4.1.1/4.1.1.docx", type: "docx" }
+        ],
+        extraResources: [],
+        code: `# ----------------------------------------------------
+# Label Studio 培训大纲 - 核心知识点
+# ----------------------------------------------------
+# 本题为培训大纲编写型实操题。
+# 考生需在本地使用Word补全 4.1.1.docx 培训大纲模板。
+
+# 培训大纲核心模块：
+# 1. Label Studio 概述与安装配置
+# 2. 项目创建与数据导入（文本/图像/视频/音频）
+# 3. 标注界面操作与标签设置
+# 4. 各类数据标注实操演练
+# 5. 标注质量检查与导出
+# 6. 团队协作与项目管理
+
+print("培训目标：掌握Label Studio标注工具，能对文本/图像/视频/音频进行标注")
+print("培训对象：新进技术人员（目标：五级/初级工水平）")`,
+        doc: `### Label Studio 培训大纲 (4.1.1.docx 范文)
+
+#### 一、培训基本信息
+- **培训主题**：Label Studio数据标注工具使用培训
+- **培训对象**：新进技术人员
+- **培训目标**：掌握Label Studio标注工具，能对文本、图像、视频、音频进行标注，达到人工智能训练师五级/初级工技能水平
+- **培训时长**：2天（16学时）
+
+#### 二、培训内容
+
+**模块一：Label Studio概述（2学时）**
+1. 数据标注在AI中的意义与价值
+2. Label Studio功能介绍与优势
+3. 环境安装与配置（Docker/Pip安装方式）
+
+**模块二：项目创建与数据管理（3学时）**
+1. 创建标注项目与选择标注模板
+2. 数据导入（支持JSON/CSV/图像文件夹等格式）
+3. 标注标签设计与配置
+
+**模块三：文本标注实操（3学时）**
+1. 文本分类标注（情感分析、意图识别）
+2. 命名实体识别（NER）标注
+3. 文本关系标注
+
+**模块四：图像标注实操（3学时）**
+1. 图像分类标注
+2. 目标检测标注（边界框）
+3. 语义分割标注（多边形/画笔）
+
+**模块五：视频与音频标注（3学时）**
+1. 视频帧标注与时间线标注
+2. 音频转录与分段标注
+3. 多模态联合标注
+
+**模块六：质量控制与项目管理（2学时）**
+1. 标注质量检查与审核流程
+2. 标注结果导出（JSON/CSV/COCO格式）
+3. 团队协作与任务分配
+
+#### 三、考核方式
+- 理论测试（30%）+ 实操考核（70%）
+- 完成综合标注项目并导出标准格式结果`,
+        checklist: [
+            { text: "培训目标明确，定位为五级/初级工技能水平 (1分)", score: 1 },
+            { text: "培训内容覆盖文本、图像、视频、音频四种数据标注 (1分)", score: 1 },
+            { text: "包含Label Studio安装配置、项目创建、标注实操的完整流程 (1分)", score: 1 },
+            { text: "设计标注质量控制与项目管理模块 (1分)", score: 1 },
+            { text: "培训讲义逻辑合理、语句通顺、资料正确有效 (1分)", score: 1 }
+        ]
+    },
+
+    "4.1.2": {
+        id: "4.1.2",
+        name: "爬虫培训大纲编写",
+        time: "10min",
+        score: 5,
+        tags: ["培训大纲", "网络爬虫", "数据采集", "培训讲义"],
+        background: `### 1. 场地设备要求
+（1）人工智能训练师主机；
+（2）Office软件。
+
+### 2. 工作任务
+A企业是一家互联网金融机构，需要利用人工智能技术获取大量上市公司的财务报告。为了提高获取效率，现计划对新进技术人员进行网页爬虫工具的使用培训。通过这次培训，将会使新进技术人员掌握常用网页爬虫工具的使用，能对网络公开的上市公司财务报告进行获取，达到人工智能训练师四级/中级工的技能水平。
+
+请你根据要求补全素材4.1.2.docx中的培训大纲。
+
+### 3. 技能要求
+（1）能编写初级培训讲义；
+（2）能对初级工、中级工开展知识和技术培训。
+
+### 4. 质量指标
+（1）培训讲义编写逻辑合理；
+（2）培训资料正确有效；
+（3）语句组织通顺。`,
+        downloads: [
+            { name: "4.1.2.docx", url: "practices/4.1.2/4.1.2.docx", type: "docx" }
+        ],
+        extraResources: [],
+        code: `# ----------------------------------------------------
+# 网页爬虫工具培训大纲 - 核心知识点
+# ----------------------------------------------------
+# 本题为培训大纲编写型实操题。
+# 考生需在本地使用Word补全 4.1.2.docx 培训大纲模板。
+
+# 培训大纲核心模块：
+# 1. 网络爬虫基础概念与法律法规
+# 2. HTTP协议与网页结构基础
+# 3. Requests库与BeautifulSoup解析
+# 4. Scrapy框架入门
+# 5. 动态网页抓取（Selenium）
+# 6. 反爬策略应对与数据存储
+
+print("培训目标：掌握常用网页爬虫工具，能获取公开财务报告数据")
+print("培训对象：新进技术人员（目标：四级/中级工水平）")`,
+        doc: `### 爬虫工具培训大纲 (4.1.2.docx 范文)
+
+#### 一、培训基本信息
+- **培训主题**：网页爬虫工具使用培训
+- **培训对象**：新进技术人员
+- **培训目标**：掌握常用网页爬虫工具，能对网络公开的上市公司财务报告进行获取，达到四级/中级工技能水平
+- **培训时长**：3天（24学时）
+
+#### 二、培训内容
+
+**模块一：网络爬虫基础（4学时）**
+1. 网络爬虫概念与应用场景
+2. 爬虫法律法规与robots.txt协议
+3. HTTP/HTTPS协议基础
+4. HTML/CSS/JavaScript网页结构
+
+**模块二：基础爬虫工具（6学时）**
+1. Python Requests库使用
+2. BeautifulSoup/ lxml 解析HTML
+3. 正则表达式数据提取
+4. 实战：抓取静态网页财务数据
+
+**模块三：Scrapy框架（6学时）**
+1. Scrapy框架架构与安装
+2. Spider编写与数据管道
+3. 中间件配置与分页抓取
+4. 实战：批量抓取上市公司年报
+
+**模块四：动态网页与高级技术（4学时）**
+1. Selenium自动化浏览器操作
+2. AJAX数据接口分析
+3. 常见反爬策略与应对方案
+
+**模块五：数据存储与项目实战（4学时）**
+1. 数据清洗与格式化（CSV/JSON/数据库）
+2. 综合实战：财务报告采集系统搭建
+
+#### 三、考核方式
+- 理论测试（20%）+ 实操考核（80%）
+- 完成上市公司财务报告自动化采集项目`,
+        checklist: [
+            { text: "培训目标明确，定位为四级/中级工技能水平 (1分)", score: 1 },
+            { text: "覆盖HTTP协议、Requests、Scrapy等核心爬虫技术 (1分)", score: 1 },
+            { text: "包含动态网页抓取和反爬策略应对内容 (1分)", score: 1 },
+            { text: "设计数据存储与项目实战模块 (1分)", score: 1 },
+            { text: "培训讲义逻辑合理、语句通顺、资料正确有效 (1分)", score: 1 }
+        ]
+    },
+
+    "4.1.3": {
+        id: "4.1.3",
+        name: "数据清洗培训大纲编写",
+        time: "10min",
+        score: 5,
+        tags: ["培训大纲", "数据清洗", "Python", "培训讲义"],
+        background: `### 1. 场地设备要求
+（1）人工智能训练师主机；
+（2）Office软件。
+
+### 2. 工作任务
+A企业是一家康复训练机构，需要利用人工智能技术为康复患者提供个性化的康复训练计划，并实时监控训练效果。为了提高人工智能技术的应用效果，其采集了大量的康复数据，现计划对新进技术人员进行数据清洗工具的使用培训。通过这次培训，将会使新进技术人员掌握基于Python的数据清洗工具的使用，能对大量的康复数据进行清洗，达到人工智能训练师四级/中级工的技能水平。
+
+请你根据要求补全素材4.1.3.docx中的培训大纲。
+
+### 3. 技能要求
+（1）能编写初级培训讲义；
+（2）能对初级工、中级工开展知识和技术培训。
+
+### 4. 质量指标
+（1）培训讲义编写逻辑合理；
+（2）培训资料正确有效；
+（3）语句组织通顺。`,
+        downloads: [
+            { name: "4.1.3.docx", url: "practices/4.1.3/4.1.3.docx", type: "docx" }
+        ],
+        extraResources: [],
+        code: `# ----------------------------------------------------
+# 数据清洗工具培训大纲 - 核心知识点
+# ----------------------------------------------------
+# 本题为培训大纲编写型实操题。
+# 考生需在本地使用Word补全 4.1.3.docx 培训大纲模板。
+
+# 培训大纲核心模块：
+# 1. 数据清洗概念与重要性
+# 2. 缺失值检测与处理方法
+# 3. 异常值识别与处理
+# 4. 数据格式统一与标准化
+# 5. 重复数据检测与去重
+# 6. 数据清洗流水线设计
+
+print("培训目标：掌握Python数据清洗工具，能清洗大量康复数据")
+print("培训对象：新进技术人员（目标：四级/中级工水平）")`,
+        doc: `### 数据清洗培训大纲 (4.1.3.docx 范文)
+
+#### 一、培训基本信息
+- **培训主题**：基于Python的数据清洗工具使用培训
+- **培训对象**：新进技术人员
+- **培训目标**：掌握4种基于Python的数据清洗工具，能对大量康复数据进行清洗，达到四级/中级工技能水平
+- **培训时长**：2天（16学时）
+
+#### 二、培训内容
+
+**模块一：数据清洗概述（2学时）**
+1. 数据清洗在AI项目中的重要性
+2. 常见数据质量问题（缺失、异常、不一致、重复）
+3. Python数据清洗工具生态概览
+
+**模块二：Pandas数据清洗（4学时）**
+1. 数据加载与初步检查（info/describe/isnull）
+2. 缺失值处理（dropna/fillna/插值法）
+3. 数据类型转换与格式统一
+4. 实战：康复数据缺失值处理
+
+**模块三：数据去重与异常检测（4学时）**
+1. 重复数据识别与去除（duplicated/drop_duplicates）
+2. 异常值检测（IQR法/Z-score法）
+3. 异常值处理策略（删除/替换/分箱）
+4. 实战：康复数据异常值清洗
+
+**模块四：数据标准化与整合（3学时）**
+1. 数据标准化与归一化（MinMaxScaler/StandardScaler）
+2. 多数据源合并与关联（merge/concat）
+3. 文本数据清洗（正则表达式/字符串处理）
+
+**模块五：自动化清洗流水线（3学时）**
+1. 数据清洗Pipeline设计
+2. 数据质量检查报告生成
+3. 综合实战：康复数据全流程清洗
+
+#### 三、考核方式
+- 理论测试（30%）+ 实操考核（70%）
+- 完成康复数据集全流程清洗项目`,
+        checklist: [
+            { text: "培训目标明确，定位为四级/中级工技能水平 (1分)", score: 1 },
+            { text: "覆盖缺失值、异常值、去重、标准化等核心清洗技术 (1分)", score: 1 },
+            { text: "结合康复数据实际场景设计实战模块 (1分)", score: 1 },
+            { text: "包含数据清洗流水线和质量检查内容 (1分)", score: 1 },
+            { text: "培训讲义逻辑合理、语句通顺、资料正确有效 (1分)", score: 1 }
+        ]
+    },
+
+    "4.1.4": {
+        id: "4.1.4",
+        name: "Pandas数据清洗培训大纲编写",
+        time: "10min",
+        score: 5,
+        tags: ["培训大纲", "Pandas", "数据清洗", "培训讲义"],
+        background: `### 1. 场地设备要求
+（1）人工智能训练师主机；
+（2）Office软件。
+
+### 2. 工作任务
+A企业是一家康复训练机构，需要利用人工智能技术为康复患者提供个性化的康复训练计划。为了提高人工智能技术的应用效果，其采集了大量的康复数据，现计划对新进技术人员进行数据清洗工具的使用培训。因为Pandas是Python中最为广泛使用的数据分析和操作库之一，因此这次培训将使新进技术人员掌握Pandas的主要数据清洗功能使用，能对大量的康复数据进行清洗，达到人工智能训练师四级/中级工的技能水平。
+
+请你根据要求补全素材4.1.4.docx中的培训大纲。
+
+### 3. 技能要求
+（1）能编写初级培训讲义；
+（2）能对初级工、中级工开展知识和技术培训。
+
+### 4. 质量指标
+（1）培训讲义编写逻辑合理；
+（2）培训资料正确有效；
+（3）语句组织通顺。`,
+        downloads: [
+            { name: "4.1.4.docx", url: "practices/4.1.4/4.1.4.docx", type: "docx" }
+        ],
+        extraResources: [],
+        code: `# ----------------------------------------------------
+# Pandas 数据清洗培训大纲 - 核心知识点
+# ----------------------------------------------------
+# 本题为培训大纲编写型实操题。
+# 考生需在本地使用Word补全 4.1.4.docx 培训大纲模板。
+
+import pandas as pd
+
+# Pandas数据清洗核心功能：
+# 1. df.info() / df.describe() — 数据概览
+# 2. df.isnull().sum() — 缺失值统计
+# 3. df.dropna() / df.fillna() — 缺失值处理
+# 4. df.duplicated() / df.drop_duplicates() — 去重
+# 5. df.astype() / pd.to_datetime() — 类型转换
+# 6. df.replace() / df.map() — 值替换
+# 7. df.merge() / pd.concat() — 数据合并
+
+print("培训目标：掌握Pandas主要数据清洗功能，清洗康复数据")
+print("培训对象：新进技术人员（目标：四级/中级工水平）")`,
+        doc: `### Pandas数据清洗培训大纲 (4.1.4.docx 范文)
+
+#### 一、培训基本信息
+- **培训主题**：Pandas数据清洗功能使用培训
+- **培训对象**：新进技术人员
+- **培训目标**：掌握Pandas主要数据清洗功能，能对大量康复数据进行清洗，达到四级/中级工技能水平
+- **培训时长**：2天（16学时）
+
+#### 二、培训内容
+
+**模块一：Pandas基础与数据加载（3学时）**
+1. Pandas简介与安装（pip install pandas）
+2. DataFrame/Series核心数据结构
+3. 数据读写（read_csv/read_excel/to_csv）
+4. 数据概览（head/info/describe/shape）
+
+**模块二：缺失值处理（3学时）**
+1. 缺失值检测（isnull/isna/notnull）
+2. 缺失值统计与可视化
+3. 缺失值删除（dropna参数详解）
+4. 缺失值填充（fillna/前向填充/后向填充/插值）
+
+**模块三：数据类型转换与格式统一（3学时）**
+1. 数据类型查看与转换（dtypes/astype）
+2. 日期时间处理（to_datetime/datetime属性）
+3. 字符串处理（str访问器/正则匹配）
+4. 分类数据转换（astype('category')）
+
+**模块四：去重与异常值处理（3学时）**
+1. 重复数据检测（duplicated）
+2. 重复数据删除（drop_duplicates）
+3. 异常值识别（describe/分位数/箱线图）
+4. 异常值处理（替换/截断/分箱）
+
+**模块五：数据整合与实战（4学时）**
+1. 数据合并（merge/join/concat）
+2. 数据重塑（pivot/melt/stack）
+3. 数据替换与映射（replace/map/apply）
+4. 综合实战：康复数据全流程清洗
+
+#### 三、考核方式
+- 课堂练习（40%）+ 综合项目（60%）
+- 完成康复数据Pandas清洗全流程`,
+        checklist: [
+            { text: "培训目标明确，聚焦Pandas数据清洗功能 (1分)", score: 1 },
+            { text: "覆盖缺失值、类型转换、去重、数据合并等Pandas核心功能 (1分)", score: 1 },
+            { text: "每个模块包含理论讲解与实操练习 (1分)", score: 1 },
+            { text: "设计康复数据场景的综合实战项目 (1分)", score: 1 },
+            { text: "培训讲义逻辑合理、语句通顺、资料正确有效 (1分)", score: 1 }
+        ]
+    },
+
+    "4.1.5": {
+        id: "4.1.5",
+        name: "Python数据可视化培训大纲编写",
+        time: "10min",
+        score: 5,
+        tags: ["培训大纲", "数据可视化", "Matplotlib", "培训讲义"],
+        background: `### 1. 场地设备要求
+（1）人工智能训练师主机；
+（2）Office软件。
+
+### 2. 工作任务
+A企业是一家康复训练机构，需要利用人工智能技术为康复患者提供个性化的康复训练计划，并实时监控训练效果。为了提高人工智能技术的应用效果，其采集了大量的康复数据，现计划对新进技术人员进行数据可视化工具的使用培训。通过这次培训，将会使新进技术人员掌握Python的数据可视化工具的使用，能对重要数据进行可视化操作，达到人工智能训练师四级/中级工的技能水平。
+
+请你根据要求补全素材4.1.5.docx中的培训大纲。
+
+### 3. 技能要求
+（1）能编写初级培训讲义；
+（2）能对初级工、中级工开展知识和技术培训。
+
+### 4. 质量指标
+（1）培训讲义编写逻辑合理；
+（2）培训资料正确有效；
+（3）语句组织通顺。`,
+        downloads: [
+            { name: "4.1.5.docx", url: "practices/4.1.5/4.1.5.docx", type: "docx" }
+        ],
+        extraResources: [],
+        code: `# ----------------------------------------------------
+# Python 数据可视化培训大纲 - 核心知识点
+# ----------------------------------------------------
+# 本题为培训大纲编写型实操题。
+# 考生需在本地使用Word补全 4.1.5.docx 培训大纲模板。
+
+import matplotlib.pyplot as plt
+import seaborn as sns
+
+# 核心可视化工具：
+# 1. Matplotlib — 基础绑图库（折线图/柱状图/散点图/饼图）
+# 2. Seaborn — 统计可视化（热力图/箱线图/分布图）
+# 3. 图表美化（标题/标签/图例/颜色/字体）
+# 4. 子图与布局（subplot/subplots）
+# 5. 图表保存（savefig）
+
+print("培训目标：掌握Python数据可视化工具，对重要数据进行可视化")
+print("培训对象：新进技术人员（目标：四级/中级工水平）")`,
+        doc: `### Python数据可视化培训大纲 (4.1.5.docx 范文)
+
+#### 一、培训基本信息
+- **培训主题**：Python数据可视化工具使用培训
+- **培训对象**：新进技术人员
+- **培训目标**：掌握Python数据可视化工具，能对重要数据进行可视化操作，达到四级/中级工技能水平
+- **培训时长**：2天（16学时）
+
+#### 二、培训内容
+
+**模块一：可视化基础与Matplotlib入门（4学时）**
+1. 数据可视化意义与图表类型选择
+2. Matplotlib安装与基础绘图流程
+3. 折线图（plot）与柱状图（bar）
+4. 散点图（scatter）与饼图（pie）
+
+**模块二：图表美化与高级设置（3学时）**
+1. 标题、坐标轴标签与图例设置
+2. 颜色方案与样式配置
+3. 中文字体配置与显示
+4. 图表保存（savefig/png/pdf格式）
+
+**模块三：Seaborn统计可视化（4学时）**
+1. Seaborn简介与风格设置
+2. 分布图（distplot/histplot/kdeplot）
+3. 热力图（heatmap）与相关性分析
+4. 箱线图（boxplot）与小提琴图（violinplot）
+
+**模块四：多图布局与数据报告（3学时）**
+1. 子图布局（subplot/subplots/GridSpec）
+2. 组合图表设计
+3. 数据报告自动生成
+
+**模块五：康复数据可视化实战（2学时）**
+1. 康复进度趋势可视化
+2. 训练效果对比分析图表
+3. 综合实战：康复数据仪表板设计
+
+#### 三、考核方式
+- 课堂练习（30%）+ 可视化项目（70%）
+- 完成康复数据综合可视化报告`,
+        checklist: [
+            { text: "培训目标明确，聚焦Python数据可视化工具 (1分)", score: 1 },
+            { text: "覆盖Matplotlib和Seaborn两大核心可视化库 (1分)", score: 1 },
+            { text: "包含图表美化、中文字体、多图布局等实用技能 (1分)", score: 1 },
+            { text: "设计康复数据场景的可视化实战项目 (1分)", score: 1 },
+            { text: "培训讲义逻辑合理、语句通顺、资料正确有效 (1分)", score: 1 }
+        ]
+    },
+
+    "4.2.2": {
+        id: "4.2.2",
+        name: "AI辅助医疗影像诊断系统数据采集和处理指导",
+        time: "10min",
+        score: 5,
+        tags: ["医疗影像", "数据采集", "AI诊断", "指导方案"],
+        background: `### 1. 场地设备要求
+人工智能训练师主机：CPU（intel i5 及以上）、内存（不少于 16GB）、操作系统（windows10）、办公软件。
+
+### 2. 工作任务
+随着医疗科技的进步，AI在医疗影像诊断领域的应用日益广泛。AI辅助的医疗影像诊断系统能够通过深度学习技术，分析X射线、CT、MRI等医学影像，帮助医生更快速、更准确地识别病灶，评估病情，尤其在早期癌症筛查、骨伤评估、神经系统疾病诊断等方面展现出巨大潜力。
+
+AI辅助的医疗影像诊断系统的目标包括：
+- **提高诊断准确率**：利用AI技术，辅助医生识别细微的病灶特征，减少漏诊和误诊；
+- **加速诊断流程**：自动化分析影像，缩短医生等待影像分析结果的时间，加快治疗进程；
+- **个性化诊疗方案**：基于AI分析的结果，为患者提供更为精准的个性化治疗建议；
+- **医疗资源均衡分配**：通过远程诊断，协助基层医疗机构提高诊疗水平，缩小城乡医疗差距。
+
+你作为一名人工智能训练师，根据上述的AI辅助的医疗影像诊断系统的系统目标，补全AI辅助的医疗影像诊断系统的数据采集和处理指导方案（见素材文件夹中4.2.2.docx）。
+
+### 3. 技能要求
+（1）能指导五级/初级工、四级/中级工解决数据采集、处理问题；
+（2）能指导五级/初级工、四级/中级工优化数据采集、处理问题。
+
+### 4. 质量指标
+（1）数据采集和处理的指导方案内容合理可行；
+（2）确保医疗影像数据采集完整和准确性；
+（3）统一数据格式和标准化处理流程。`,
+        downloads: [
+            { name: "4.2.2.docx", url: "practices/4.2.2/4.2.2.docx", type: "docx" }
+        ],
+        extraResources: [],
+        code: `# ----------------------------------------------------
+# AI辅助医疗影像诊断系统 - 数据采集处理指导大纲
+# ----------------------------------------------------
+# 本题为指导方案编写型实操题。
+# 考生需在Word中补全 4.2.2.docx 指导方案模板。
+
+# 数据采集核心流程：
+# 1. 影像数据源确定（DICOM/PACS系统）
+# 2. 数据采集规范（分辨率/格式/标注标准）
+# 3. 数据预处理（去噪/增强/标准化）
+# 4. 数据标注规范（病灶标注/分类标签）
+# 5. 数据安全与隐私保护（脱敏/加密）
+# 6. 数据存储与版本管理
+
+print("指导方案：AI辅助医疗影像诊断系统数据采集与处理")`,
+        doc: `### AI辅助医疗影像诊断系统数据采集和处理指导方案 (4.2.2.docx 范文)
+
+#### 1. 数据源确定
+* **DICOM影像系统**：从医院PACS系统获取X射线、CT、MRI影像数据
+* **电子病历系统**：关联患者诊断信息与影像结果
+* **公开数据集**：补充使用NIH ChestX-ray、MIMIC-CXR等标注数据集
+* **多中心数据**：与多家医疗机构合作获取多样化影像数据
+
+#### 2. 数据采集规范
+* **影像格式**：统一采用DICOM标准格式，确保元数据完整
+* **分辨率要求**：CT层厚≤1mm，X射线分辨率≥2048×2048
+* **采集范围**：覆盖不同病灶类型、不同严重程度、不同年龄段
+* **标注标准**：参考RadLex/RadReport统一标注术语
+
+#### 3. 数据预处理流程
+* **去噪处理**：高斯滤波去除影像噪声
+* **图像增强**：对比度增强/直方图均衡化
+* **标准化**：统一像素间距/灰度归一化(0-1)
+* **裁剪对齐**：ROI区域裁剪与配准对齐
+
+#### 4. 数据标注规范
+* **标注工具**：使用3D Slicer/Label Studio进行专业标注
+* **标注类型**：病灶边界框/分割掩码/分类标签
+* **质量控制**：双盲标注+专家审核，Kappa系数≥0.85
+
+#### 5. 数据安全与合规
+* **隐私保护**：去除患者PHI信息（姓名/ID/日期）
+* **加密传输**：TLS/SSL加密，符合HIPAA/个人信息保护法
+* **访问控制**：基于角色的数据访问权限管理
+
+#### 6. 数据存储与管理
+* **分级存储**：热数据SSD/冷数据对象存储
+* **版本管理**：DVC数据版本控制，记录每次更新
+* **定期备份**：每日增量备份+每周全量备份`,
+        checklist: [
+            { text: "明确DICOM/PACS等医疗影像数据源 (1分)", score: 1 },
+            { text: "设计包含去噪、增强、标准化的数据预处理流程 (1分)", score: 1 },
+            { text: "制定标注规范与质量控制标准（双盲标注/Kappa系数） (1分)", score: 1 },
+            { text: "制定数据安全与隐私保护方案（脱敏/加密/合规） (1分)", score: 1 },
+            { text: "方案内容合理可行，覆盖采集到存储全链路 (1分)", score: 1 }
+        ]
+    },
+
+    "4.2.3": {
+        id: "4.2.3",
+        name: "AI智能安防监控系统数据采集和处理指导",
+        time: "10min",
+        score: 5,
+        tags: ["智能安防", "视频监控", "数据采集", "指导方案"],
+        background: `### 1. 场地设备要求
+人工智能训练师主机：CPU（intel i5 及以上）、内存（不少于 16GB）、操作系统（windows10）、办公软件。
+
+### 2. 工作任务
+在现代社会，公共安全和个人隐私保护成为人们日益关注的焦点。AI智能安防监控系统利用计算机视觉、深度学习和大数据分析技术，能够在公共场所、住宅区、企业园区等场景下，实时监测异常行为，预警潜在威胁，同时保护正常活动的隐私不受侵犯。
+
+AI智能安防监控系统的目标包括：
+- **实时监测与异常行为识别**：通过视频分析，即时发现并标记异常行为，减少人工监控的盲点；
+- **隐私保护**：在识别异常行为的同时，确保普通人的日常活动不被过度关注，尊重个人隐私；
+- **快速响应**：一旦发现紧急情况，立即触发警报，通知相关人员或机构，加快响应速度；
+- **数据分析与报告**：对监控数据进行长期分析，为安全策略的制定和优化提供数据支持。
+
+你作为一名人工智能训练师，根据上述的AI智能安防监控系统的目标，补全AI智能安防监控系统的数据采集和处理指导方案（见素材文件夹中的4.2.3.docx）。
+
+### 3. 技能要求
+（1）能指导五级/初级工、四级/中级工解决数据采集、处理问题；
+（2）能指导五级/初级工、四级/中级工优化数据采集、处理问题。
+
+### 4. 质量指标
+（1）数据采集和处理的指导方案内容合理可行；
+（2）确保智能安防监控数据采集完整和准确性；
+（3）统一数据格式和标准化处理流程。`,
+        downloads: [
+            { name: "4.2.3.docx", url: "practices/4.2.3/4.2.3.docx", type: "docx" }
+        ],
+        extraResources: [],
+        code: `# ----------------------------------------------------
+# AI智能安防监控系统 - 数据采集处理指导大纲
+# ----------------------------------------------------
+# 本题为指导方案编写型实操题。
+# 考生需在Word中补全 4.2.3.docx 指导方案模板。
+
+# 数据采集核心流程：
+# 1. 视频数据源配置（摄像头/网络视频流）
+# 2. 视频流采集参数（分辨率/帧率/编码格式）
+# 3. 行为标注规范（异常行为类别定义）
+# 4. 数据预处理（帧提取/目标检测/追踪）
+# 5. 隐私保护措施（人脸模糊/区域遮蔽）
+# 6. 数据存储与安全传输
+
+print("指导方案：AI智能安防监控系统数据采集与处理")`,
+        doc: `### AI智能安防监控系统数据采集和处理指导方案 (4.2.3.docx 范文)
+
+#### 1. 数据源确定
+* **摄像头网络**：高清IP摄像头（1080P+），支持RTSP/ONVIF协议
+* **场景覆盖**：公共场所/住宅区/企业园区/交通枢纽
+* **环境条件**：白天/夜间/雨雾等不同天气光照条件
+* **历史数据**：已有监控录像回溯分析
+
+#### 2. 数据采集规范
+* **视频参数**：分辨率≥1920×1080，帧率≥25fps，H.264/H.265编码
+* **采集时段**：24小时不间断采集，重点时段加密帧率
+* **标注类型**：闯入禁区/徘徊/暴力冲突/物品遗留/人群聚集
+* **数据量要求**：每类异常行为≥5000个标注样本
+
+#### 3. 数据预处理流程
+* **关键帧提取**：按场景变化率智能抽帧，减少冗余
+* **目标检测**：YOLO/Faster R-CNN检测人员与物体
+* **目标追踪**：DeepSORT多目标跟踪算法
+* **行为分析**：时空特征提取与行为序列分类
+
+#### 4. 隐私保护措施
+* **实时脱敏**：人脸/车牌自动模糊处理
+* **区域遮蔽**：私人区域自动遮蔽
+* **数据匿名化**：去除可关联个人身份的信息
+* **合规要求**：遵守《个人信息保护法》《公共安全视频监控条例》
+
+#### 5. 数据存储与传输
+* **边缘存储**：摄像头端SD卡循环存储
+* **中心存储**：NAS/NVR集中存储，保留周期≥30天
+* **安全传输**：VPN专用通道，AES-256加密
+* **分级访问**：管理员/操作员/审计员三级权限
+
+#### 6. 数据分析与应用
+* **异常热力图**：长期统计异常行为高发区域
+* **趋势分析**：安全事件趋势报告与预警优化`,
+        checklist: [
+            { text: "明确高清IP摄像头等多源视频数据采集方案 (1分)", score: 1 },
+            { text: "设计关键帧提取、目标检测、行为分析的处理流程 (1分)", score: 1 },
+            { text: "制定隐私保护措施（人脸模糊/区域遮蔽/匿名化） (1分)", score: 1 },
+            { text: "制定安全存储与分级访问权限管理方案 (1分)", score: 1 },
+            { text: "方案内容合理可行，覆盖采集到分析全链路 (1分)", score: 1 }
+        ]
+    },
+
+    "4.2.4": {
+        id: "4.2.4",
+        name: "自动驾驶汽车感知系统数据采集与标注指导",
+        time: "10min",
+        score: 5,
+        tags: ["自动驾驶", "数据采集", "数据标注", "指导方案"],
+        background: `### 1. 场地设备要求
+人工智能训练师主机：CPU（intel i5 及以上）、内存（不少于 16GB）、操作系统（windows10）、办公软件。
+
+### 2. 工作任务
+随着自动驾驶技术的不断进步，汽车行业正向着更高的自动化水平迈进。自动驾驶汽车的感知系统是实现这一目标的关键技术之一，它通过各种传感器（如摄像头、雷达、激光雷达等）收集环境信息，然后通过AI算法处理这些数据，使车辆能够识别周围的障碍物、道路状况、交通标志等，从而做出安全的驾驶决策。
+
+自动驾驶汽车感知系统的业务需求包括：
+- **数据多样性**：覆盖各种天气条件、不同时间、不同地域以及各种驾驶场景；
+- **高精度标注**：对收集到的数据进行精细标注，包括车辆、行人、自行车、动物、交通标志、车道线、红绿灯等；
+- **实时数据处理**：系统应能实时接收和处理来自车辆传感器的数据流；
+- **数据安全性**：确保数据在采集、传输和存储过程中的安全性；
+- **高效数据管理**：提供数据检索、数据集构建、数据清洗和数据版本控制等功能；
+- **持续学习与更新**：系统应支持模型的持续训练和优化。
+
+你作为一名人工智能训练师，根据上述的自动驾驶汽车感知系统的业务需求，补全自动驾驶汽车感知系统的数据采集和数据标注指导方案（见素材文件夹中的4.2.4.docx）。
+
+### 3. 技能要求
+（1）能指导五级/初级工、四级/中级工解决数据采集问题；
+（2）能指导五级/初级工、四级/中级工解决数据标注问题；
+（3）能指导五级/初级工、四级/中级工优化数据采集、数据标注问题。
+
+### 4. 质量指标
+（1）数据采集和标注的指导方案内容合理可行；
+（2）确保数据采集和标注的完整和准确性。`,
+        downloads: [
+            { name: "4.2.4.docx", url: "practices/4.2.4/4.2.4.docx", type: "docx" }
+        ],
+        extraResources: [],
+        code: `# ----------------------------------------------------
+# 自动驾驶汽车感知系统 - 数据采集标注指导大纲
+# ----------------------------------------------------
+# 本题为指导方案编写型实操题。
+# 考生需在Word中补全 4.2.4.docx 指导方案模板。
+
+# 数据采集核心要素：
+# 1. 多传感器数据采集（摄像头/激光雷达/毫米波雷达）
+# 2. 场景覆盖策略（天气/时段/地域/道路类型）
+# 3. 标注规范（2D框/3D框/语义分割/实例分割）
+# 4. 标注质量控制（多轮审核/一致性检验）
+# 5. 数据管理与版本控制
+# 6. 安全合规与隐私保护
+
+print("指导方案：自动驾驶感知系统数据采集与标注")`,
+        doc: `### 自动驾驶汽车感知系统数据采集与标注指导方案 (4.2.4.docx 范文)
+
+#### 1. 数据采集方案
+* **多传感器融合**：摄像头（RGB 800万像素）+ 激光雷达（64线）+ 毫米波雷达
+* **场景多样性**：
+  - 天气：晴天/雨天/雾天/雪天
+  - 时段：白天/黄昏/夜间
+  - 地域：城市/高速/乡村/隧道
+  - 道路类型：直道/弯道/交叉口/环岛
+* **采集车辆配置**：标定传感器外参/内参，GPS+IMU组合定位
+* **采集频率**：摄像头30fps，激光雷达10Hz，同步时间戳
+
+#### 2. 数据标注规范
+* **2D标注**：车辆/行人/自行车边界框（Bounding Box）
+* **3D标注**：点云3D边界框（LiDAR 3D Box）
+* **语义分割**：道路/车道线/可行驶区域像素级标注
+* **交通元素**：交通标志分类/红绿灯状态/路标识别
+* **标注属性**：遮挡程度/截断程度/运动状态
+
+#### 3. 标注质量控制
+* **标注工具**：CVAT/Labelbox/3D-BAT专业标注平台
+* **质量流程**：初标→一审→二审→专家终审
+* **一致性指标**：标注员间IoU≥0.85，多轮审核驳回率<5%
+* **边缘案例**：重点关注遮挡/远距离/恶劣天气样本
+
+#### 4. 数据管理与安全
+* **数据格式**：统一KITTI/nuScenes/COCO标准格式
+* **版本管理**：DVC数据版本控制+Git代码版本联动
+* **安全合规**：车牌/人脸自动脱敏，数据加密传输
+* **存储架构**：热数据NAS存储+冷数据对象存储
+
+#### 5. 持续优化机制
+* **主动学习**：模型预测不确定样本优先标注
+* **闭环迭代**：新标注数据→模型重训→验证→上线
+* **长尾场景**：建立罕见场景（动物/施工/事故）专项数据集`,
+        checklist: [
+            { text: "制定多传感器（摄像头/激光雷达/雷达）融合采集方案 (1分)", score: 1 },
+            { text: "设计覆盖多种天气/时段/地域/道路类型的场景多样性策略 (1分)", score: 1 },
+            { text: "制定2D/3D/语义分割等多层次标注规范与质量控制流程 (1分)", score: 1 },
+            { text: "设计数据版本管理、安全合规和持续优化机制 (1分)", score: 1 },
+            { text: "方案内容合理可行，覆盖采集到标注全链路 (1分)", score: 1 }
+        ]
+    },
+
+    "4.2.5": {
+        id: "4.2.5",
+        name: "智能化数据标注在文化遗产数字化保护中的应用指导",
+        time: "10min",
+        score: 5,
+        tags: ["文化遗产", "数据标注", "数字化保护", "指导方案"],
+        background: `### 1. 场地设备要求
+人工智能训练师主机：CPU（intel i5 及以上）、内存（不少于 16GB）、操作系统（windows10）、办公软件。
+
+### 2. 工作任务
+文化遗产是人类历史和文明的重要载体，包括艺术、建筑、手工艺品、文献等，它们承载着丰富的人文价值和历史信息。近年来，数字化技术，尤其是人工智能和机器学习，为文化遗产的保护和传承提供了新的机遇。通过高精度的图像和三维模型采集，结合智能化数据标注，可以创建文化遗产的数字档案。
+
+智能化数据标注在文化遗产数字化保护中的业务需求包括：
+- **高精度标注**：对文化遗产的每一个细节进行精确标注，包括文物的材质、纹理、结构特征、损伤区域等；
+- **自动化与智能化**：利用AI技术实现自动化分析和标注，减少人力成本，提高工作效率；
+- **多维度数据融合**：结合不同来源和类型的图像、视频、三维扫描数据，创建综合性的文化遗产数字档案；
+- **跨学科协作**：促进文化遗产专家、数据科学家和AI工程师之间的合作；
+- **数据安全与隐私保护**：确保数字化文化遗产数据的安全存储和合法使用。
+
+你作为一名人工智能训练师，根据上述内容，补全智能化数据标注在文化遗产数字化保护中的应用指导方案（见素材文件夹中的4.2.5.docx）。
+
+### 3. 技能要求
+（1）能指导五级/初级工、四级/中级工解决数据采集问题；
+（2）能指导五级/初级工、四级/中级工解决数据标注问题；
+（3）能指导五级/初级工、四级/中级工优化数据采集、数据标注问题。
+
+### 4. 质量指标
+（1）数据采集和标注的指导方案内容合理可行；
+（2）确保数据采集和标注的完整和准确性。`,
+        downloads: [
+            { name: "4.2.5.docx", url: "practices/4.2.5/4.2.5.docx", type: "docx" }
+        ],
+        extraResources: [],
+        code: `# ----------------------------------------------------
+# 文化遗产数字化保护 - 数据标注应用指导大纲
+# ----------------------------------------------------
+# 本题为指导方案编写型实操题。
+# 考生需在Word中补全 4.2.5.docx 指导方案模板。
+
+# 数据采集与标注核心要素：
+# 1. 高精度图像采集（多光谱/3D扫描/摄影测量）
+# 2. 标注分类体系（材质/纹理/结构/损伤）
+# 3. AI辅助自动标注流程
+# 4. 多维度数据融合策略
+# 5. 跨学科协作机制
+# 6. 数据安全与版权保护
+
+print("指导方案：文化遗产数字化保护中的智能化数据标注")`,
+        doc: `### 智能化数据标注在文化遗产数字化保护中的应用指导方案 (4.2.5.docx 范文)
+
+#### 1. 数据采集方案
+* **高精度图像采集**：
+  - 多光谱摄影（可见光/红外/紫外波段）
+  - 三维激光扫描（点云精度≤0.1mm）
+  - 摄影测量（无人机航拍+地面近景拍摄）
+* **采集标准**：
+  - 图像分辨率≥600DPI，RAW+JPEG双格式保存
+  - 3D模型面数≥100万，纹理贴图≥4096×4096
+  - 色彩管理：使用标准色卡校准
+
+#### 2. 数据标注规范
+* **材质标注**：陶器/青铜/丝绸/木质/石质等材质分类
+* **纹理标注**：纹饰图案类型/工艺技法标注
+* **结构标注**：整体结构/部件关系/榫卯连接
+* **损伤标注**：裂纹/腐蚀/褪色/缺损区域分割
+* **标注格式**：COCO JSON + 自定义文化遗产元数据Schema
+
+#### 3. AI辅助自动标注
+* **预训练模型**：基于ResNet/EfficientNet的材质分类
+* **实例分割**：Mask R-CNN检测损伤区域
+* **半自动标注**：AI预标注+专家修正，效率提升5-10倍
+* **持续训练**：专家修正数据反馈至模型，迭代优化
+
+#### 4. 多维度数据融合
+* **2D-3D关联**：图像标注与3D模型空间位置对应
+* **多源融合**：多光谱数据/历史文献/修复记录整合
+* **知识图谱**：构建文化遗产实体关系图谱
+
+#### 5. 跨学科协作机制
+* **角色分工**：文化遗产专家（审核）/ 数据科学家（建模）/ 标注员（执行）
+* **协作平台**：基于Web的在线标注与审核系统
+* **标准对齐**：参考CIDOC-CRM国际文化遗产信息标准
+
+#### 6. 数据安全与版权
+* **分级授权**：公开级/研究级/保护级数据分级访问
+* **数字水印**：嵌入不可见水印保护版权
+* **区块链存证**：关键数据上链确保不可篡改
+* **备份策略**：异地多活存储，3-2-1备份原则`,
+        checklist: [
+            { text: "制定高精度图像/3D扫描多源数据采集方案 (1分)", score: 1 },
+            { text: "设计材质/纹理/结构/损伤等多层次标注规范 (1分)", score: 1 },
+            { text: "制定AI辅助自动标注流程，提升标注效率 (1分)", score: 1 },
+            { text: "设计跨学科协作机制与数据安全版权保护方案 (1分)", score: 1 },
+            { text: "方案内容合理可行，覆盖采集到保护全链路 (1分)", score: 1 }
+        ]
+    },
 };
 
 
