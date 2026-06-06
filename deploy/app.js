@@ -6922,7 +6922,7 @@ print("指导方案：文化遗产数字化保护中的智能化数据标注")`,
             });
         }
 
-        return { init: init };
+        return { init: init, showConfirm: showConfirm };
     })();
 
     document.addEventListener('DOMContentLoaded', function() {
