@@ -5253,7 +5253,8 @@ print("指导方案：文化遗产数字化保护中的智能化数据标注")`,
                 this.updateModeBadge();
                 this.renderStats();
                 this.renderCategoryTabs();
-                
+                this.renderSidebar();
+
                 var currentCat = State.getCategory();
                 if (currentCat === 'practice') {
                     // 实操模式下，动态给body增加类名，支持顶栏撑宽
@@ -5474,6 +5475,20 @@ print("指导方案：文化遗产数字化保护中的智能化数据标注")`,
                 document.getElementById('questionNumber').innerHTML =
                     '第 ' + (state.currentIndex + 1) + ' 题' + typeBadge;
                 document.getElementById('questionText').textContent = question.question;
+
+                // Add type class to question card for type-specific styling
+                var card = document.getElementById('questionCard');
+                card.className = 'question-card type-' + question.type;
+
+                // Add multi-choice hint if applicable
+                var existingHint = card.querySelector('.multi-hint');
+                if (existingHint) existingHint.remove();
+                if (question.type === 'multi' && !State.isAnswered(qIndex)) {
+                    var hint = document.createElement('div');
+                    hint.className = 'multi-hint';
+                    hint.textContent = '请选择所有正确答案';
+                    card.insertBefore(hint, card.querySelector('.answer-area'));
+                }
 
                 // Show/hide based on question type
                 if (question.type === 'judge') {
@@ -5817,6 +5832,140 @@ print("指导方案：文化遗产数字化保护中的智能化数据标注")`,
                         Modal.close();
                         UI.render();
                     });
+                }
+            },
+
+            // ==================================================================
+            // SIDEBAR RENDERING
+            // ==================================================================
+            _sidebarLastCat: null,
+            _sidebarLastOrderLen: -1,
+
+            renderSidebar() {
+                var sidebar = document.getElementById('sidebar');
+                if (!sidebar) return;
+
+                var currentCat = State.getCategory();
+                // Hide sidebar for practice/exam modes
+                if (currentCat === 'practice' || currentCat === 'practice12x') {
+                    sidebar.style.display = 'none';
+                    return;
+                }
+                sidebar.style.display = '';
+
+                var state = State.getCurrent();
+                var currentQIndex = State.getCurrentQuestionIndex();
+
+                // --- 1. Render filter buttons ---
+                var filtersEl = document.getElementById('sidebarFilters');
+                var cats = ['all', 'judge', 'single', 'multi'];
+                var catLabels = {all: '全部', judge: '判断', single: '单选', multi: '多选'};
+                var fHtml = '';
+                for (var i = 0; i < cats.length; i++) {
+                    var cls = cats[i] === currentCat ? 'sidebar-filter active' : 'sidebar-filter';
+                    fHtml += '<button class="' + cls + '" data-category="' + cats[i] + '">' + catLabels[cats[i]] + '</button>';
+                }
+                filtersEl.innerHTML = fHtml;
+
+                // --- 2. Render mini stats ---
+                var infoEl = document.getElementById('sidebarInfo');
+                var correctCount = 0, wrongCount = 0;
+                for (var i = 0; i < state.order.length; i++) {
+                    var qIdx = state.order[i];
+                    var q = QUESTIONS[qIdx];
+                    if (!q) continue;
+                    var ans = State.getAnswer(qIdx);
+                    if (ans !== undefined) {
+                        if (ans === q.answer) correctCount++;
+                        else wrongCount++;
+                    }
+                }
+                infoEl.innerHTML = '<span>共 <span class="si-total">' + state.order.length + '</span> 题</span>' +
+                    '<span>✓ <span class="si-correct">' + correctCount + '</span></span>' +
+                    '<span>✗ <span class="si-wrong">' + wrongCount + '</span></span>';
+
+                // --- 3. Render question grid (with performance optimization) ---
+                var gridEl = document.getElementById('sidebarGrid');
+                var needRebuild = (this._sidebarLastCat !== currentCat ||
+                                   this._sidebarLastOrderLen !== state.order.length);
+
+                if (needRebuild) {
+                    this._sidebarLastCat = currentCat;
+                    this._sidebarLastOrderLen = state.order.length;
+
+                    var isExamActive = state.exam && state.exam.inExam;
+                    var isExamCompleted = state.exam && state.exam.isCompleted;
+
+                    var gridHtml = '';
+                    for (var i = 0; i < state.order.length; i++) {
+                        var qIndex = state.order[i];
+                        var question = QUESTIONS[qIndex];
+                        if (!question) continue;
+
+                        var itemCls = 'sidebar-grid-item';
+                        var icon = '';
+                        if (qIndex === currentQIndex) itemCls += ' current';
+
+                        if (isExamActive && !isExamCompleted) {
+                            if (State.isAnswered(qIndex)) {
+                                itemCls += ' answered-dot';
+                            }
+                        } else {
+                            var userAns = State.getAnswer(qIndex);
+                            if (userAns !== undefined) {
+                                if (userAns === question.answer) {
+                                    itemCls += ' correct';
+                                    icon = '<span class="si-icon">✓</span>';
+                                } else {
+                                    itemCls += ' wrong';
+                                    icon = '<span class="si-icon">✗</span>';
+                                }
+                            }
+                        }
+
+                        gridHtml += '<div class="' + itemCls + '" data-order-pos="' + i + '">' +
+                            (i + 1) + icon + '</div>';
+                    }
+                    gridEl.innerHTML = gridHtml;
+                } else {
+                    // Quick update: only toggle .current class
+                    var prevCurrent = gridEl.querySelector('.sidebar-grid-item.current');
+                    if (prevCurrent) prevCurrent.classList.remove('current');
+
+                    // Also update answer status for the last answered question
+                    var items = gridEl.querySelectorAll('.sidebar-grid-item');
+                    for (var i = 0; i < items.length; i++) {
+                        var pos = parseInt(items[i].getAttribute('data-order-pos'), 10);
+                        if (isNaN(pos) || pos >= state.order.length) continue;
+                        var qIdx2 = state.order[pos];
+                        var q2 = QUESTIONS[qIdx2];
+                        if (!q2) continue;
+
+                        items[i].classList.remove('correct', 'wrong');
+                        var existingIcon = items[i].querySelector('.si-icon');
+                        if (existingIcon) existingIcon.remove();
+
+                        if (qIdx2 === currentQIndex) {
+                            items[i].classList.add('current');
+                        }
+
+                        var ua = State.getAnswer(qIdx2);
+                        if (ua !== undefined) {
+                            if (ua === q2.answer) {
+                                items[i].classList.add('correct');
+                                items[i].insertAdjacentHTML('beforeend', '<span class="si-icon">✓</span>');
+                            } else {
+                                items[i].classList.add('wrong');
+                                items[i].insertAdjacentHTML('beforeend', '<span class="si-icon">✗</span>');
+                            }
+                        }
+                    }
+                }
+
+                // --- 4. Scroll current into view ---
+                var curItem = gridEl.querySelector('.sidebar-grid-item.current');
+                if (curItem) {
+                    curItem.scrollIntoView({ block: 'center', behavior: 'smooth' });
                 }
             },
 
@@ -6848,6 +6997,37 @@ print("指导方案：文化遗产数字化保护中的智能化数据标注")`,
                             }
                         }
                     }
+                });
+
+                // ========== Sidebar Events ==========
+
+                // Sidebar question grid click (event delegation)
+                document.getElementById('sidebarGrid').addEventListener('click', function(e) {
+                    var item = e.target.closest('.sidebar-grid-item');
+                    if (!item) return;
+                    var pos = parseInt(item.getAttribute('data-order-pos'), 10);
+                    if (isNaN(pos)) return;
+                    var s = State.getCurrent();
+                    s.currentIndex = pos;
+                    State.persist();
+                    UI.render();
+                });
+
+                // Sidebar collapse/expand button
+                document.getElementById('sidebarCollapseBtn').addEventListener('click', function() {
+                    var sb = document.getElementById('sidebar');
+                    sb.classList.toggle('collapsed');
+                    this.textContent = sb.classList.contains('collapsed') ? '▶' : '◀';
+                    this.title = sb.classList.contains('collapsed') ? '展开侧边栏' : '收起侧边栏';
+                });
+
+                // Sidebar filter buttons (event delegation)
+                document.getElementById('sidebarFilters').addEventListener('click', function(e) {
+                    var btn = e.target.closest('.sidebar-filter');
+                    if (!btn) return;
+                    var cat = btn.getAttribute('data-category');
+                    State.setCategory(cat);
+                    UI.render();
                 });
             }
         };

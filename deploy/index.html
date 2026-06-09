@@ -33,108 +33,136 @@
         </span>
     </header>
 
-    <!-- ==================== Exam Bar ==================== -->
-    <section class="exam-bar" id="examBar" style="display: none;">
-        <div class="exam-info">
-            <span class="exam-timer" id="examTimer">⏱️ 60:00</span>
-            <span class="exam-progress-text" id="examProgressText">已答 0/80</span>
-        </div>
-        <div class="exam-actions">
-            <button class="exam-action-btn submit-btn-exam" id="btnSubmitExam">交卷</button>
-            <button class="exam-action-btn exit-btn-exam" id="btnExitExam">退出</button>
-        </div>
-    </section>
+    <!-- ==================== App Layout: Sidebar + Main ==================== -->
+    <div class="app-layout" id="appLayout">
 
-    <!-- ==================== Stats Bar ==================== -->
-    <section class="stats-bar" id="statsBar">
-        <div class="stat-card" id="statTotal">
-            <div class="stat-value">0/44</div>
-            <div class="stat-label">总进度</div>
-        </div>
-        <div class="stat-card correct" id="statCorrect">
-            <div class="stat-value">0</div>
-            <div class="stat-label">答对</div>
-        </div>
-        <div class="stat-card wrong" id="statWrong">
-            <div class="stat-value">0</div>
-            <div class="stat-label">答错</div>
-        </div>
-    </section>
-
-    <!-- Progress Bar -->
-    <div class="progress-wrapper">
-        <div class="progress-bar-bg">
-            <div class="progress-bar-fill" id="progressBarFill"></div>
-        </div>
-    </div>
-
-    <!-- ==================== Category Tabs ==================== -->
-    <div class="category-tabs" id="categoryTabs">
-        <button class="cat-tab active" data-category="all">全部</button>
-        <button class="cat-tab" data-category="judge">判断题</button>
-        <button class="cat-tab" data-category="single">单选题</button>
-        <button class="cat-tab" data-category="multi">多选题</button>
-        <button class="cat-tab" data-category="wrong">错题重做</button>
-        <button class="cat-tab practice-tab" data-category="practice" id="tabPractice">🛠️ 操作技能</button>
-        <button class="cat-tab practice-tab" data-category="practice12x" id="tabPractice12x">📝 方案设计</button>
-    </div>
-
-    <!-- ==================== Question Container ==================== -->
-    <main class="question-container" id="questionContainer">
-        <div class="question-card" id="questionCard">
-            <span class="question-number" id="questionNumber">第 1 题</span>
-            <p class="question-text" id="questionText">加载中...</p>
-            <div class="answer-area" id="answerArea">
-                <!-- Judge buttons (shown for judge type) -->
-                <div class="answer-buttons judge-buttons" id="judgeButtons">
-                    <button class="answer-btn btn-true" id="btnTrue" data-answer="√">
-                        <span>√</span>
-                        <span>正确</span>
-                    </button>
-                    <button class="answer-btn btn-false" id="btnFalse" data-answer="×">
-                        <span>×</span>
-                        <span>错误</span>
-                    </button>
-                </div>
-                <!-- Choice options (shown for single/multi type) -->
-                <div class="choice-options" id="choiceOptions"></div>
-                <!-- Submit button for multi-choice -->
-                <button class="submit-btn" id="btnSubmit" style="display:none">提交答案</button>
+        <!-- ========== Left Sidebar ========== -->
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <h2 class="sidebar-title">📋 题目导航</h2>
+                <button class="sidebar-collapse-btn" id="sidebarCollapseBtn" title="收起侧边栏">◀</button>
             </div>
-        </div>
-    </main>
+            <div class="sidebar-filters" id="sidebarFilters">
+                <!-- JS动态生成分类过滤按钮 -->
+            </div>
+            <div class="sidebar-info" id="sidebarInfo">
+                <!-- JS动态生成统计信息 -->
+            </div>
+            <div class="sidebar-scroll">
+                <div class="sidebar-grid" id="sidebarGrid">
+                    <!-- JS动态生成题目编号网格 -->
+                </div>
+            </div>
+        </aside>
 
-    <!-- ==================== Practice Container ==================== -->
-    <main class="practice-container" id="practiceContainer" style="display: none;">
-        <!-- Content will be dynamically injected by JS -->
-    </main>
+        <!-- ========== Right Main Area ========== -->
+        <div class="main-area" id="mainArea">
 
-    <!-- ==================== Practice 1.2.x Container ==================== -->
-    <main class="practice-container" id="practice12xContainer" style="display: none;">
-        <!-- Content will be dynamically injected by JS -->
-    </main>
+            <!-- Exam Bar -->
+            <section class="exam-bar" id="examBar" style="display: none;">
+                <div class="exam-info">
+                    <span class="exam-timer" id="examTimer">⏱️ 60:00</span>
+                    <span class="exam-progress-text" id="examProgressText">已答 0/80</span>
+                </div>
+                <div class="exam-actions">
+                    <button class="exam-action-btn submit-btn-exam" id="btnSubmitExam">交卷</button>
+                    <button class="exam-action-btn exit-btn-exam" id="btnExitExam">退出</button>
+                </div>
+            </section>
 
-    <!-- ==================== Feedback Container ==================== -->
-    <section class="feedback-container" id="feedbackContainer">
-        <div class="feedback-box" id="feedbackBox">
-            <div class="feedback-title" id="feedbackTitle"></div>
-            <div class="feedback-explanation" id="feedbackExplanation"></div>
-        </div>
-    </section>
+            <!-- Stats Bar -->
+            <section class="stats-bar" id="statsBar">
+                <div class="stat-card" id="statTotal">
+                    <div class="stat-value">0/44</div>
+                    <div class="stat-label">总进度</div>
+                </div>
+                <div class="stat-card correct" id="statCorrect">
+                    <div class="stat-value">0</div>
+                    <div class="stat-label">答对</div>
+                </div>
+                <div class="stat-card wrong" id="statWrong">
+                    <div class="stat-value">0</div>
+                    <div class="stat-label">答错</div>
+                </div>
+            </section>
 
-    <!-- ==================== Navigation Bar ==================== -->
-    <nav class="navigation-bar" id="navigationBar">
-        <button class="nav-btn" id="btnPrev" disabled>
-            <span>←</span>
-            <span>上一题</span>
-        </button>
-        <button class="nav-btn primary-btn" id="btnNext">
-            <span>下一题</span>
-            <span>→</span>
-        </button>
-    </nav>
+            <!-- Progress Bar -->
+            <div class="progress-wrapper">
+                <div class="progress-bar-bg">
+                    <div class="progress-bar-fill" id="progressBarFill"></div>
+                </div>
+            </div>
 
-    <!-- ==================== Bottom Bar ==================== -->
+            <!-- Category Tabs -->
+            <div class="category-tabs" id="categoryTabs">
+                <button class="cat-tab active" data-category="all">全部</button>
+                <button class="cat-tab" data-category="judge">判断题</button>
+                <button class="cat-tab" data-category="single">单选题</button>
+                <button class="cat-tab" data-category="multi">多选题</button>
+                <button class="cat-tab" data-category="wrong">错题重做</button>
+                <button class="cat-tab practice-tab" data-category="practice" id="tabPractice">🛠️ 操作技能</button>
+                <button class="cat-tab practice-tab" data-category="practice12x" id="tabPractice12x">📝 方案设计</button>
+            </div>
+
+            <!-- Question Container -->
+            <main class="question-container" id="questionContainer">
+                <div class="question-card" id="questionCard">
+                    <span class="question-number" id="questionNumber">第 1 题</span>
+                    <p class="question-text" id="questionText">加载中...</p>
+                    <div class="answer-area" id="answerArea">
+                        <!-- Judge buttons (shown for judge type) -->
+                        <div class="answer-buttons judge-buttons" id="judgeButtons">
+                            <button class="answer-btn btn-true" id="btnTrue" data-answer="√">
+                                <span>√</span>
+                                <span>正确</span>
+                            </button>
+                            <button class="answer-btn btn-false" id="btnFalse" data-answer="×">
+                                <span>×</span>
+                                <span>错误</span>
+                            </button>
+                        </div>
+                        <!-- Choice options (shown for single/multi type) -->
+                        <div class="choice-options" id="choiceOptions"></div>
+                        <!-- Submit button for multi-choice -->
+                        <button class="submit-btn" id="btnSubmit" style="display:none">提交答案</button>
+                    </div>
+                </div>
+            </main>
+
+            <!-- Practice Container -->
+            <main class="practice-container" id="practiceContainer" style="display: none;">
+                <!-- Content will be dynamically injected by JS -->
+            </main>
+
+            <!-- Practice 1.2.x Container -->
+            <main class="practice-container" id="practice12xContainer" style="display: none;">
+                <!-- Content will be dynamically injected by JS -->
+            </main>
+
+            <!-- Feedback Container -->
+            <section class="feedback-container" id="feedbackContainer">
+                <div class="feedback-box" id="feedbackBox">
+                    <div class="feedback-title" id="feedbackTitle"></div>
+                    <div class="feedback-explanation" id="feedbackExplanation"></div>
+                </div>
+            </section>
+
+            <!-- Navigation Bar -->
+            <nav class="navigation-bar" id="navigationBar">
+                <button class="nav-btn" id="btnPrev" disabled>
+                    <span>←</span>
+                    <span>上一题</span>
+                </button>
+                <button class="nav-btn primary-btn" id="btnNext">
+                    <span>下一题</span>
+                    <span>→</span>
+                </button>
+            </nav>
+
+        </div><!-- /main-area -->
+    </div><!-- /app-layout -->
+
+    <!-- ==================== Bottom Bar (global, outside layout) ==================== -->
     <div class="bottom-bar" id="bottomBar">
         <button class="bottom-btn" id="btnWrongBook">
             <span class="btn-icon">📕</span>
@@ -155,14 +183,14 @@
         </button>
     </div>
 
-    <!-- ==================== Modal Overlay ==================== -->
+    <!-- ==================== Modal Overlay (global) ==================== -->
     <div class="modal-overlay" id="modalOverlay">
         <div class="modal-content" id="modalContent">
             <!-- Modal content will be dynamically injected -->
         </div>
     </div>
 
-    <!-- ==================== Toast Container ==================== -->
+    <!-- ==================== Toast Container (global) ==================== -->
     <div class="toast-container" id="toastContainer"></div>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
